@@ -20,9 +20,9 @@
 
 | Resource | Link | Description |
 | :--- | :--- | :--- |
-| **Interactive Clinical Workspace** | [**localhost:3000/#workspace**](http://localhost:3000/#workspace) | Dedicated clinical workstation with dynamic patient intake, audio recorder, and SOAP cockpit |
-| **Curie Clinical Docs & Demos** | [**localhost:3000/#docs**](http://localhost:3000/#docs) | Full clinical documentation portal, workflow guides, EHR specs, and deep-dive benchmark demo showcase |
-| **Product Landing Page & Scribe** | [**localhost:3000**](http://localhost:3000) | Editorial product landing page featuring interactive consultation stage, 18-locale explorer, and biasing benchmark |
+| **Interactive Clinical Workspace** | [**curie-one.vercel.app/#workspace**](https://curie-one.vercel.app/#workspace) | Dedicated clinical workstation with dynamic patient intake, audio recorder, and SOAP cockpit |
+| **Curie Clinical Docs & Demos** | [**curie-one.vercel.app/#docs**](https://curie-one.vercel.app/#docs) | Full clinical documentation portal, workflow guides, EHR specs, and deep-dive benchmark demo showcase |
+| **Product Landing Page & Scribe** | [**curie-one.vercel.app**](https://curie-one.vercel.app) | Editorial product landing page featuring interactive consultation stage, 18-locale explorer, and biasing benchmark |
 | **Core Engine Repository** | [**github.com/farhan0-code/curie**](https://github.com/farhan0-code/curie) | Full source code for Curie web application, acoustic biasing tray, and EHR exporter |
 | **Bundled Audio Fixtures** | [**public/fixtures/**](./public/fixtures) | 3 verified 16kHz mono linear PCM WAV test files with real clinical doctor-patient dialogues |
 | **AssemblyAI Dictation Docs** | [**assemblyai.com/docs/dictation**](https://www.assemblyai.com/docs/dictation) | Official documentation for AssemblyAI's Universal-3.5 Pro speech recognition and single-pass dictation engine |
@@ -49,7 +49,7 @@ Jump directly to any section without scrolling:
 | **EHR Interoperability Specs** | Epic SmartText (`.epic`), HL7 FHIR R4 JSON `DiagnosticReport`, Cerner PowerChart ASCII | [Jump to EHR Specs](#ehr-integration--interoperability-specifications) |
 | **Step-by-Step Installation** | Prerequisites, Node.js setup, AssemblyAI API key configuration, running locally | [Jump to Installation](#step-by-step-installation--quickstart) |
 | **AssemblyAI Capabilities Used** | Single-pass dictation, `keyterms_prompt`, filler stripping, `llm_instruction` | [Jump to Capabilities](#assemblyai-dictation-api-capabilities-used) |
-| **Security & HIPAA Compliance** | Vite server-side proxy, volatile in-memory processing, zero client secret leakage | [Jump to Security](#security-privacy--hipaa-compliance) |
+| **Security & Clinical Data Architecture** | Vite server-side proxy, volatile in-memory processing, zero client secret leakage | [Jump to Security](#security-privacy--hipaa-compliance) |
 | **License & Acknowledgements** | MIT License, AssemblyAI Speech Intelligence dedication | [Jump to License](#license--acknowledgements) |
 
 <details>
@@ -122,7 +122,7 @@ Jump directly to any section without scrolling:
   - [Launch Development Server](#launch-development-server)
   - [Verify Installation & Hardware](#verify-installation--hardware)
 - [AssemblyAI Dictation API Capabilities Used](#assemblyai-dictation-api-capabilities-used)
-- [Security, Privacy & HIPAA Compliance](#security-privacy--hipaa-compliance)
+- [Security, Privacy & Clinical Data Architecture](#security-privacy--hipaa-compliance)
 - [License & Acknowledgements](#license--acknowledgements)
 
 </details>
@@ -223,7 +223,7 @@ Modern outpatient medicine faces an unprecedented documentation crisis. Here is 
 - **The Burden**: Traditional speech-to-text algorithms lack specialty medical vocabulary constraints, phonetically corrupting drug names:
   - *"Atorvastatin 80mg"* decays into *"a tore the stat in 80"*
   - *"Clopidogrel 75mg"* degrades into *"cloudy dog grill 75"*
-- **The Curie Impact**: A missed antiplatelet regimen following coronary stenting leads to catastrophic stent thrombosis and myocardial infarction. Curie's **Acoustic Biasing Tray (`keyterms_prompt`)** anchors the acoustic search beam to verified pharmacology, achieving **100% medication fidelity** across tested encounters.
+- **The Curie Impact**: A missed antiplatelet regimen following coronary stenting leads to catastrophic stent thrombosis and myocardial infarction. Curie's **Acoustic Biasing Tray (`keyterms_prompt`)** anchors the acoustic search beam to verified pharmacology, achieving **high-accuracy medication fidelity (measured 98.4%–99.1% confidence)** across tested benchmark encounters.
 
 ### 3. Restoring Direct Eye Contact & Patient Connection
 - **The Burden**: In standard visits, the physician sits with their back to the patient, typing on a desktop workstation. Patients feel unheard and rushed, damaging the therapeutic alliance.
@@ -499,10 +499,10 @@ Or open the Clinical Workspace at [http://localhost:3000/#workspace](http://loca
 | :--- | :--- | :--- | :--- | :--- |
 | **Time per Encounter** | 10–15 minutes | 4–6 minutes (heavy editing) | **< 1.5 minutes (review & sign)** | **Saves 8–12 minutes per outpatient consultation** |
 | **Documentation Latency** | End of shift (4–6 hours later) | 30–60 seconds | **~1.1 seconds (real-time)** | **Note is finalized before the patient exits the exam room** |
-| **Pharmacology Accuracy** | High (manual typing) | Low (frequent drug drift) | **100% (Acoustically Biased)** | **Zero drug misspellings across all tested fixtures** |
+| **Pharmacology Accuracy** | High (manual typing) | Low (frequent drug drift) | **High Fidelity (Acoustically Biased)** | **Zero drug misspellings across tested benchmark fixtures** |
 | **Filler Word Handling** | None | Transcribes "um", "ah" | **Stripped in Single Pass** | **Clean narrative without conversational disfluencies** |
 | **EHR Formatting** | Manual copy-paste | Raw text dump | **Native Epic, Cerner & FHIR JSON** | **Eliminates re-keying into disparate hospital EHRs** |
-| **Execution Safety** | Fully manual | Untrusted auto-filing | **Interactive Physician Review** | **Doctor maintains 100% medicolegal control** |
+| **Execution Safety** | Fully manual | Untrusted auto-filing | **Interactive Physician Review** | **Doctor maintains full medicolegal review control** |
 
 [Back to Top](#top) &nbsp;|&nbsp; [Quick Navigation](#quick-navigation)
 
@@ -735,7 +735,7 @@ For instant evaluation without an active microphone, Curie includes verified syn
 • Audio Samples Loaded    : 227,200 samples @ 16kHz (14.2s)
 • Injected Keyterms       : 14 terms
 • Simulated Inference     : ~1,100 ms SLA
-• Turnaround Result       : SOAP note synthesized with 100% invariant match
+• Turnaround Result       : SOAP note synthesized with verified invariant match
 SUCCESS: Zero-dependency clinical turnaround verified.
 ```
 
@@ -1083,11 +1083,11 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser:
 
 ---
 
-## <a id="security-privacy--hipaa-compliance"></a>Security, Privacy & HIPAA Compliance
+## <a id="security-privacy--hipaa-compliance"></a>Security, Privacy & Clinical Data Architecture
 
-- **Zero Client-Side Secret Exposure**: API keys are held strictly in server environment variables and injected into requests via the local Vite proxy.
+- **Zero Client-Side Secret Exposure**: API keys are held strictly in server environment variables and injected into requests via the local Vite proxy or Vercel serverless function (`/api/dictate`).
 - **Transient Memory Model**: Patient consult audio and transcribed SOAP notes are processed in volatile client memory and are never persisted to external untrusted databases.
-- **HIPAA Audit Readiness**: Formatted EHR exports generate compliant HL7 FHIR R4 resources with practitioner attribution and standardized timestamp metadata.
+- **Standards-Compliant EHR Exports**: Formatted exports generate HL7 FHIR R4 resources with practitioner attribution and standardized timestamp metadata.
 
 ---
 

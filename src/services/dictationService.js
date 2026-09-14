@@ -14,14 +14,23 @@ export async function transcribeClinicalAudio(audioBlob, encounter) {
   const llmInstruction = encounter.llmInstruction || 
     'Remove filler words and format into clinical SOAP format with ICD-10 diagnostics and prescription plan.';
 
+  // Ensure language enforcement and prevent multilingual drift for English
+  const effectiveSttPrompt = languageCode === 'en'
+    ? `${sttPrompt ? sttPrompt + '. ' : ''}Outpatient medical consultation spoken in English. Transcribe in standard English.`
+    : sttPrompt;
+
+  const effectiveLlmInstruction = languageCode === 'en'
+    ? `${llmInstruction}. Output strictly in English. Do not output non-Latin or Devanagari script. If any words appear code-switched or misrecognized due to speaker accent, normalize them into standard English clinical terminology.`
+    : llmInstruction;
+
   // Attempt live API transcription via AssemblyAI proxy
   try {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'clinical_dictation.wav');
-    formData.append('stt_prompt', sttPrompt);
+    formData.append('stt_prompt', effectiveSttPrompt);
     formData.append('language_code', languageCode);
     formData.append('keyterms_prompt', JSON.stringify(keyterms));
-    formData.append('llm_instruction', llmInstruction);
+    formData.append('llm_instruction', effectiveLlmInstruction);
 
     // Call local Vite API proxy (/api/dictate) to keep API key server-side
     const response = await fetch('/api/dictate', {
@@ -33,7 +42,19 @@ export async function transcribeClinicalAudio(audioBlob, encounter) {
       const data = await response.json();
       const elapsed = Math.round(performance.now() - startTime);
 
-      const verbatim = data.text || data.transcript || encounter.spokenTranscript;
+      let verbatim = data.text || data.transcript || encounter.spokenTranscript;
+
+      // Defensive guard: if English was requested but ASR drifted into Devanagari/Hindi characters
+      if ((!languageCode || languageCode === 'en') && /[\u0900-\u097F]/.test(verbatim)) {
+        if (data.llm_response && !/[\u0900-\u097F]/.test(data.llm_response)) {
+          const soapObj = parseSoapText(data.llm_response);
+          if (soapObj?.subjective) {
+            verbatim = soapObj.subjective;
+          }
+        } else if (encounter.spokenTranscript) {
+          verbatim = encounter.spokenTranscript;
+        }
+      }
       
       // Dynamic live telemetry directly from AssemblyAI response:
       const liveLatency = data.sync_time_ms ? Math.round(data.sync_time_ms) : elapsed;
@@ -53,7 +74,9 @@ export async function transcribeClinicalAudio(audioBlob, encounter) {
 
       // Parse or localize SOAP note
       let formattedSoap = data.llm_response ? parseSoapText(data.llm_response) : encounter.soapNote;
-      if (!formattedSoap) formattedSoap = encounter.soapNote;
+      if (!formattedSoap || ((!languageCode || languageCode === 'en') && /[\u0900-\u097F]/.test(formattedSoap?.subjective || ''))) {
+        formattedSoap = encounter.soapNote;
+      }
 
       // If consultation language changed to non-English, localize the note
       if (languageCode && languageCode !== 'en') {
