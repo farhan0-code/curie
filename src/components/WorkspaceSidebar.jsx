@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   Users,
   Globe,
@@ -10,6 +10,8 @@ import {
   Stethoscope,
   X,
   ChevronRight,
+  ChevronDown,
+  Check,
   ExternalLink,
   ShieldCheck,
   Zap,
@@ -37,6 +39,22 @@ export default function WorkspaceSidebar({
   clinicianProfile = { name: 'Dr. Evelyn Vance, MD, FACC', clinic: 'Metropolitan Outpatient Care Center' },
   keytermsCount = 0
 }) {
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false)
+  const langDropdownRef = useRef(null)
+
+  // Click outside to close custom language dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target)) {
+        setIsLangDropdownOpen(false)
+      }
+    }
+    if (isLangDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isLangDropdownOpen])
+
   return (
     <>
       {/* Mobile Backdrop Overlay */}
@@ -58,40 +76,52 @@ export default function WorkspaceSidebar({
         <div className="h-16 px-4 border-b border-neutral-200 flex items-center justify-between shrink-0">
           <button
             onClick={onBackToLanding}
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity text-left cursor-pointer"
-            title="Return to Product Overview"
+            className="flex items-center gap-2 text-left group hover:opacity-90 transition-opacity cursor-pointer"
+            title="Return to Curie Landing"
           >
-            <CurieLogo className="w-6 h-6 shrink-0" />
+            <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-bold shadow-xs">
+              <CurieLogo className="w-4 h-4 text-white" />
+            </div>
             <div>
-              <span className="font-display font-bold text-base tracking-tight text-black block leading-none mb-0.5">
-                Curie
-              </span>
-              <p className="text-[11px] text-neutral-500 font-medium truncate">
-                Clinical Workspace
-              </p>
+              <div className="font-display text-sm font-bold text-black tracking-tight flex items-center gap-1.5">
+                <span>Curie</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 border border-neutral-200 text-neutral-600 font-semibold">
+                  v3.5
+                </span>
+              </div>
+              <div className="text-[10px] text-neutral-400 font-mono">
+                Ambient Clinical Scribe
+              </div>
             </div>
           </button>
 
-          {/* Close button for mobile only */}
+          {/* Close Sidebar (Mobile only) */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors lg:hidden"
-            title="Close Sidebar"
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-black lg:hidden hover:bg-neutral-100 transition-colors"
+            title="Close patient queue"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Middle Container */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Patient Queue / Encounters */}
-          <div className="px-3 pt-3">
-            <div className="flex items-center justify-between px-3 mb-2">
+        {/* Scrollable Clinical Queue & Control Workspace */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+          {/* Section 1: Active Encounter Queue Header */}
+          <div>
+            <div className="flex items-center justify-between px-1 mb-2">
               <div className="flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-neutral-600" />
                 <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
                   Patient Queue
                 </span>
-                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono text-neutral-400 font-medium">
+                  {encounters.length} Total
+                </span>
+                <span className="text-[10px] font-mono text-neutral-300">•</span>
+                <span className="text-[10px] font-mono text-neutral-400 font-semibold">
                   3 Demos
                 </span>
               </div>
@@ -158,7 +188,7 @@ export default function WorkspaceSidebar({
                         {enc.specialty.split(' ')[0]}
                       </span>
                       <span className="font-mono text-[10px] text-neutral-400">
-                        {isDemo ? 'Pre-recorded' : p.mrn}
+                        MRN:{p.mrn.slice(-4)}
                       </span>
                     </div>
                   </button>
@@ -167,17 +197,53 @@ export default function WorkspaceSidebar({
             </div>
           </div>
 
-          {/* Acoustic & Configuration Settings */}
-          <div className="px-3 pt-5 pb-3">
-            <div className="px-3 mb-2">
+          {/* Section 2: Clinician Workplace Identity Card */}
+          <div>
+            <div className="flex items-center justify-between px-1 mb-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
+                Attending Clinician
+              </span>
+              <button
+                onClick={onOpenClinicianProfile}
+                className="text-[10px] font-semibold text-black hover:underline flex items-center gap-1"
+                title="Edit physician workplace profile"
+              >
+                <Settings className="w-3 h-3 text-neutral-500" />
+                <span>Edit</span>
+              </button>
+            </div>
+            <div
+              onClick={onOpenClinicianProfile}
+              className="p-3 rounded-xl bg-neutral-50 border border-neutral-200 hover:border-neutral-300 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-black font-bold text-xs shrink-0 shadow-2xs">
+                  {clinicianProfile.name ? clinicianProfile.name.split(' ')[1]?.[0] || 'D' : 'D'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-xs text-black truncate">
+                    {clinicianProfile.name}
+                  </div>
+                  <div className="text-[10px] text-neutral-500 truncate flex items-center gap-1">
+                    <Building2 className="w-3 h-3 shrink-0 text-neutral-400" />
+                    <span className="truncate">{clinicianProfile.clinic}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Acoustic Settings & Quick Controls */}
+          <div>
+            <div className="flex items-center justify-between px-1 mb-2">
               <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
                 Acoustic Settings
               </span>
             </div>
 
             <div className="space-y-2">
-              {/* Language Selector Dropdown */}
-              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200">
+              {/* Custom Scrollable Language Selector Dropdown */}
+              <div className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 relative" ref={langDropdownRef}>
                 <div className="flex items-center justify-between mb-1.5 text-[11px] font-medium text-neutral-600">
                   <span className="flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-black" />
@@ -187,44 +253,53 @@ export default function WorkspaceSidebar({
                     18 Locales
                   </span>
                 </div>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => onSelectLanguage(e.target.value)}
-                  className="w-full bg-white text-xs font-semibold text-black border border-neutral-200 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-black cursor-pointer shadow-2xs"
-                >
-                  {supportedLanguages.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                      {lang.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              {/* Docs Navigation Trigger */}
-              {onNavigateToDocs && (
                 <button
-                  onClick={onNavigateToDocs}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 transition-colors text-left group cursor-pointer shadow-2xs"
+                  type="button"
+                  onClick={() => setIsLangDropdownOpen((prev) => !prev)}
+                  className="w-full bg-white text-xs font-semibold text-black border border-neutral-200 rounded-lg py-1.5 px-2.5 focus:outline-none focus:border-black cursor-pointer shadow-2xs flex items-center justify-between transition-colors hover:border-neutral-300"
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black">
-                      <BookOpen className="w-3.5 h-3.5 text-black" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-black">Docs</div>
-                      <div className="text-[10px] text-neutral-500 font-mono">
-                        Reference Benchmarks
-                      </div>
+                  <span className="truncate">
+                    {supportedLanguages.find((l) => l.code === selectedLanguage)?.label || selectedLanguage}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-neutral-500 transition-transform ${isLangDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isLangDropdownOpen && (
+                  <div className="absolute left-2.5 right-2.5 mt-1.5 z-50 bg-white border border-neutral-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                    <div className="p-1 max-h-48 overflow-y-auto space-y-0.5 custom-scrollbar">
+                      {supportedLanguages.map((lang) => {
+                        const isSelected = lang.code === selectedLanguage
+                        return (
+                          <button
+                            key={lang.code}
+                            type="button"
+                            onClick={() => {
+                              onSelectLanguage(lang.code)
+                              setIsLangDropdownOpen(false)
+                            }}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer text-left ${
+                              isSelected
+                                ? 'bg-black text-white font-bold'
+                                : 'text-neutral-700 hover:bg-neutral-100 hover:text-black font-medium'
+                            }`}
+                          >
+                            <span className={isSelected ? 'text-white font-bold' : 'text-black'}>
+                              {lang.label}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-white shrink-0 ml-1.5" />}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
-                </button>
-              )}
+                )}
+              </div>
 
               {/* Phonetic Lexicon Trigger */}
               <button
                 onClick={onOpenLexicon}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-colors text-left group"
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-colors text-left group cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-black shadow-2xs">
@@ -243,16 +318,16 @@ export default function WorkspaceSidebar({
               {/* Quick Export Trigger */}
               <button
                 onClick={onOpenExport}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 text-black transition-all shadow-2xs group"
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 text-black transition-all shadow-2xs group cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black">
                     <Share2 className="w-3.5 h-3.5 text-black" />
                   </div>
-                  <div className="text-left">
-                    <div className="text-xs font-semibold text-black">Export <TermTooltip term="EHR">EHR</TermTooltip> / <TermTooltip term="FHIR">FHIR</TermTooltip></div>
+                  <div>
+                    <div className="text-xs font-semibold text-black">Export EHR Note</div>
                     <div className="text-[10px] text-neutral-500 font-mono">
-                      Epic • <TermTooltip term="FHIR">FHIR R4</TermTooltip> • Cerner
+                      Epic • FHIR • Cerner
                     </div>
                   </div>
                 </div>
@@ -262,41 +337,13 @@ export default function WorkspaceSidebar({
           </div>
         </div>
 
-        {/* Bottom Engine Telemetry Card & Footer */}
-        <div className="p-3 border-t border-neutral-200 space-y-2 shrink-0">
-          {/* Clinician Workplace Profile Card */}
-          <button
-            onClick={onOpenClinicianProfile}
-            className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 transition-colors shadow-2xs group cursor-pointer"
-            title="Clinician Workplace Profile Settings"
-          >
+        {/* Bottom System Status Bar */}
+        <div className="p-3 border-t border-neutral-200 bg-neutral-50/70 space-y-2 shrink-0">
+          <div className="p-2.5 rounded-xl bg-white border border-neutral-200 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black shrink-0">
-                  <Building2 className="w-3.5 h-3.5 text-black" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-black truncate">
-                    {clinicianProfile?.name || 'Dr. Evelyn Vance, MD'}
-                  </div>
-                  <div className="text-[10px] text-neutral-500 truncate">
-                    {clinicianProfile?.clinic || 'Metropolitan Outpatient Care'}
-                  </div>
-                </div>
-              </div>
-              <Settings className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-colors shrink-0" />
-            </div>
-          </button>
-
-          {/* Engine Status Card */}
-          <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
-            <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
-                </span>
-                <span className="text-[11px] font-bold text-black font-mono">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold text-black font-mono">
                   Universal-3.5 Pro
                 </span>
               </div>
@@ -310,7 +357,7 @@ export default function WorkspaceSidebar({
           </div>
 
           <div className="flex items-center justify-between px-1 text-[11px] text-neutral-400">
-            <span>AssemblyAI Voice Hackathon</span>
+            <span>AssemblyAI Speech Intelligence</span>
             <a
               href="https://github.com/farhan0-code/curie"
               target="_blank"

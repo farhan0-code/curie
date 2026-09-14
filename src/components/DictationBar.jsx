@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react'
-import { Mic, Square, Play, Sparkles, Clock, Zap, Volume2, RotateCcw } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Mic, Square, Play, Pause, Sparkles, Clock, Zap, Volume2, VolumeX, RotateCcw } from 'lucide-react'
 import TermTooltip from './TermTooltip'
 
 export default function DictationBar({
@@ -16,6 +16,51 @@ export default function DictationBar({
   activeEncounter
 }) {
   const canvasRef = useRef(null)
+  const audioRef = useRef(null)
+  const animFrameRef = useRef(null)
+
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0)
+  const [audioDuration, setAudioDuration] = useState(0)
+
+  const isDemo = ['cardiology-stemi-followup', 'pediatric-asthma-exacerbation', 'ortho-sports-knee'].includes(activeEncounter?.id) || (!activeEncounter?.id?.startsWith('custom-'))
+
+  const fixtureUrl = activeEncounter?.audioUrl || (
+    activeEncounter?.id?.includes('cardio')
+      ? '/fixtures/cardiology_consultation_en.wav'
+      : activeEncounter?.id?.includes('pediatric')
+        ? '/fixtures/pediatric_asthma_en.wav'
+        : '/fixtures/orthopedic_knee_trauma_en.wav'
+  )
+
+  // Pause audio when switching encounter
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setIsPlayingAudio(false)
+      setAudioCurrentTime(0)
+    }
+  }, [activeEncounter?.id])
+
+  const togglePlayAudio = () => {
+    if (!audioRef.current) return
+    if (isPlayingAudio) {
+      audioRef.current.pause()
+      setIsPlayingAudio(false)
+    } else {
+      audioRef.current.play()
+        .then(() => setIsPlayingAudio(true))
+        .catch((err) => console.warn('Audio play error:', err))
+    }
+  }
+
+  const formatTime = (secs) => {
+    if (isNaN(secs) || secs === Infinity) return '00:00'
+    const m = Math.floor(secs / 60)
+    const s = Math.floor(secs % 60)
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
 
   // Draw audio waveform on canvas
   useEffect(() => {
@@ -25,82 +70,151 @@ export default function DictationBar({
     const width = canvas.width
     const height = canvas.height
 
-    ctx.clearRect(0, 0, width, height)
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height)
 
-    if (isRecording && frequencyData) {
-      const barCount = 32
-      const barWidth = Math.floor(width / barCount) - 2
-      const step = Math.floor(frequencyData.length / barCount)
+      if (isRecording && frequencyData) {
+        const barCount = 32
+        const barWidth = Math.floor(width / barCount) - 2
+        const step = Math.floor(frequencyData.length / barCount)
 
-      for (let i = 0; i < barCount; i++) {
-        const val = frequencyData[i * step] || 0
-        const percent = Math.min(1, Math.max(0.1, val / 255))
-        const barHeight = percent * (height - 4)
-        const x = i * (barWidth + 2)
-        const y = (height - barHeight) / 2
+        for (let i = 0; i < barCount; i++) {
+          const val = frequencyData[i * step] || 0
+          const percent = Math.min(1, Math.max(0.1, val / 255))
+          const barHeight = percent * (height - 4)
+          const x = i * (barWidth + 2)
+          const y = (height - barHeight) / 2
 
-        const grad = ctx.createLinearGradient(0, y, 0, y + barHeight)
-        grad.addColorStop(0, '#000000')
-        grad.addColorStop(1, '#525252')
+          const grad = ctx.createLinearGradient(0, y, 0, y + barHeight)
+          grad.addColorStop(0, '#000000')
+          grad.addColorStop(1, '#525252')
 
-        ctx.fillStyle = grad
+          ctx.fillStyle = grad
+          ctx.beginPath()
+          ctx.roundRect(x, y, barWidth, barHeight, 2)
+          ctx.fill()
+        }
+      } else if (isPlayingAudio) {
+        // Audio playback waveform animation
+        const time = Date.now() * 0.007
+        const barCount = 32
+        const barWidth = Math.floor(width / barCount) - 2
+
+        for (let i = 0; i < barCount; i++) {
+          const amp = Math.sin(time + i * 0.35) * 0.3 + Math.cos(time * 0.6 + i * 0.25) * 0.2 + 0.5
+          const barHeight = Math.max(4, amp * (height - 6))
+          const x = i * (barWidth + 2)
+          const y = (height - barHeight) / 2
+
+          ctx.fillStyle = '#000000'
+          ctx.beginPath()
+          ctx.roundRect(x, y, barWidth, barHeight, 2)
+          ctx.fill()
+        }
+        animFrameRef.current = requestAnimationFrame(draw)
+      } else if (isProcessing) {
+        // Shimmer loading wave
+        const time = Date.now() * 0.005
+        for (let i = 0; i < 32; i++) {
+          const h = (Math.sin(time + i * 0.3) * 0.4 + 0.5) * (height - 6)
+          const x = i * (width / 32)
+          const y = (height - h) / 2
+
+          ctx.fillStyle = '#000000'
+          ctx.fillRect(x, y, 3, h)
+        }
+      } else {
+        // Idle flatline
+        ctx.strokeStyle = '#D4D4D4'
+        ctx.lineWidth = 1.5
         ctx.beginPath()
-        ctx.roundRect(x, y, barWidth, barHeight, 2)
-        ctx.fill()
+        ctx.moveTo(0, height / 2)
+        ctx.lineTo(width, height / 2)
+        ctx.stroke()
       }
-    } else if (isProcessing) {
-      // Shimmer loading wave
-      const time = Date.now() * 0.005
-      for (let i = 0; i < 32; i++) {
-        const h = (Math.sin(time + i * 0.3) * 0.4 + 0.5) * (height - 6)
-        const x = i * (width / 32)
-        const y = (height - h) / 2
-
-        ctx.fillStyle = '#000000'
-        ctx.fillRect(x, y, 3, h)
-      }
-    } else {
-      // Idle flatline
-      ctx.strokeStyle = '#737373'
-      ctx.lineWidth = 1.5
-      ctx.beginPath()
-      ctx.moveTo(0, height / 2)
-      ctx.lineTo(width, height / 2)
-      ctx.stroke()
     }
-  }, [isRecording, isProcessing, audioLevel, frequencyData])
 
-  const isDemo = ['cardiology-stemi-followup', 'pediatric-asthma-exacerbation', 'ortho-sports-knee'].includes(activeEncounter?.id) || (!activeEncounter?.id?.startsWith('custom-'))
+    draw()
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [isRecording, isProcessing, isPlayingAudio, audioLevel, frequencyData])
 
   return (
     <div className="bg-white rounded-2xl p-5 sm:p-6 border border-neutral-200 shadow-xs">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-        {/* Left: Recording Controls & Button */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
+      {/* Hidden audio element for demo fixtures */}
+      {isDemo && (
+        <audio
+          ref={audioRef}
+          src={fixtureUrl}
+          preload="metadata"
+          onTimeUpdate={() => {
+            if (audioRef.current) setAudioCurrentTime(audioRef.current.currentTime)
+          }}
+          onLoadedMetadata={() => {
+            if (audioRef.current) setAudioDuration(audioRef.current.duration)
+          }}
+          onEnded={() => {
+            setIsPlayingAudio(false)
+            setAudioCurrentTime(0)
+          }}
+        />
+      )}
+
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+        {/* Left: Recording & Playback Controls */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
           {isDemo ? (
-            /* Demo Encounter Primary Action: Run Audio Fixture */
-            <button
-              onClick={onRunFixture}
-              disabled={isProcessing}
-              className={`tactile-btn relative group px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all w-full sm:w-auto shadow-xs cursor-pointer ${
-                isProcessing
-                  ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
-                  : 'bg-black hover:bg-neutral-800 text-white border-2 border-black'
-              }`}
-              title="Transcribe pre-recorded patient encounter directly through AssemblyAI"
-            >
-              {isProcessing ? (
-                <>
-                  <Sparkles className="w-4 h-4 animate-spin text-neutral-500" />
-                  <span className="text-neutral-500 font-bold">Universal-3.5 Pro Processing...</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4 fill-white text-white" />
-                  <span className="text-white font-bold">Run Audio Fixture</span>
-                </>
-              )}
-            </button>
+            <>
+              {/* Primary Demo Action: Run Audio Fixture through AI */}
+              <button
+                onClick={onRunFixture}
+                disabled={isProcessing}
+                className={`tactile-btn relative group px-5 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer ${
+                  isProcessing
+                    ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+                    : 'bg-black hover:bg-neutral-800 text-white border-2 border-black'
+                }`}
+                title="Transcribe pre-recorded patient encounter directly through AssemblyAI"
+              >
+                {isProcessing ? (
+                  <>
+                    <Sparkles className="w-4 h-4 animate-spin text-neutral-400" />
+                    <span className="text-neutral-500 font-bold">Transcribing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 fill-white text-white" />
+                    <span className="text-white font-bold">Run Audio Fixture</span>
+                  </>
+                )}
+              </button>
+
+              {/* Demo Audio Player Button: Listen to pre-recorded doctor voice */}
+              <button
+                onClick={togglePlayAudio}
+                disabled={isProcessing}
+                className={`tactile-btn px-4 py-3 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 cursor-pointer shadow-2xs ${
+                  isPlayingAudio
+                    ? 'bg-black text-white border-black ring-2 ring-neutral-300'
+                    : 'bg-white hover:bg-neutral-50 text-black border-neutral-300 hover:border-black'
+                }`}
+                title="Listen to the pre-recorded clinical encounter audio fixture"
+              >
+                {isPlayingAudio ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5 text-white fill-white" />
+                    <span className="text-white font-bold">Pause Voice</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-black" />
+                    <span className="text-black font-bold">Play Voice ({formatTime(audioDuration || 58)})</span>
+                  </>
+                )}
+              </button>
+            </>
           ) : (
             /* Custom Live Patient Action: Start/Stop Ambient Dictation */
             <button
@@ -146,13 +260,31 @@ export default function DictationBar({
 
         {/* Center: Live Waveform Visualizer & Status */}
         <div className="flex-1 max-w-md w-full px-2 flex flex-col items-center justify-center">
-          <div className="w-full flex items-center justify-between text-[11px] font-mono text-neutral-500 mb-1.5 font-medium">
-            <span className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${isRecording ? 'bg-black animate-ping' : 'bg-black'}`} />
-              {isRecording ? 'Microphone Active (16kHz PCM)' : isProcessing ? 'Universal-3.5 Pro Transcribing...' : isDemo ? 'Benchmark Audio Fixture Ready' : 'Audio Hardware Ready'}
-            </span>
-            <span className="font-bold text-black">
-              {recordingDuration || '00:00.0'}
+          <div className="w-full flex items-center justify-between text-[11px] font-mono mb-1.5 font-medium">
+            <div className="flex items-center gap-2">
+              {isDemo && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-600 font-mono font-bold text-[10px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                  Pre-recorded Voice
+                </span>
+              )}
+              <span className="flex items-center gap-1.5 text-neutral-500">
+                <span className={`w-2 h-2 rounded-full ${isRecording || isPlayingAudio ? 'bg-black animate-ping' : 'bg-black'}`} />
+                {isRecording
+                  ? 'Microphone Active (16kHz PCM)'
+                  : isProcessing
+                  ? 'Universal-3.5 Pro Transcribing...'
+                  : isPlayingAudio
+                  ? 'Playing Encounter Audio...'
+                  : isDemo
+                  ? 'Benchmark Audio Fixture Ready'
+                  : 'Audio Hardware Ready'}
+              </span>
+            </div>
+            <span className="font-bold text-black font-mono">
+              {isPlayingAudio
+                ? `${formatTime(audioCurrentTime)} / ${formatTime(audioDuration || 58)}`
+                : (recordingDuration || '00:00.0')}
             </span>
           </div>
           
@@ -160,10 +292,30 @@ export default function DictationBar({
             <canvas ref={canvasRef} width={380} height={40} className="w-full h-full" />
           </div>
 
+          {/* Interactive Scrub Bar when Demo Audio is Loaded */}
+          {isDemo && (
+            <div className="w-full flex items-center gap-2 mt-1.5">
+              <input
+                type="range"
+                min="0"
+                max={audioDuration || 60}
+                step="0.1"
+                value={audioCurrentTime}
+                onChange={(e) => {
+                  const newTime = parseFloat(e.target.value)
+                  if (audioRef.current) audioRef.current.currentTime = newTime
+                  setAudioCurrentTime(newTime)
+                }}
+                className="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black"
+                title="Seek pre-recorded audio"
+              />
+            </div>
+          )}
+
           <div className="w-full text-center mt-1.5">
             <span className="text-[10px] text-neutral-500 font-mono">
               {isDemo ? (
-                <>Click <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> to transcribe pre-recorded encounter • Or click <strong className="text-neutral-800 font-semibold">+ New Patient</strong> to record live</>
+                <>Listen with <strong className="text-neutral-800 font-semibold">Play Voice</strong> or click <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> to transcribe</>
               ) : (
                 <>Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> or click <strong className="text-neutral-800 font-semibold">Start Ambient Dictation</strong></>
               )}

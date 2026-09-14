@@ -1055,11 +1055,11 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavi
             </div>
             <div>
               <div className="font-mono font-bold text-black uppercase tracking-wider mb-2.5">
-                Hackathon
+                Technology
               </div>
               <ul className="space-y-1.5">
-                <li>AssemblyAI Voice Hackathon</li>
-                <li>Hack into Dictation (Sept 2026)</li>
+                <li>AssemblyAI Universal-3.5 Pro</li>
+                <li>Clinical Biasing Engine</li>
                 <li>MIT Licensed Open Source</li>
                 <li>Designed for Clinical Safety</li>
               </ul>

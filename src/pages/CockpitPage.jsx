@@ -548,8 +548,18 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
             )}
           </div>
 
-          {/* Right Header Quick Controls — New Patient Action */}
+          {/* Right Header Quick Controls — Docs & New Patient Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {onNavigateToDocs && (
+              <button
+                onClick={onNavigateToDocs}
+                className="tactile-btn inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl border border-neutral-300 bg-white hover:bg-neutral-100 text-xs font-semibold text-black shadow-2xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                title="Clinical Documentation & Benchmark Audits"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-neutral-700" />
+                <span className="text-black font-semibold">Docs</span>
+              </button>
+            )}
             <button
               onClick={() => setIsNewPatientOpen(true)}
               className="tactile-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-black hover:bg-neutral-800 text-xs font-bold text-white shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
@@ -703,7 +713,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
               <CurieLogo className="w-4 h-4" />
               <span className="font-display text-sm font-bold text-black">Curie Ambient Scribe</span>
               <span>•</span>
-              <span>Built for AssemblyAI Voice Hackathon Week</span>
+              <span>Powered by AssemblyAI Speech Intelligence</span>
             </div>
 
             <div className="flex items-center gap-4 font-mono text-[11px]">

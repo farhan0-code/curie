@@ -50,7 +50,7 @@ Jump directly to any section without scrolling:
 | **Step-by-Step Installation** | Prerequisites, Node.js setup, AssemblyAI API key configuration, running locally | [Jump to Installation](#step-by-step-installation--quickstart) |
 | **AssemblyAI Capabilities Used** | Single-pass dictation, `keyterms_prompt`, filler stripping, `llm_instruction` | [Jump to Capabilities](#assemblyai-dictation-api-capabilities-used) |
 | **Security & HIPAA Compliance** | Vite server-side proxy, volatile in-memory processing, zero client secret leakage | [Jump to Security](#security-privacy--hipaa-compliance) |
-| **License & Acknowledgements** | MIT License, AssemblyAI Hackathon Week dedication | [Jump to License](#license--acknowledgements) |
+| **License & Acknowledgements** | MIT License, AssemblyAI Speech Intelligence dedication | [Jump to License](#license--acknowledgements) |
 
 <details>
 <summary><strong>Click here to expand complete detailed outline</strong></summary>
@@ -752,7 +752,7 @@ SUCCESS: Zero-dependency clinical turnaround verified.
 > The 3 pre-configured patients below are **hardcoded reference benchmark fixtures** bundled directly into the codebase (`src/data/clinicalEncounters.js`), the audio fixtures directory (`public/fixtures/`), and the [**Curie Clinical Docs & Benchmark Demos Portal (`#docs`)**](http://localhost:3000/#docs).
 >
 > They are intentionally standardized and hardcoded for three clinical engineering objectives:
-> 1. **Zero-Flake Reproducible Evaluation**: Evaluators, hackathon judges, and hospital IT committees can execute end-to-end ambient dictation against verified 16kHz mono linear PCM WAV recordings without requiring an active doctor-patient room or microphone.
+> 1. **Zero-Flake Reproducible Evaluation**: Clinical reviewers, hospital IT committees, and system evaluators can execute end-to-end ambient dictation against verified 16kHz mono linear PCM WAV recordings without requiring an active doctor-patient room or microphone.
 > 2. **Phonetic Drift Ground-Truth Benchmarking**: Standardized medical keyterms enable side-by-side empirical auditing of AssemblyAI Universal-3.5 Pro (`keyterms_prompt`) against unconstrained speech recognition models (e.g. *Atorvastatin* vs. *"a tore the stat in"*, *Clopidogrel* vs. *"cloudy dog grill"*).
 > 3. **Instant 1-Click Cockpit Verification**: Clinicians testing the UI can click **"Run Audio Fixture"** to immediately witness sub-second SOAP synthesis and EHR generation across three distinct clinical specialties (*Cardiology*, *Pediatric Pulmonology*, *Orthopedic Sports Surgery*).
 
@@ -1094,7 +1094,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser:
 ## <a id="license--acknowledgements"></a>License & Acknowledgements
 
 - **License**: Released under the open-source [MIT License](https://opensource.org/licenses/MIT).
-- **Developed for**: **AssemblyAI Voice Hackathon Week: Hack into Dictation** (September 2026).
+- **Engineered with**: **AssemblyAI Speech Intelligence (Universal-3.5 Pro)**.
 - **Core Technology**: [AssemblyAI Universal-3.5 Pro](https://www.assemblyai.com/) speech recognition and single-pass dictation intelligence.
 
 [Back to Top](#top)
