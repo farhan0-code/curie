@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Mic, Square, Play, Pause, Sparkles, Clock, Zap, Volume2, VolumeX, RotateCcw } from 'lucide-react'
+import { Mic, Square, Play, Pause, Sparkles, Zap, Volume2, RotateCcw } from 'lucide-react'
 import TermTooltip from './TermTooltip'
 
 export default function DictationBar({
@@ -251,7 +251,7 @@ export default function DictationBar({
           <button
             onClick={onReset}
             disabled={isRecording || isProcessing}
-            className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40 cursor-pointer"
+            className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0"
             title="Reset to fresh chart"
           >
             <RotateCcw className="w-4 h-4" />
@@ -259,29 +259,31 @@ export default function DictationBar({
         </div>
 
         {/* Center: Live Waveform Visualizer & Status */}
-        <div className="flex-1 max-w-md w-full px-2 flex flex-col items-center justify-center">
-          <div className="w-full flex items-center justify-between text-[11px] font-mono mb-1.5 font-medium">
-            <div className="flex items-center gap-2">
+        <div className="flex-1 max-w-xl w-full px-2 flex flex-col items-center justify-center min-w-0">
+          <div className="w-full flex items-center justify-between text-[11px] font-mono mb-1.5 font-medium gap-3">
+            <div className="flex items-center gap-2 min-w-0">
               {isDemo && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-600 font-mono font-bold text-[10px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
-                  Pre-recorded Voice
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-600 font-mono font-bold text-[10px] whitespace-nowrap shrink-0 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse shrink-0" />
+                  <span>Pre-recorded Voice</span>
                 </span>
               )}
-              <span className="flex items-center gap-1.5 text-neutral-500">
-                <span className={`w-2 h-2 rounded-full ${isRecording || isPlayingAudio ? 'bg-black animate-ping' : 'bg-black'}`} />
-                {isRecording
-                  ? 'Microphone Active (16kHz PCM)'
-                  : isProcessing
-                  ? 'Universal-3.5 Pro Transcribing...'
-                  : isPlayingAudio
-                  ? 'Playing Encounter Audio...'
-                  : isDemo
-                  ? 'Benchmark Audio Fixture Ready'
-                  : 'Audio Hardware Ready'}
+              <span className="flex items-center gap-1.5 text-neutral-500 whitespace-nowrap truncate">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${isRecording || isPlayingAudio ? 'bg-black animate-ping' : 'bg-black'}`} />
+                <span className="truncate">
+                  {isRecording
+                    ? 'Mic Active (16kHz PCM)'
+                    : isProcessing
+                    ? 'Universal-3.5 Pro Transcribing...'
+                    : isPlayingAudio
+                    ? 'Playing Encounter Audio...'
+                    : isDemo
+                    ? 'Audio Fixture Ready'
+                    : 'Audio Hardware Ready'}
+                </span>
               </span>
             </div>
-            <span className="font-bold text-black font-mono">
+            <span className="font-bold text-black font-mono whitespace-nowrap shrink-0">
               {isPlayingAudio
                 ? `${formatTime(audioCurrentTime)} / ${formatTime(audioDuration || 58)}`
                 : (recordingDuration || '00:00.0')}
@@ -289,7 +291,7 @@ export default function DictationBar({
           </div>
           
           <div className="w-full h-12 bg-neutral-50 rounded-xl border border-neutral-200/80 p-1 flex items-center justify-center overflow-hidden">
-            <canvas ref={canvasRef} width={380} height={40} className="w-full h-full" />
+            <canvas ref={canvasRef} width={420} height={40} className="w-full h-full" />
           </div>
 
           {/* Interactive Scrub Bar when Demo Audio is Loaded */}
@@ -313,11 +315,11 @@ export default function DictationBar({
           )}
 
           <div className="w-full text-center mt-1.5">
-            <span className="text-[10px] text-neutral-500 font-mono">
+            <span className="text-[10px] text-neutral-500 font-mono whitespace-nowrap truncate block">
               {isDemo ? (
-                <>Listen with <strong className="text-neutral-800 font-semibold">Play Voice</strong> or click <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> to transcribe</>
+                <>Listen with <strong className="text-black font-semibold">Play Voice</strong> • Click <strong className="text-black font-semibold">Run Audio Fixture</strong> to transcribe</>
               ) : (
-                <>Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> or click <strong className="text-neutral-800 font-semibold">Start Ambient Dictation</strong></>
+                <>Hold <strong className="text-black font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> or click <strong className="text-black font-semibold">Start Ambient Dictation</strong></>
               )}
             </span>
           </div>

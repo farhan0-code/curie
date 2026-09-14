@@ -68,7 +68,7 @@ export default function WorkspaceSidebar({
 
       {/* Persistent Left Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:translate-x-0 ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'
         }`}
       >
@@ -76,23 +76,13 @@ export default function WorkspaceSidebar({
         <div className="h-16 px-4 border-b border-neutral-200 flex items-center justify-between shrink-0">
           <button
             onClick={onBackToLanding}
-            className="flex items-center gap-2 text-left group hover:opacity-90 transition-opacity cursor-pointer"
+            className="flex items-center gap-2.5 text-left group cursor-pointer"
             title="Return to Curie Landing"
           >
-            <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-bold shadow-xs">
-              <CurieLogo className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="font-display text-sm font-bold text-black tracking-tight flex items-center gap-1.5">
-                <span>Curie</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 border border-neutral-200 text-neutral-600 font-semibold">
-                  v3.5
-                </span>
-              </div>
-              <div className="text-[10px] text-neutral-400 font-mono">
-                Ambient Clinical Scribe
-              </div>
-            </div>
+            <CurieLogo className="w-7 h-7 shrink-0 group-hover:scale-105 transition-transform" />
+            <span className="font-display text-xl tracking-tight text-black font-semibold group-hover:text-neutral-700 transition-colors">
+              Curie
+            </span>
           </button>
 
           {/* Close Sidebar (Mobile only) */}
@@ -105,8 +95,8 @@ export default function WorkspaceSidebar({
           </button>
         </div>
 
-        {/* Scrollable Clinical Queue & Control Workspace */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        {/* Scrollable Clinical Queue & Control Workspace (Hidden scrollbar) */}
+        <div className="flex-1 overflow-y-auto px-3.5 py-3.5 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Section 1: Active Encounter Queue Header */}
           <div>
             <div className="flex items-center justify-between px-1 mb-2">
@@ -295,44 +285,6 @@ export default function WorkspaceSidebar({
                   </div>
                 )}
               </div>
-
-              {/* Phonetic Lexicon Trigger */}
-              <button
-                onClick={onOpenLexicon}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 transition-colors text-left group cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-black shadow-2xs">
-                    <BookOpen className="w-3.5 h-3.5 text-black" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-black">Clinical Lexicon</div>
-                    <div className="text-[10px] text-neutral-500 font-mono">
-                      {keytermsCount} Invariants Pinned
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
-              </button>
-
-              {/* Quick Export Trigger */}
-              <button
-                onClick={onOpenExport}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 text-black transition-all shadow-2xs group cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black">
-                    <Share2 className="w-3.5 h-3.5 text-black" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-black">Export EHR Note</div>
-                    <div className="text-[10px] text-neutral-500 font-mono">
-                      Epic • FHIR • Cerner
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
-              </button>
             </div>
           </div>
         </div>
