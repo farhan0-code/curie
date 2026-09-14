@@ -472,7 +472,7 @@ with open('public/fixtures/cardiology_consultation_en.wav', 'rb') as f:
 "
 ```
 
-Or open the Clinical Workspace at [http://localhost:3000/#workspace](http://localhost:3000/#workspace) and click **"Run Audio Fixture"** to verify in-browser with live telemetry.
+Or open the Clinical Workspace at [https://curie-one.vercel.app/#workspace](https://curie-one.vercel.app/#workspace) and click **"Run Audio Fixture"** to verify in-browser with live telemetry.
 
 ---
 
@@ -749,7 +749,7 @@ SUCCESS: Zero-dependency clinical turnaround verified.
 
 > [!IMPORTANT]
 > **Why are Robert Vance, Maya Chen, and Lucas Miller hardcoded?**  
-> The 3 pre-configured patients below are **hardcoded reference benchmark fixtures** bundled directly into the codebase (`src/data/clinicalEncounters.js`), the audio fixtures directory (`public/fixtures/`), and the [**Curie Clinical Docs & Benchmark Demos Portal (`#docs`)**](http://localhost:3000/#docs).
+> The 3 pre-configured patients below are **hardcoded reference benchmark fixtures** bundled directly into the codebase (`src/data/clinicalEncounters.js`), the audio fixtures directory (`public/fixtures/`), and the [**Curie Clinical Docs & Benchmark Demos Portal (`#docs`)**](https://curie-one.vercel.app/#docs).
 >
 > They are intentionally standardized and hardcoded for three clinical engineering objectives:
 > 1. **Zero-Flake Reproducible Evaluation**: Clinical reviewers, hospital IT committees, and system evaluators can execute end-to-end ambient dictation against verified 16kHz mono linear PCM WAV recordings without requiring an active doctor-patient room or microphone.
@@ -786,7 +786,7 @@ Curie is **NOT limited to these 3 benchmark demos**! For live, real-world outpat
 - Credentials persist automatically in browser local storage (`curie_clinician_profile`).
 
 #### 3. Dedicated Documentation & Reference Benchmark Portal (`#docs`)
-- Accessible anytime via the **`Docs & Demos`** button in the header or at [**localhost:3000/#docs**](http://localhost:3000/#docs).
+- Accessible anytime via the **`Docs & Demos`** button in the header or at [**curie-one.vercel.app/#docs**](https://curie-one.vercel.app/#docs).
 - Features 5 comprehensive interactive modules:
   - **Clinical Workflow Guide**: Step-by-step 6-stage manual for outpatient rooms + complete keyboard ergonomics matrix.
   - **Benchmark Case Studies**: Complete deep-dive into the 3 standardized reference cases, including full spoken dialogue transcripts, vital sign baselines, ICD-10 codes, e-prescriptions, and a 1-click **"Test Case in Cockpit"** launcher.
