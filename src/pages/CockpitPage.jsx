@@ -12,8 +12,30 @@ import {
   Info,
   BookOpen,
   Share2,
-  CheckCircle2
+  CheckCircle2,
+  Globe
 } from 'lucide-react'
+
+const SUPPORTED_LANGUAGES = [
+  { code: 'en', label: 'English (US)' },
+  { code: 'es', label: 'Español (ES)' },
+  { code: 'fr', label: 'Français (FR)' },
+  { code: 'de', label: 'Deutsch (DE)' },
+  { code: 'it', label: 'Italiano (IT)' },
+  { code: 'pt', label: 'Português (PT)' },
+  { code: 'nl', label: 'Nederlands (NL)' },
+  { code: 'hi', label: 'Hindi (IN)' },
+  { code: 'ja', label: 'Japanese (JA)' },
+  { code: 'zh', label: 'Chinese (ZH)' },
+  { code: 'ko', label: 'Korean (KO)' },
+  { code: 'pl', label: 'Polski (PL)' },
+  { code: 'ru', label: 'Russian (RU)' },
+  { code: 'sv', label: 'Svenska (SV)' },
+  { code: 'tr', label: 'Türkçe (TR)' },
+  { code: 'uk', label: 'Ukrainian (UK)' },
+  { code: 'vi', label: 'Tiếng Việt (VI)' },
+  { code: 'fi', label: 'Suomi (FI)' },
+]
 
 import CurieLogo from '../components/CurieLogo'
 import PatientHeader from '../components/PatientHeader'
@@ -31,6 +53,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
   const [activeEncounterId, setActiveEncounterId] = useState(
     initialEncounterId || CLINICAL_ENCOUNTERS[0].id
   )
+  const [selectedLanguage, setSelectedLanguage] = useState('en')
   const encounter = CLINICAL_ENCOUNTERS.find((e) => e.id === activeEncounterId) || CLINICAL_ENCOUNTERS[0]
 
   // Keyterms per encounter state
@@ -146,7 +169,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
       // Call Curie Dictation Pipeline with Active Keyterms
       const result = await transcribeClinicalAudio(blob, {
         ...encounter,
-        keyterms: currentKeyterms
+        keyterms: currentKeyterms,
+        language: selectedLanguage
       })
 
       if (result.success) {
@@ -196,7 +220,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
 
       const result = await transcribeClinicalAudio(fakeAudioBlob, {
         ...encounter,
-        keyterms: currentKeyterms
+        keyterms: currentKeyterms,
+        language: selectedLanguage
       })
 
       setSoapNotesMap((prev) => ({
@@ -369,6 +394,27 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
               <span className="text-slate-600">AssemblyAI</span>
               <span className="text-slate-400">•</span>
               <span className="text-emerald-700 font-bold">Universal-3.5 Pro</span>
+            </div>
+
+            {/* Language Selector (18 Languages Supported) */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 shadow-2xs">
+              <Globe className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <select
+                value={selectedLanguage}
+                onChange={(e) => {
+                  setSelectedLanguage(e.target.value)
+                  const found = SUPPORTED_LANGUAGES.find((l) => l.code === e.target.value)
+                  showToast(`Consultation language set to ${found?.label}`, 'info')
+                }}
+                className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-1"
+                title="Select Consultation Language (AssemblyAI 18 Languages)"
+              >
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Lexicon Modal Trigger */}

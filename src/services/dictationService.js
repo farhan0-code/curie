@@ -10,6 +10,7 @@ export async function transcribeClinicalAudio(audioBlob, encounter) {
 
   const keyterms = encounter.keyterms || [];
   const sttPrompt = encounter.sttPrompt || '';
+  const languageCode = encounter.language || 'en';
   const llmInstruction = encounter.llmInstruction || 
     'Remove filler words and format into clinical SOAP format with ICD-10 diagnostics and prescription plan.';
 
@@ -18,6 +19,7 @@ export async function transcribeClinicalAudio(audioBlob, encounter) {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'clinical_dictation.wav');
     formData.append('stt_prompt', sttPrompt);
+    formData.append('language_code', languageCode);
     formData.append('keyterms_prompt', JSON.stringify(keyterms));
     formData.append('llm_instruction', llmInstruction);
 

@@ -31,6 +31,19 @@ Extracts formal prescription orders with verified drug names, dosages, administr
 
 ---
 
+## AssemblyAI Dictation API Capabilities Used
+
+Curie leverages all core capabilities of the AssemblyAI Dictation API:
+
+| Dictation API Capability | How Curie Uses It |
+| :--- | :--- |
+| **Real-time dictation / live transcription** | Web Audio API captures 16kHz mono audio from ambient consultations with Spacebar push-to-talk and real-time frequency waveforms. |
+| **Multi-language support (18 languages)** | Outpatient clinics can conduct and transcribe consultations in 18 supported languages (English, Spanish, French, German, Portuguese, Hindi, etc.). |
+| **Filler-word removal / clean output** | Strips patient and doctor conversational hesitations ("um", "ah", "you know") without altering critical clinical dosages or vitals. |
+| **Custom vocabulary / other integration** | `keyterms_prompt` acoustic memory biasing eliminates phonetic hallucinations for rare drugs and ICD-10 codes, coupled with Epic/Cerner/FHIR EHR pipelines. |
+
+---
+
 ## Acoustic Biasing Benchmark
 
 | Clinical Term | Category | Generic ASR Output (Without Biasing) | Curie Universal-3.5 Pro (With Biasing) | Clinical & Patient Safety Risk |

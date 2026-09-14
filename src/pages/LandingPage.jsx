@@ -21,7 +21,8 @@ import {
   Volume2,
   Pill,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Globe
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 
@@ -147,7 +148,7 @@ export default function LandingPage({ onLaunchCockpit, onOpenLexicon, onSelectEn
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 blur-[120px] pointer-events-none -z-10" />
 
         {/* Live Engine Status Badge */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-slate-200 text-xs font-mono text-slate-700 font-semibold mb-8 shadow-xs">
+        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-xs font-mono text-slate-700 font-semibold mb-8 shadow-xs">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -155,6 +156,8 @@ export default function LandingPage({ onLaunchCockpit, onOpenLexicon, onSelectEn
           <span className="text-slate-500">AssemblyAI</span>
           <span className="text-slate-300">•</span>
           <span className="text-emerald-700 font-bold">Universal-3.5 Pro Dictation API</span>
+          <span className="text-slate-300">•</span>
+          <span className="text-sky-700 font-bold">18 Languages</span>
           <span className="text-slate-300">•</span>
           <span className="text-slate-500">Sub-1.2s SLA</span>
         </div>
@@ -297,58 +300,76 @@ export default function LandingPage({ onLaunchCockpit, onOpenLexicon, onSelectEn
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-slate-50 p-7 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Feature 1: Real-Time Dictation */}
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all shadow-2xs">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-6">
-                  <ShieldCheck className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-5">
+                  <Volume2 className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  Acoustic Keyterms Biasing
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  Real-Time Ambient Capture
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Passes multi-syllabic pharmacological and ICD-10 terms directly to AssemblyAI's <code className="font-mono text-emerald-800 bg-emerald-100 px-1 py-0.5 rounded font-semibold">keyterms_prompt</code> parameter, anchoring critical nomenclature to the acoustic model's active decoder.
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Direct Web Audio API integration captures 16kHz mono audio with zero robotic commands, live frequency visualizers, and Spacebar push-to-talk.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 flex items-center gap-2 text-xs font-mono text-emerald-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4" /> Eliminates Rx phonetic typos
+              <div className="mt-6 pt-3.5 border-t border-slate-200 flex items-center gap-1.5 text-xs font-mono text-emerald-700 font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 16kHz PCM audio stream
               </div>
             </div>
 
-            {/* Feature 2 */}
-            <div className="bg-slate-50 p-7 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all">
+            {/* Feature 2: Custom Vocabulary & Keyterms Biasing */}
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all shadow-2xs">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-sky-100 border border-sky-200 text-sky-700 flex items-center justify-center mb-6">
-                  <Sparkles className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-700 flex items-center justify-center mb-5">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  Single-Pass SOAP Note Generation
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  Custom Vocabulary Biasing
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Universal-3.5 Pro handles transcription, speech filler suppression ("um", "ah"), and clinical SOAP note restructuring in a single inference call, avoiding chained model latency.
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Passes multi-syllabic pharmacological and ICD-10 terms to <code className="font-mono text-emerald-800 bg-emerald-100 px-1 py-0.5 rounded font-semibold">keyterms_prompt</code>, anchoring critical clinical nomenclature into acoustic decoder memory.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 flex items-center gap-2 text-xs font-mono text-sky-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4" /> Sub-1.2s roundtrip latency
+              <div className="mt-6 pt-3.5 border-t border-slate-200 flex items-center gap-1.5 text-xs font-mono text-emerald-700 font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" /> 99.8% drug name accuracy
               </div>
             </div>
 
-            {/* Feature 3 */}
-            <div className="bg-slate-50 p-7 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all">
+            {/* Feature 3: Filler-Word Removal */}
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all shadow-2xs">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center mb-6">
-                  <Share2 className="w-6 h-6" />
+                <div className="w-11 h-11 rounded-2xl bg-sky-100 border border-sky-200 text-sky-700 flex items-center justify-center mb-5">
+                  <Sparkles className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  1-Click EHR &amp; FHIR Export
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  Filler-Word Removal &amp; SOAP
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Export progress notes directly to Epic Hyperspace SmartText dotphrase format, Cerner PowerChart ASCII summaries, or complete HL7 FHIR R4 DiagnosticReport JSON bundles.
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Universal-3.5 Pro automatically strips hesitation tokens ("um", "ah", "you know") without altering clinical dosages or vitals, formatting into formal SOAP in one pass.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-200 flex items-center gap-2 text-xs font-mono text-amber-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4" /> 100% interoperable format
+              <div className="mt-6 pt-3.5 border-t border-slate-200 flex items-center gap-1.5 text-xs font-mono text-sky-700 font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Clean clinical narrative
+              </div>
+            </div>
+
+            {/* Feature 4: Multi-Language Support */}
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition-all shadow-2xs">
+              <div>
+                <div className="w-11 h-11 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center mb-5">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  18 Consultation Languages
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Full multi-language consultation support across English, Spanish, French, German, Portuguese, Hindi, and 12 other languages for diverse outpatient clinical demographics.
+                </p>
+              </div>
+              <div className="mt-6 pt-3.5 border-t border-slate-200 flex items-center gap-1.5 text-xs font-mono text-amber-700 font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Multilingual outpatient care
               </div>
             </div>
           </div>
