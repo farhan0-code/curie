@@ -147,10 +147,10 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
 
             <button
               onClick={onLaunchWorkspace}
-              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-black hover:bg-neutral-800 text-xs font-bold text-white shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 pl-3.5 pr-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-neutral-100 text-black border-2 border-black shadow-2xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <Terminal className="w-3.5 h-3.5 text-white" />
-              <span className="text-white font-bold">Open Cockpit</span>
+              <span>Open Clinical Workspace</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -507,7 +507,7 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
                     className="tactile-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black hover:bg-neutral-800 text-xs font-bold text-white shadow-xs transition-all cursor-pointer self-start sm:self-center shrink-0"
                   >
                     <Play className="w-3.5 h-3.5 fill-current text-white" />
-                    <span className="text-white font-bold">Test This Case in Cockpit</span>
+                    <span className="text-white font-bold">Test This Case in Clinical Workspace</span>
                   </button>
                 </div>
 

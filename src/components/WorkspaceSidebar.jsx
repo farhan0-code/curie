@@ -68,7 +68,7 @@ export default function WorkspaceSidebar({
 
       {/* Persistent Left Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:h-screen lg:shrink-0 lg:translate-x-0 ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'
         }`}
       >
@@ -95,8 +95,8 @@ export default function WorkspaceSidebar({
           </button>
         </div>
 
-        {/* Scrollable Clinical Queue & Control Workspace (Hidden scrollbar) */}
-        <div className="flex-1 overflow-y-auto px-3.5 py-3.5 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Scrollable Clinical Queue & Control Workspace */}
+        <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-3.5 custom-scrollbar">
           {/* Section 1: Active Encounter Queue Header */}
           <div>
             <div className="flex items-center justify-between px-1 mb-2">
@@ -130,7 +130,7 @@ export default function WorkspaceSidebar({
                       onSelectEncounter(enc.id)
                       if (onClose) onClose()
                     }}
-                    className={`w-full text-left p-2.5 rounded-xl border transition-all ${
+                    className={`w-full text-left p-2 rounded-xl border transition-all ${
                       isActive
                         ? 'bg-neutral-100/90 border-black shadow-2xs text-black'
                         : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300'
@@ -204,7 +204,7 @@ export default function WorkspaceSidebar({
             </div>
             <div
               onClick={onOpenClinicianProfile}
-              className="p-3 rounded-xl bg-neutral-50 border border-neutral-200 hover:border-neutral-300 transition-colors cursor-pointer"
+              className="p-2.5 rounded-xl bg-neutral-50 border border-neutral-200 hover:border-neutral-300 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-black font-bold text-xs shrink-0 shadow-2xs">

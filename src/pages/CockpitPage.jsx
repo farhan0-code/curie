@@ -466,7 +466,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
   }, [isRecording, isProcessing, activeEncounterId, currentKeyterms])
 
   return (
-    <div className="relative min-h-screen bg-neutral-50/40 text-black font-sans selection:bg-neutral-200 selection:text-black flex flex-col lg:flex-row overflow-x-hidden">
+    <div className="h-screen w-full bg-neutral-50/40 text-black font-sans selection:bg-neutral-200 selection:text-black flex flex-col lg:flex-row overflow-hidden">
       {/* ================= LEFT CLINICAL WORKSPACE SIDEBAR ================= */}
       <WorkspaceSidebar
         isOpen={isSidebarOpen}
@@ -505,7 +505,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       />
 
       {/* ================= RIGHT MAIN WORKSPACE COLUMN ================= */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-white">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-white">
         {/* Crisp, Spacious Header Bar — Matches Sidebar Height (h-16) */}
         <header className="sticky top-0 z-30 w-full h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-4 sm:px-6 flex items-center justify-between shadow-2xs shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
