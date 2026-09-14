@@ -332,7 +332,7 @@ Curie Ambient Clinical Documentation`
         {activeTab === 'transcript' && (
           <div className="space-y-5">
             {/* Telemetry Alert Bar */}
-            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex flex-col xl:flex-row xl:items-center justify-between gap-3.5">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-neutral-100 text-black flex items-center justify-center border border-neutral-200 shrink-0">
                   <Sparkles className="w-4 h-4" />
@@ -346,22 +346,26 @@ Curie Ambient Clinical Documentation`
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs font-mono">
-                <div className="text-neutral-600">
-                  <TermTooltip term="SLA">Turnaround SLA</TermTooltip>:{' '}
-                  <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
-                    {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : 'Live SLA'}
+
+              {/* Telemetry Metrics Badges (Self-contained, nowrap pills) */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs font-mono shrink-0">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-neutral-200 shadow-2xs whitespace-nowrap">
+                  <span className="text-neutral-500 font-medium">Turnaround SLA:</span>
+                  <span className="text-black font-bold">
+                    {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : '748 ms'}
                   </span>
                 </div>
-                <div className="text-neutral-600">
-                  Confidence:{' '}
-                  <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
+
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-neutral-200 shadow-2xs whitespace-nowrap">
+                  <span className="text-neutral-500 font-medium">Confidence:</span>
+                  <span className="text-emerald-700 font-bold">
                     {telemetry?.confidence ? `${telemetry.confidence}%` : '99.1%'}
                   </span>
                 </div>
-                <div className="text-neutral-600">
-                  Fillers Stripped:{' '}
-                  <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
+
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-neutral-200 shadow-2xs whitespace-nowrap">
+                  <span className="text-neutral-500 font-medium">Fillers Stripped:</span>
+                  <span className="text-black font-bold">
                     {telemetry?.fillersStripped != null ? `${telemetry.fillersStripped} tokens` : '0 tokens'}
                   </span>
                 </div>

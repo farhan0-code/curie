@@ -13,7 +13,6 @@ import {
   ExternalLink,
   ShieldCheck,
   Zap,
-  Plus,
   Building2,
   Settings
 } from 'lucide-react'
@@ -96,14 +95,6 @@ export default function WorkspaceSidebar({
                   3 Demos
                 </span>
               </div>
-              <button
-                onClick={onOpenNewPatient}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-black text-[10px] font-bold transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
-                title="Intake New Patient Encounter"
-              >
-                <Plus className="w-3 h-3 text-black" />
-                <span>New Patient</span>
-              </button>
             </div>
 
             <div className="space-y-1.5">
