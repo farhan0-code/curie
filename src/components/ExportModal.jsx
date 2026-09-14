@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { X, Copy, Check, Download, Printer, Share2, Code, FileText, CheckCircle2 } from 'lucide-react'
 
-export default function ExportModal({ isOpen, onClose, encounter, soapNote, prescriptions }) {
+export default function ExportModal({ isOpen, onClose, encounter, soapNote, prescriptions, clinicianProfile }) {
   const [selectedFormat, setSelectedFormat] = useState('epic') // 'epic' | 'fhir' | 'cerner'
   const [copied, setCopied] = useState(false)
+
+  const attendingName = clinicianProfile?.name || encounter?.doctor || 'Attending Physician'
 
   // Close on Escape key
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function ExportModal({ isOpen, onClose, encounter, soapNote, pres
   // Generate Epic Hyperspace SmartText
   const generateEpicText = () => {
     return `=== EPIC HYPERSPACE PROGRESS NOTE ===
-ATTENDING: ${encounter.doctor}
+ATTENDING: ${attendingName}
 PATIENT: ${encounter.patient.name} (MRN: ${encounter.patient.mrn}, DOB: ${encounter.patient.dob})
 SERVICE: ${encounter.specialty}
 ENCOUNTER DATE: ${new Date().toISOString().split('T')[0]}
@@ -47,7 +49,7 @@ ${(soapNote?.plan || []).map((p, i) => `${i + 1}. ${p}`).join('\n')}
 .ORDERS_RX
 ${(prescriptions || []).map((r) => `Rx: ${r.drug} ${r.dosage} - ${r.frequency} ${r.route} - Disp: #${r.quantity} (Refills: ${r.refills})`).join('\n')}
 
-ELECTRONICALLY SIGNED BY: ${encounter.doctor}
+ELECTRONICALLY SIGNED BY: ${attendingName}
 GENERATED VIA CURIE CLINICAL SCRIBE`
   }
 
@@ -85,7 +87,7 @@ GENERATED VIA CURIE CLINICAL SCRIBE`
       effectiveDateTime: new Date().toISOString(),
       performer: [
         {
-          display: encounter.doctor
+          display: attendingName
         }
       ],
       conclusion: (soapNote?.assessment || []).map((a) => `${a.code}: ${a.diagnosis}`).join('; '),
@@ -117,7 +119,7 @@ CLINICAL DOCUMENTATION
 Patient: ${encounter.patient.name}
 MRN: ${encounter.patient.mrn}
 Encounter Specialty: ${encounter.specialty}
-Attending Physician: ${encounter.doctor}
+Attending Physician: ${attendingName}
 
 [S] SUBJECTIVE COMPLAINT
 ${soapNote?.subjective || ''}

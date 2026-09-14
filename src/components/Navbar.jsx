@@ -21,11 +21,11 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
           </div>
         </div>
 
-        {/* View Switcher Navigation (Overview vs Workspace) */}
+        {/* View Switcher Navigation (Overview vs Docs vs Workspace) */}
         <div className="hidden md:flex items-center gap-1 p-1 bg-neutral-100 rounded-xl border border-neutral-200">
           <button
             onClick={() => onSelectView('landing')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               activeView === 'landing'
                 ? 'bg-white text-black shadow-xs font-semibold'
                 : 'text-neutral-600 hover:text-black'
@@ -34,8 +34,19 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
             Platform Overview
           </button>
           <button
+            onClick={() => onSelectView('docs')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeView === 'docs'
+                ? 'bg-white text-black shadow-xs font-bold'
+                : 'text-neutral-600 hover:text-black'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-black" />
+            <span>Docs</span>
+          </button>
+          <button
             onClick={() => onSelectView('cockpit')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'cockpit' || activeView === 'workspace'
                 ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
                 : 'text-neutral-600 hover:text-black'

@@ -12,7 +12,10 @@ import {
   ChevronRight,
   ExternalLink,
   ShieldCheck,
-  Zap
+  Zap,
+  Plus,
+  Building2,
+  Settings
 } from 'lucide-react'
 import CurieLogo from './CurieLogo'
 
@@ -20,6 +23,7 @@ export default function WorkspaceSidebar({
   isOpen,
   onClose,
   onBackToLanding,
+  onNavigateToDocs,
   encounters,
   activeEncounterId,
   onSelectEncounter,
@@ -28,6 +32,9 @@ export default function WorkspaceSidebar({
   supportedLanguages,
   onOpenLexicon,
   onOpenExport,
+  onOpenNewPatient,
+  onOpenClinicianProfile,
+  clinicianProfile = { name: 'Dr. Evelyn Vance, MD, FACC', clinic: 'Metropolitan Outpatient Care Center' },
   keytermsCount = 0
 }) {
   return (
@@ -83,9 +90,14 @@ export default function WorkspaceSidebar({
               <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
                 Patient Queue
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600 border border-neutral-200 font-semibold">
-                {encounters.length} Encounters
-              </span>
+              <button
+                onClick={onOpenNewPatient}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-black text-[10px] font-bold transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+                title="Intake New Patient Encounter"
+              >
+                <Plus className="w-3 h-3 text-black" />
+                <span>New Patient</span>
+              </button>
             </div>
 
             <div className="space-y-1.5">
@@ -173,6 +185,27 @@ export default function WorkspaceSidebar({
                 </select>
               </div>
 
+              {/* Docs Navigation Trigger */}
+              {onNavigateToDocs && (
+                <button
+                  onClick={onNavigateToDocs}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 transition-colors text-left group cursor-pointer shadow-2xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black">
+                      <BookOpen className="w-3.5 h-3.5 text-black" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-black">Docs</div>
+                      <div className="text-[10px] text-neutral-500 font-mono">
+                        Reference Benchmarks
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black group-hover:translate-x-0.5 transition-all" />
+                </button>
+              )}
+
               {/* Phonetic Lexicon Trigger */}
               <button
                 onClick={onOpenLexicon}
@@ -216,6 +249,30 @@ export default function WorkspaceSidebar({
 
         {/* Bottom Engine Telemetry Card & Footer */}
         <div className="p-3 border-t border-neutral-200 space-y-2 shrink-0">
+          {/* Clinician Workplace Profile Card */}
+          <button
+            onClick={onOpenClinicianProfile}
+            className="w-full text-left p-2.5 rounded-xl bg-white hover:bg-neutral-50 border border-neutral-200 transition-colors shadow-2xs group cursor-pointer"
+            title="Clinician Workplace Profile Settings"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black shrink-0">
+                  <Building2 className="w-3.5 h-3.5 text-black" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-black truncate">
+                    {clinicianProfile?.name || 'Dr. Evelyn Vance, MD'}
+                  </div>
+                  <div className="text-[10px] text-neutral-500 truncate">
+                    {clinicianProfile?.clinic || 'Metropolitan Outpatient Care'}
+                  </div>
+                </div>
+              </div>
+              <Settings className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-colors shrink-0" />
+            </div>
+          </button>
+
           {/* Engine Status Card */}
           <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
             <div className="flex items-center justify-between mb-1">

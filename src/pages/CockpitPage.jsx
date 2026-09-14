@@ -11,7 +11,9 @@ import {
   Info,
   Share2,
   CheckCircle2,
-  Menu
+  Menu,
+  Plus,
+  BookOpen
 } from 'lucide-react'
 
 const SUPPORTED_LANGUAGES = [
@@ -43,17 +45,51 @@ import BiasingTray from '../components/BiasingTray'
 import SoapNoteView from '../components/SoapNoteView'
 import LexiconModal from '../components/LexiconModal'
 import ExportModal from '../components/ExportModal'
+import NewPatientModal from '../components/NewPatientModal'
+import ClinicianProfileModal from '../components/ClinicianProfileModal'
 
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
 import { transcribeClinicalAudio } from '../services/dictationService'
 import { ClinicalAudioRecorder } from '../utils/audioRecorder'
 
-export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
+export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initialEncounterId }) {
+  // Dynamic Encounters List (Preserves default benchmarks + user added patients)
+  const [encountersList, setEncountersList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('curie_custom_encounters')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const defaultIds = new Set(CLINICAL_ENCOUNTERS.map((e) => e.id))
+          const customOnly = parsed.filter((e) => !defaultIds.has(e.id))
+          return [...customOnly, ...CLINICAL_ENCOUNTERS]
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load custom encounters:', e)
+    }
+    return CLINICAL_ENCOUNTERS
+  })
+
+  // Clinician Workplace Identity
+  const [clinicianProfile, setClinicianProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem('curie_clinician_profile')
+      if (saved) return JSON.parse(saved)
+    } catch (e) {}
+    return {
+      name: 'Dr. Evelyn Vance, MD, FACC',
+      clinic: 'Metropolitan Outpatient Care Center',
+      specialty: 'Cardiovascular Medicine',
+      npi: '1948201948'
+    }
+  })
+
   const [activeEncounterId, setActiveEncounterId] = useState(
     initialEncounterId || CLINICAL_ENCOUNTERS[0].id
   )
   const [selectedLanguage, setSelectedLanguage] = useState('en')
-  const encounter = CLINICAL_ENCOUNTERS.find((e) => e.id === activeEncounterId) || CLINICAL_ENCOUNTERS[0]
+  const encounter = encountersList.find((e) => e.id === activeEncounterId) || encountersList[0]
 
   // Keyterms per encounter state
   const [keytermsMap, setKeytermsMap] = useState(() => {
@@ -99,6 +135,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
   // Modals & Sidebar state
   const [isLexiconOpen, setIsLexiconOpen] = useState(false)
   const [isExportOpen, setIsExportOpen] = useState(false)
+  const [isNewPatientOpen, setIsNewPatientOpen] = useState(false)
+  const [isClinicianProfileOpen, setIsClinicianProfileOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Toast feedback
@@ -312,6 +350,56 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
     showToast('Updated clinical SOAP record.', 'success')
   }
 
+  // Intake new dynamic patient into queue
+  const handleCreatePatient = (newEncounter) => {
+    setEncountersList((prev) => {
+      const updated = [newEncounter, ...prev]
+      try {
+        const defaultIds = new Set(CLINICAL_ENCOUNTERS.map((e) => e.id))
+        const customOnly = updated.filter((e) => !defaultIds.has(e.id))
+        localStorage.setItem('curie_custom_encounters', JSON.stringify(customOnly))
+      } catch (err) {
+        console.warn('Failed to persist custom encounter:', err)
+      }
+      return updated
+    })
+
+    setKeytermsMap((prev) => ({
+      ...prev,
+      [newEncounter.id]: [...newEncounter.keyterms]
+    }))
+    setSoapNotesMap((prev) => ({
+      ...prev,
+      [newEncounter.id]: { ...newEncounter.soapNote }
+    }))
+    setTranscriptsMap((prev) => ({
+      ...prev,
+      [newEncounter.id]: newEncounter.spokenTranscript
+    }))
+
+    setActiveEncounterId(newEncounter.id)
+    setRecordingDuration('00:00.0')
+    showToast(`Chart created for ${newEncounter.patient.name}. Ready for consultation.`, 'success')
+  }
+
+  // Update Clinician Workplace Profile
+  const handleSaveClinicianProfile = (newProfile) => {
+    setClinicianProfile(newProfile)
+    try {
+      localStorage.setItem('curie_clinician_profile', JSON.stringify(newProfile))
+    } catch (err) {
+      console.warn('Failed to persist clinician profile:', err)
+    }
+    showToast(`Clinician credentials updated for ${newProfile.name}`, 'success')
+  }
+
+  // Sync initialEncounterId when switching from Docs or external links
+  useEffect(() => {
+    if (initialEncounterId && encountersList.some((e) => e.id === initialEncounterId)) {
+      setActiveEncounterId(initialEncounterId)
+    }
+  }, [initialEncounterId])
+
   // Global Spacebar Push-to-Talk listener
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -356,7 +444,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onBackToLanding={onBackToLanding}
-        encounters={CLINICAL_ENCOUNTERS}
+        onNavigateToDocs={onNavigateToDocs}
+        encounters={encountersList}
         activeEncounterId={activeEncounterId}
         onSelectEncounter={(id) => {
           setActiveEncounterId(id)
@@ -371,6 +460,9 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
         }}
         onOpenLexicon={() => setIsLexiconOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}
+        onOpenNewPatient={() => setIsNewPatientOpen(true)}
+        onOpenClinicianProfile={() => setIsClinicianProfileOpen(true)}
+        clinicianProfile={clinicianProfile}
         keytermsCount={currentKeyterms.length}
       />
 
@@ -408,15 +500,14 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
 
           {/* Right Header Quick Controls — Primary Export Action */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-
             {/* EHR / FHIR Export Trigger */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-xs font-bold text-black border-2 border-black shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-xs font-bold text-black border-2 border-black shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5 text-black" />
-              <span className="hidden xs:inline">Export EHR / FHIR</span>
-              <span className="xs:hidden">Export</span>
+              <span className="hidden xs:inline text-black">Export EHR / FHIR</span>
+              <span className="xs:hidden text-black">Export</span>
             </button>
           </div>
         </header>
@@ -425,7 +516,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
         <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Patient Demographics & Vitals Header (Switcher hidden since it is in sidebar) */}
           <PatientHeader
-            encounters={CLINICAL_ENCOUNTERS}
+            encounters={encountersList}
             activeEncounterId={activeEncounterId}
             onSelectEncounter={(id) => {
               setActiveEncounterId(id)
@@ -510,6 +601,22 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
         encounter={encounter}
         soapNote={currentSoapNote}
         prescriptions={encounter.prescriptions}
+        clinicianProfile={clinicianProfile}
+      />
+
+      {/* Dynamic New Patient Intake Modal */}
+      <NewPatientModal
+        isOpen={isNewPatientOpen}
+        onClose={() => setIsNewPatientOpen(false)}
+        onCreatePatient={handleCreatePatient}
+      />
+
+      {/* Clinician Workplace Profile Settings Modal */}
+      <ClinicianProfileModal
+        isOpen={isClinicianProfileOpen}
+        onClose={() => setIsClinicianProfileOpen(false)}
+        profile={clinicianProfile}
+        onSaveProfile={handleSaveClinicianProfile}
       />
 
       {/* Toast Notification Alert */}

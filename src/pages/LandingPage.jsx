@@ -28,7 +28,7 @@ import {
 import CurieLogo from '../components/CurieLogo'
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
 
-export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onOpenLexicon, onSelectEncounter }) {
+export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavigateToDocs, onOpenLexicon, onSelectEncounter }) {
   const handleLaunch = onLaunchWorkspace || onLaunchCockpit
 
   // Active encounter demo index in the macOS window
@@ -195,6 +195,18 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onOpen
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2">
+            {/* Clean Docs button beside GitHub */}
+            {onNavigateToDocs && (
+              <button
+                onClick={onNavigateToDocs}
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-neutral-100 text-black border border-neutral-300 shadow-2xs transition-colors cursor-pointer"
+                title="Curie Documentation"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-black" />
+                <span className="text-black">Docs</span>
+              </button>
+            )}
+
             <a
               href="https://github.com/farhan0-code/curie"
               target="_blank"

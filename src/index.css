@@ -35,20 +35,40 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ensure all text is black on white backgrounds - prevents any inherited white text */
-h1, h2, h3, h4, h5, h6, p, span, li, td, th, label, a:not([class*='text-']) {
+/* Ensure typography inherits clean defaults */
+h1, h2, h3, h4, h5, h6, p, span, li, td, th, label {
   color: inherit;
 }
 
-/* Global safety net: never show white text on white background */
-.bg-white h1:not([class*='text-']),
-.bg-white h2:not([class*='text-']),
-.bg-white h3:not([class*='text-']),
-.bg-white h4:not([class*='text-']),
-.bg-white h5:not([class*='text-']),
-.bg-white h6:not([class*='text-']),
-.bg-white p:not([class*='text-']),
-.bg-white span:not([class*='text-']) {
+/* Dark buttons & badges MUST always display crisp white text and white icons */
+.bg-black,
+.bg-black span,
+.bg-black p,
+.bg-black strong,
+button.bg-black,
+button.bg-black span,
+button.bg-black p,
+[class*='bg-black'] span,
+[class*='bg-neutral-900'] span,
+[class*='bg-neutral-800'] span {
+  color: #FFFFFF !important;
+}
+
+.bg-black svg,
+button.bg-black svg,
+[class*='bg-black'] svg,
+[class*='bg-neutral-900'] svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+/* Light buttons & inputs MUST display crisp black text */
+button.bg-white,
+button.bg-white span,
+button.bg-neutral-100,
+button.bg-neutral-100 span,
+button.bg-neutral-50,
+button.bg-neutral-50 span {
   color: #000000;
 }
 

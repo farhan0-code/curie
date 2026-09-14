@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import CockpitPage from './pages/CockpitPage'
+import DocsPage from './pages/DocsPage'
 import LexiconModal from './components/LexiconModal'
 
 export default function App() {
-  // Sync state with URL hash (#workspace or #cockpit vs root)
+  // Sync state with URL hash (#workspace or #cockpit, #docs vs root)
   const [currentRoute, setCurrentRoute] = useState(() => {
-    return window.location.hash === '#workspace' || window.location.hash === '#cockpit' ? 'workspace' : 'landing'
+    const hash = window.location.hash
+    if (hash === '#workspace' || hash === '#cockpit') return 'workspace'
+    if (hash === '#docs' || hash === '#documentation') return 'docs'
+    return 'landing'
   })
   const [selectedEncounterId, setSelectedEncounterId] = useState(null)
   const [isLexiconModalOpen, setIsLexiconModalOpen] = useState(false)
@@ -14,8 +18,11 @@ export default function App() {
   // Listen to browser hash changes (support back / forward navigation)
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#workspace' || window.location.hash === '#cockpit') {
+      const hash = window.location.hash
+      if (hash === '#workspace' || hash === '#cockpit') {
         setCurrentRoute('workspace')
+      } else if (hash === '#docs' || hash === '#documentation') {
+        setCurrentRoute('docs')
       } else {
         setCurrentRoute('landing')
       }
@@ -34,6 +41,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const navigateToDocs = () => {
+    window.location.hash = '#docs'
+    setCurrentRoute('docs')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const navigateToLanding = () => {
     window.location.hash = ''
     setCurrentRoute('landing')
@@ -42,15 +55,25 @@ export default function App() {
 
   return (
     <>
-      {currentRoute === 'workspace' ? (
+      {currentRoute === 'workspace' && (
         <CockpitPage
           onBackToLanding={navigateToLanding}
+          onNavigateToDocs={navigateToDocs}
           initialEncounterId={selectedEncounterId}
         />
-      ) : (
+      )}
+      {currentRoute === 'docs' && (
+        <DocsPage
+          onBackToLanding={navigateToLanding}
+          onLaunchWorkspace={navigateToWorkspace}
+          onSelectEncounter={(id) => navigateToWorkspace(id)}
+        />
+      )}
+      {currentRoute === 'landing' && (
         <LandingPage
           onLaunchWorkspace={() => navigateToWorkspace()}
           onLaunchCockpit={() => navigateToWorkspace()}
+          onNavigateToDocs={navigateToDocs}
           onOpenLexicon={() => setIsLexiconModalOpen(true)}
           onSelectEncounter={(id) => navigateToWorkspace(id)}
         />
