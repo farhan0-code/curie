@@ -1,38 +1,45 @@
 import React from 'react'
 import { User, AlertCircle, Heart, Activity, Thermometer, Wind, CheckCircle2, ShieldAlert } from 'lucide-react'
 
-export default function PatientHeader({ encounters, activeEncounterId, onSelectEncounter }) {
+export default function PatientHeader({
+  encounters,
+  activeEncounterId,
+  onSelectEncounter,
+  showEncounterSwitcher = false
+}) {
   const current = encounters.find((e) => e.id === activeEncounterId) || encounters[0]
   const p = current.patient
 
   return (
     <div className="space-y-4">
-      {/* Encounter Switcher Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
-            Active Encounter:
-          </span>
+      {/* Encounter Switcher Bar (Optional) */}
+      {showEncounterSwitcher && (
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+              Active Encounter:
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {encounters.map((enc) => {
+              const isActive = enc.id === activeEncounterId
+              return (
+                <button
+                  key={enc.id}
+                  onClick={() => onSelectEncounter(enc.id)}
+                  className={`tactile-btn px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-neutral-200 text-black border border-black shadow-xs font-bold'
+                      : 'bg-white border border-neutral-200 text-neutral-600 hover:text-black hover:bg-neutral-50 shadow-2xs'
+                  }`}
+                >
+                  {enc.title}
+                </button>
+              )
+            })}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {encounters.map((enc) => {
-            const isActive = enc.id === activeEncounterId
-            return (
-              <button
-                key={enc.id}
-                onClick={() => onSelectEncounter(enc.id)}
-                className={`tactile-btn px-4 py-1.5 rounded-xl text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-neutral-200 text-black border border-black shadow-xs font-bold'
-                    : 'bg-white border border-neutral-200 text-neutral-600 hover:text-black hover:bg-neutral-50 shadow-2xs'
-                }`}
-              >
-                {enc.title}
-              </button>
-            )
-          })}
-        </div>
-      </div>
+      )}
 
       {/* Patient Profile Card (Clinical Light Mode) */}
       <div className="bg-white rounded-2xl p-6 border border-neutral-200 shadow-xs relative overflow-hidden">

@@ -521,91 +521,74 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onOpen
         </div>
       </section>
 
-      {/* ================= CONTINUOUS RUNNING MARQUEE BAND ================= */}
-      <section className="relative z-10 w-full bg-neutral-50 text-neutral-700 py-4 overflow-hidden border-y border-neutral-200">
-        <div className="flex w-[200%] animate-marquee">
-          <div className="flex items-center gap-10 whitespace-nowrap px-4 text-xs sm:text-sm font-medium tracking-wide">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Mayo Clinic Cardiology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Johns Hopkins Pulmonology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Stanford Health Care Oncology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Cleveland Clinic Nephrology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Mass General Emergency Medicine
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Boston Children's Pediatrics
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Charité Berlin
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Toronto General Hospital
-            </span>
+      {/* ================= CLINICAL TRUST & SPECIALTY PROTOCOLS ================= */}
+      <section className="py-12 md:py-16 bg-neutral-50 border-y border-neutral-200 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white border border-neutral-200 text-[11px] font-mono font-medium text-neutral-800 mb-2.5 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-black" />
+              <span>Acoustic Biasing Protocols</span>
+            </div>
+            <h3 className="font-display text-lg sm:text-xl font-semibold text-black tracking-tight mb-1.5">
+              Calibrated for High-Acuity Specialty Vocabularies
+            </h3>
+            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+              Tuned for verified nomenclature across leading academic medical centers and health systems.
+            </p>
           </div>
 
-          <div className="flex items-center gap-10 whitespace-nowrap px-4 text-xs sm:text-sm font-medium tracking-wide" aria-hidden="true">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Mayo Clinic Cardiology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Johns Hopkins Pulmonology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Stanford Health Care Oncology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Cleveland Clinic Nephrology
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Mass General Emergency Medicine
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Boston Children's Pediatrics
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Charité Berlin
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-black" />
-              Toronto General Hospital
-            </span>
+          {/* Marquee Track with Smooth Left/Right Gradient Edge Fades */}
+          <div className="relative w-full overflow-hidden">
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 z-10 bg-gradient-to-r from-neutral-50 to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 z-10 bg-gradient-to-l from-neutral-50 to-transparent" />
+
+            <div className="flex w-[200%] animate-marquee">
+              <div className="flex items-center gap-3.5 whitespace-nowrap px-2">
+                {[
+                  { hospital: 'Mayo Clinic', specialty: 'Cardiovascular Medicine' },
+                  { hospital: 'Johns Hopkins', specialty: 'Pediatric Pulmonology' },
+                  { hospital: 'Mass General', specialty: 'Emergency & Acute Care' },
+                  { hospital: 'Stanford Health Care', specialty: 'Oncology & Hematology' },
+                  { hospital: 'Cleveland Clinic', specialty: 'Cardiothoracic Surgery' },
+                  { hospital: "Boston Children's", specialty: 'Pediatric Allergy & Asthma' },
+                  { hospital: 'Charité Berlin', specialty: 'Internal Medicine' },
+                  { hospital: 'Toronto General', specialty: 'Orthopedics & Sports Medicine' }
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutral-200 text-xs text-neutral-800 shadow-2xs hover:border-neutral-400 transition-colors"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-black shrink-0" />
+                    <span className="font-semibold text-black">{item.hospital}</span>
+                    <span className="text-neutral-300">•</span>
+                    <span className="text-neutral-500 font-mono text-[11px]">{item.specialty}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3.5 whitespace-nowrap px-2" aria-hidden="true">
+                {[
+                  { hospital: 'Mayo Clinic', specialty: 'Cardiovascular Medicine' },
+                  { hospital: 'Johns Hopkins', specialty: 'Pediatric Pulmonology' },
+                  { hospital: 'Mass General', specialty: 'Emergency & Acute Care' },
+                  { hospital: 'Stanford Health Care', specialty: 'Oncology & Hematology' },
+                  { hospital: 'Cleveland Clinic', specialty: 'Cardiothoracic Surgery' },
+                  { hospital: "Boston Children's", specialty: 'Pediatric Allergy & Asthma' },
+                  { hospital: 'Charité Berlin', specialty: 'Internal Medicine' },
+                  { hospital: 'Toronto General', specialty: 'Orthopedics & Sports Medicine' }
+                ].map((item, idx) => (
+                  <div
+                    key={`dup-${idx}`}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-neutral-200 text-xs text-neutral-800 shadow-2xs hover:border-neutral-400 transition-colors"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-black shrink-0" />
+                    <span className="font-semibold text-black">{item.hospital}</span>
+                    <span className="text-neutral-300">•</span>
+                    <span className="text-neutral-500 font-mono text-[11px]">{item.specialty}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
