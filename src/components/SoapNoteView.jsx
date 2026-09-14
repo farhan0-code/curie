@@ -86,7 +86,7 @@ ${(prescriptions || [])
   )
   .join('\n')}
 
-Curie Ambient Clinical Documentation - Powered by AssemblyAI Universal-3.5 Pro`
+Curie Ambient Clinical Documentation`
 
     navigator.clipboard.writeText(text)
     setCopied(true)
@@ -338,7 +338,7 @@ Curie Ambient Clinical Documentation - Powered by AssemblyAI Universal-3.5 Pro`
                 </div>
                 <div>
                   <h5 className="text-xs font-bold text-black">
-                    AssemblyAI Universal-3.5 Pro Speech Pipeline
+                    Curie Ambient Speech Pipeline
                   </h5>
                   <p className="text-[11px] text-neutral-500">
                     Acoustic domain biasing resolved {encounter.keyterms.length} complex medical terms with zero phonetic transcription errors.

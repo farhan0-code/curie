@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import {
-  ArrowLeft,
   Sparkles,
   ShieldCheck,
   Check,
@@ -10,10 +9,8 @@ import {
   Clock,
   Zap,
   Info,
-  BookOpen,
   Share2,
   CheckCircle2,
-  Globe,
   Menu
 } from 'lucide-react'
 
@@ -379,8 +376,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
 
       {/* ================= RIGHT MAIN WORKSPACE COLUMN ================= */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-white">
-        {/* Crisp, Spacious Header Bar */}
-        <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-neutral-200 px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-2xs">
+        {/* Crisp, Spacious Header Bar — Matches Sidebar Height (h-16) */}
+        <header className="sticky top-0 z-30 w-full h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-4 sm:px-6 flex items-center justify-between shadow-2xs shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             {/* Mobile Sidebar Hamburger Toggle */}
             <button
@@ -409,25 +406,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
             </div>
           </div>
 
-          {/* Right Header Quick Controls */}
+          {/* Right Header Quick Controls — Primary Export Action */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Language indicator pill */}
-            <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-neutral-100 border border-neutral-200 text-xs font-medium text-neutral-800">
-              <Globe className="w-3.5 h-3.5 text-black" />
-              <span>{SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage)?.label || 'English'}</span>
-            </div>
-
-            {/* Clinical Lexicon Modal Trigger */}
-            <button
-              onClick={() => setIsLexiconOpen(true)}
-              className="tactile-btn hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/80 border border-neutral-200 text-xs font-semibold text-neutral-800 transition-colors shadow-2xs"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-black" />
-              <span>Clinical Lexicon</span>
-              <span className="text-[10px] font-mono bg-white px-1.5 py-0.2 rounded border border-neutral-200 text-neutral-600 font-bold ml-0.5">
-                {currentKeyterms.length}
-              </span>
-            </button>
 
             {/* EHR / FHIR Export Trigger */}
             <button
@@ -437,15 +417,6 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
               <Share2 className="w-3.5 h-3.5 text-black" />
               <span className="hidden xs:inline">Export EHR / FHIR</span>
               <span className="xs:hidden">Export</span>
-            </button>
-
-            {/* Overview return button */}
-            <button
-              onClick={onBackToLanding}
-              className="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors hidden sm:block"
-              title="Return to Overview"
-            >
-              <ArrowLeft className="w-4 h-4" />
             </button>
           </div>
         </header>

@@ -14,9 +14,6 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
               <span className="font-bold text-lg tracking-tight text-black font-sans">
                 Curie
               </span>
-              <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-800 font-semibold border border-neutral-200">
-                v1.0 Pro
-              </span>
             </div>
             <p className="text-[11px] font-medium text-neutral-500 hidden sm:block">
               Ambient Clinical Voice Intelligence &amp; Workspace

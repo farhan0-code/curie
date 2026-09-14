@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  ArrowLeft,
   Users,
   Globe,
   BookOpen,
@@ -24,9 +23,9 @@ export default function WorkspaceSidebar({
   encounters,
   activeEncounterId,
   onSelectEncounter,
-  supportedLanguages,
   selectedLanguage,
   onSelectLanguage,
+  supportedLanguages,
   onOpenLexicon,
   onOpenExport,
   keytermsCount = 0
@@ -36,73 +35,48 @@ export default function WorkspaceSidebar({
       {/* Mobile Backdrop Overlay */}
       {isOpen && (
         <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden transition-opacity"
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Persistent Left Sidebar */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col justify-between transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
-          isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-white border-r border-neutral-200 flex flex-col transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:shadow-none'
         }`}
       >
-        {/* Top Header & Brand */}
-        <div className="flex flex-col">
-          {/* Brand Row */}
-          <div className="p-4 sm:p-5 border-b border-neutral-200 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <CurieLogo className="w-7 h-7 shrink-0" />
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display font-bold text-lg tracking-tight text-black">
-                    Curie
-                  </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-800 border border-neutral-200 font-semibold">
-                    v1.0 Pro
-                  </span>
-                </div>
-                <p className="text-[11px] text-neutral-500 font-medium truncate max-w-[140px]">
-                  Clinical Workspace
-                </p>
-              </div>
+        {/* Top Header & Brand — Exact h-16 to match Main Workspace Top Bar */}
+        <div className="h-16 px-4 border-b border-neutral-200 flex items-center justify-between shrink-0">
+          <button
+            onClick={onBackToLanding}
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity text-left cursor-pointer"
+            title="Return to Product Overview"
+          >
+            <CurieLogo className="w-6 h-6 shrink-0" />
+            <div>
+              <span className="font-display font-bold text-base tracking-tight text-black block leading-none mb-0.5">
+                Curie
+              </span>
+              <p className="text-[11px] text-neutral-500 font-medium truncate">
+                Clinical Workspace
+              </p>
             </div>
+          </button>
 
-            <div className="flex items-center gap-1">
-              {/* Back to landing button */}
-              <button
-                onClick={onBackToLanding}
-                className="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors"
-                title="Return to Overview"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
+          {/* Close button for mobile only */}
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors lg:hidden"
+            title="Close Sidebar"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-              {/* Close button for mobile */}
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-lg text-neutral-500 hover:text-black hover:bg-neutral-100 transition-colors lg:hidden"
-                title="Close Sidebar"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Back to Landing Link */}
-          <div className="px-3 pt-3 pb-1">
-            <button
-              onClick={onBackToLanding}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-neutral-600 hover:text-black hover:bg-neutral-100 border border-transparent hover:border-neutral-200 transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" />
-                <span>Product Overview</span>
-              </div>
-              <span className="text-[10px] font-mono text-neutral-400">Landing &rarr;</span>
-            </button>
-          </div>
-
+        {/* Scrollable Middle Container */}
+        <div className="flex-1 overflow-y-auto">
           {/* Patient Queue / Encounters */}
           <div className="px-3 pt-3">
             <div className="flex items-center justify-between px-3 mb-2">
@@ -132,37 +106,33 @@ export default function WorkspaceSidebar({
                         : 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
                         <div
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center font-mono text-xs font-bold shrink-0 ${
+                          className={`w-6 h-6 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center ${
                             isActive
                               ? 'bg-black text-white'
-                              : 'bg-neutral-100 text-neutral-700 border border-neutral-200'
+                              : 'bg-neutral-100 text-neutral-800 border border-neutral-200'
                           }`}
                         >
                           {initials}
                         </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-semibold text-black truncate flex items-center gap-1.5">
-                            <span className="truncate">{p.name}</span>
-                            {isActive && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-black shrink-0 animate-pulse" />
-                            )}
-                          </div>
-                          <div className="text-[10px] text-neutral-500 font-mono truncate">
-                            {p.age}yo {p.gender} • {p.mrn}
-                          </div>
-                        </div>
+                        <span className="font-semibold text-xs text-black truncate max-w-[120px]">
+                          {p.name}
+                        </span>
                       </div>
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 shrink-0 mt-1 transition-transform ${
-                          isActive ? 'text-black translate-x-0.5' : 'text-neutral-400'
-                        }`}
-                      />
+                      <span className="text-[10px] font-mono text-neutral-500">
+                        {p.age}yo {p.gender[0]}
+                      </span>
                     </div>
-                    <div className="mt-1.5 pl-9 text-[11px] text-neutral-600 font-medium truncate">
-                      {enc.specialty}: {enc.title.split(':')[1] || enc.title}
+
+                    <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                      <span className="truncate max-w-[130px] font-medium">
+                        {enc.specialty.split(' ')[0]}
+                      </span>
+                      <span className="font-mono text-[10px] text-neutral-400">
+                        {p.mrn}
+                      </span>
                     </div>
                   </button>
                 )
@@ -171,7 +141,7 @@ export default function WorkspaceSidebar({
           </div>
 
           {/* Acoustic & Configuration Settings */}
-          <div className="px-3 pt-5">
+          <div className="px-3 pt-5 pb-3">
             <div className="px-3 mb-2">
               <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
                 Acoustic Settings
@@ -245,7 +215,7 @@ export default function WorkspaceSidebar({
         </div>
 
         {/* Bottom Engine Telemetry Card & Footer */}
-        <div className="p-3 border-t border-neutral-200 space-y-2">
+        <div className="p-3 border-t border-neutral-200 space-y-2 shrink-0">
           {/* Engine Status Card */}
           <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200">
             <div className="flex items-center justify-between mb-1">

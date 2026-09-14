@@ -46,7 +46,7 @@ export default function PatientHeader({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           {/* Patient Demographics */}
           <div className="flex items-start gap-4">
-            <div className="w-13 h-13 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-800 font-mono font-bold text-lg shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black font-mono font-bold text-base shrink-0">
               {p.name.split(' ').map((n) => n[0]).join('')}
             </div>
             <div>

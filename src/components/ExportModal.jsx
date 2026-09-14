@@ -48,7 +48,7 @@ ${(soapNote?.plan || []).map((p, i) => `${i + 1}. ${p}`).join('\n')}
 ${(prescriptions || []).map((r) => `Rx: ${r.drug} ${r.dosage} - ${r.frequency} ${r.route} - Disp: #${r.quantity} (Refills: ${r.refills})`).join('\n')}
 
 ELECTRONICALLY SIGNED BY: ${encounter.doctor}
-GENERATED VIA CURIE CLINICAL SCRIBE (ASSEMBLYAI UNIVERSAL-3.5 PRO)`
+GENERATED VIA CURIE CLINICAL SCRIBE`
   }
 
   // Generate FHIR R4 DiagnosticReport JSON
@@ -201,12 +201,12 @@ Curie Voice Intelligence Engine - Verified
           </button>
         </div>
 
-        {/* Format Selector Bar */}
-        <div className="px-6 py-3 border-b border-neutral-200 bg-white flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 p-1 bg-neutral-100 rounded-xl border border-neutral-200">
+        {/* Format Selector & Actions Bar — Guaranteed Single Line */}
+        <div className="px-4 sm:px-6 py-3 border-b border-neutral-200 bg-white flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 p-1 bg-neutral-100 rounded-xl border border-neutral-200 shrink-0">
             <button
               onClick={() => setSelectedFormat('epic')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 selectedFormat === 'epic'
                   ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
                   : 'text-neutral-600 hover:text-black'
@@ -217,7 +217,7 @@ Curie Voice Intelligence Engine - Verified
 
             <button
               onClick={() => setSelectedFormat('fhir')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 selectedFormat === 'fhir'
                   ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
                   : 'text-neutral-600 hover:text-black'
@@ -229,7 +229,7 @@ Curie Voice Intelligence Engine - Verified
 
             <button
               onClick={() => setSelectedFormat('cerner')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 selectedFormat === 'cerner'
                   ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
                   : 'text-neutral-600 hover:text-black'
@@ -239,38 +239,37 @@ Curie Voice Intelligence Engine - Verified
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Action Buttons: Spacious Square Backgrounds */}
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handleCopy}
-              className="tactile-btn px-4 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-black border-2 border-black text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
+              className="w-10 h-10 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 hover:border-black text-black flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95"
+              title={copied ? 'Copied Payload!' : 'Copy Payload'}
+              aria-label="Copy Payload"
             >
               {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-black" />
-                  <span>Copied</span>
-                </>
+                <Check className="w-4 h-4 text-black" />
               ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5 text-black" />
-                  <span>Copy Payload</span>
-                </>
+                <Copy className="w-4 h-4 text-black" />
               )}
             </button>
 
             <button
               onClick={handleDownload}
-              className="tactile-btn px-3.5 py-1.5 rounded-xl bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200 text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs"
+              className="w-10 h-10 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 hover:border-black text-black flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95"
+              title="Download Note"
+              aria-label="Download Note"
             >
-              <Download className="w-3.5 h-3.5 text-neutral-500" />
-              <span>Download</span>
+              <Download className="w-4 h-4 text-black" />
             </button>
 
             <button
               onClick={handlePrint}
-              className="tactile-btn p-2 rounded-xl bg-white hover:bg-neutral-50 text-neutral-800 border border-neutral-200 text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs"
+              className="w-10 h-10 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 hover:border-black text-black flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95"
               title="Print formatted note"
+              aria-label="Print formatted note"
             >
-              <Printer className="w-3.5 h-3.5 text-neutral-500" />
+              <Printer className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>
