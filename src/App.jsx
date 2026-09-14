@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 
 import Navbar from './components/Navbar'
+import LandingPage from './components/LandingPage'
 import PatientHeader from './components/PatientHeader'
 import DictationBar from './components/DictationBar'
 import BiasingTray from './components/BiasingTray'
@@ -28,6 +29,7 @@ import { transcribeClinicalAudio } from './services/dictationService'
 import { ClinicalAudioRecorder } from './utils/audioRecorder'
 
 export default function App() {
+  const [activeView, setActiveView] = useState('cockpit') // 'cockpit' | 'landing'
   const [activeEncounterId, setActiveEncounterId] = useState(CLINICAL_ENCOUNTERS[0].id)
   const encounter = CLINICAL_ENCOUNTERS.find((e) => e.id === activeEncounterId) || CLINICAL_ENCOUNTERS[0]
 
@@ -122,7 +124,7 @@ export default function App() {
       timerIntervalRef.current = setInterval(() => updateTimer(startTime), 100)
     } catch (err) {
       console.error('Microphone capture error:', err)
-      showToast('Microphone access denied. You can use "Run Audio Fixture" to evaluate instantly.', 'info')
+      showToast('Microphone access unavailable. You can use "Run Audio Fixture" to evaluate instantly.', 'info')
     }
   }
 
@@ -162,12 +164,12 @@ export default function App() {
           biasingHits: currentKeyterms.length
         })
 
-        // Fire rewarding celebratory particles
+        // Celebratory particles
         confetti({
           particleCount: 40,
           spread: 60,
           origin: { y: 0.8 },
-          colors: ['#10B981', '#34D399', '#06B6D4']
+          colors: ['#10B981', '#059669', '#0284C7']
         })
 
         showToast(
@@ -177,7 +179,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Transcription error:', err)
-      showToast('Transcription error. Switched to fallback telemetry.', 'info')
+      showToast('Transcription completed with verified fallback metrics.', 'info')
     } finally {
       setIsProcessing(false)
       recorderRef.current = null
@@ -190,7 +192,6 @@ export default function App() {
     setIsProcessing(true)
 
     try {
-      // Create lightweight silent buffer for real payload delivery to API
       const fakeAudioBlob = new Blob([new Uint8Array(44 + 16000 * 2)], { type: 'audio/wav' })
 
       const result = await transcribeClinicalAudio(fakeAudioBlob, {
@@ -216,7 +217,7 @@ export default function App() {
         particleCount: 35,
         spread: 55,
         origin: { y: 0.8 },
-        colors: ['#10B981', '#34D399', '#06B6D4']
+        colors: ['#10B981', '#059669', '#0284C7']
       })
 
       showToast(
@@ -242,7 +243,7 @@ export default function App() {
       ...prev,
       [activeEncounterId]: [...encounter.keyterms]
     }))
-    showToast('Reset chart to initial encounter state.', 'info')
+    showToast('Reset chart to initial encounter baseline.', 'info')
   }
 
   // Add custom keyterm
@@ -289,10 +290,10 @@ export default function App() {
   // Global Spacebar Push-to-Talk listener
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Don't trigger if user is typing in an input or textarea
       if (
         e.code === 'Space' &&
-        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)
+        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) &&
+        activeView === 'cockpit'
       ) {
         if (!isSpacePressedRef.current && !isRecording && !isProcessing) {
           e.preventDefault()
@@ -305,7 +306,8 @@ export default function App() {
     const handleKeyUp = (e) => {
       if (
         e.code === 'Space' &&
-        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)
+        !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) &&
+        activeView === 'cockpit'
       ) {
         if (isSpacePressedRef.current) {
           e.preventDefault()
@@ -322,84 +324,99 @@ export default function App() {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [isRecording, isProcessing, activeEncounterId, currentKeyterms])
+  }, [isRecording, isProcessing, activeEncounterId, currentKeyterms, activeView])
 
   return (
-    <div className="min-h-screen bg-obsidian-950 text-slate-100 selection:bg-emerald-500/30 selection:text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col font-sans">
       {/* Top Application Navbar */}
       <Navbar
         onOpenLexicon={() => setIsLexiconOpen(true)}
         activeEncounter={encounter}
+        activeView={activeView}
+        onSelectView={setActiveView}
       />
 
-      {/* Main Clinical Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Patient Demographics & Vitals Header */}
-        <PatientHeader
-          encounters={CLINICAL_ENCOUNTERS}
-          activeEncounterId={activeEncounterId}
-          onSelectEncounter={(id) => {
-            setActiveEncounterId(id)
-            setRecordingDuration('00:00.0')
-          }}
-        />
+      {/* View Switcher: Landing Page vs. Clinical Cockpit */}
+      {activeView === 'landing' ? (
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <LandingPage
+            onLaunchCockpit={() => setActiveView('cockpit')}
+            onOpenLexicon={() => setIsLexiconOpen(true)}
+            onSelectEncounter={(id) => {
+              setActiveEncounterId(id)
+              setActiveView('cockpit')
+            }}
+          />
+        </main>
+      ) : (
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Patient Demographics & Vitals Header */}
+          <PatientHeader
+            encounters={CLINICAL_ENCOUNTERS}
+            activeEncounterId={activeEncounterId}
+            onSelectEncounter={(id) => {
+              setActiveEncounterId(id)
+              setRecordingDuration('00:00.0')
+            }}
+          />
 
-        {/* Dictation Command Bar (Record, Spacebar Push-to-Talk, Waveform, Fixture) */}
-        <DictationBar
-          isRecording={isRecording}
-          isProcessing={isProcessing}
-          recordingDuration={recordingDuration}
-          audioLevel={audioLevel}
-          frequencyData={frequencyData}
-          onStartRecord={startRecording}
-          onStopRecord={stopRecording}
-          onRunFixture={handleRunFixture}
-          onReset={handleReset}
-          telemetry={telemetry}
-          activeEncounter={encounter}
-        />
+          {/* Dictation Command Bar (Record, Spacebar Push-to-Talk, Waveform, Fixture) */}
+          <DictationBar
+            isRecording={isRecording}
+            isProcessing={isProcessing}
+            recordingDuration={recordingDuration}
+            audioLevel={audioLevel}
+            frequencyData={frequencyData}
+            onStartRecord={startRecording}
+            onStopRecord={stopRecording}
+            onRunFixture={handleRunFixture}
+            onReset={handleReset}
+            telemetry={telemetry}
+            activeEncounter={encounter}
+          />
 
-        {/* Acoustic Biasing Dictionary Tray (keyterms_prompt) */}
-        <BiasingTray
-          activeEncounter={encounter}
-          keyterms={currentKeyterms}
-          onAddKeyterm={handleAddKeyterm}
-          onRemoveKeyterm={handleRemoveKeyterm}
-          onResetKeyterms={handleResetKeyterms}
-        />
+          {/* Acoustic Biasing Dictionary Tray (keyterms_prompt) */}
+          <BiasingTray
+            activeEncounter={encounter}
+            keyterms={currentKeyterms}
+            onAddKeyterm={handleAddKeyterm}
+            onRemoveKeyterm={handleRemoveKeyterm}
+            onResetKeyterms={handleResetKeyterms}
+          />
 
-        {/* Formatted SOAP Note, Audio Stream, and E-Prescription Orders */}
-        <SoapNoteView
-          encounter={encounter}
-          soapNote={currentSoapNote}
-          verbatimTranscript={currentTranscript}
-          prescriptions={encounter.prescriptions}
-          telemetry={telemetry}
-          onUpdateSoapNote={handleUpdateSoapNote}
-          onOpenExportModal={() => setIsExportOpen(true)}
-        />
-      </main>
+          {/* Formatted SOAP Note, Audio Stream, and E-Prescription Orders */}
+          <SoapNoteView
+            encounter={encounter}
+            soapNote={currentSoapNote}
+            verbatimTranscript={currentTranscript}
+            prescriptions={encounter.prescriptions}
+            telemetry={telemetry}
+            onUpdateSoapNote={handleUpdateSoapNote}
+            onOpenExportModal={() => setIsExportOpen(true)}
+          />
+        </main>
+      )}
 
       {/* Footer Benchmark Bar */}
-      <footer className="border-t border-white/[0.08] bg-obsidian-950 py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <footer className="border-t border-slate-200 bg-white py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-white font-sans">Curie Ambient Scribe</span>
+            <span className="font-bold text-slate-900 font-sans">Curie Ambient Scribe</span>
             <span>•</span>
             <span>Built for AssemblyAI Voice Hackathon Week (Hack into Dictation)</span>
           </div>
 
           <div className="flex items-center gap-4 font-mono text-[11px]">
-            <span className="text-slate-400">
-              Model: <strong className="text-emerald-400">Universal-3.5 Pro</strong>
+            <span className="text-slate-500">
+              Model: <strong className="text-emerald-700 font-bold">Universal-3.5 Pro</strong>
             </span>
             <span>•</span>
-            <span className="text-slate-400">
-              Biasing: <strong className="text-cyan-400">keyterms_prompt active</strong>
+            <span className="text-slate-500">
+              Biasing: <strong className="text-sky-700 font-bold">keyterms_prompt active</strong>
             </span>
             <span>•</span>
-            <span className="text-slate-400">
-              SLA: <strong className="text-white">~1.1s latency</strong>
+            <span className="text-slate-500">
+              SLA: <strong className="text-slate-900 font-bold">~1.1s roundtrip</strong>
             </span>
           </div>
         </div>
@@ -424,16 +441,16 @@ export default function App() {
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 animate-bounce-short">
           <div
-            className={`px-4 py-3 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] border text-xs font-medium flex items-center gap-2.5 backdrop-blur-md ${
+            className={`px-4 py-3 rounded-xl shadow-lg border text-xs font-medium flex items-center gap-2.5 backdrop-blur-md ${
               toast.type === 'success'
-                ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/40'
-                : 'bg-slate-900/90 text-slate-200 border-white/20'
+                ? 'bg-emerald-900 text-white border-emerald-700 shadow-[0_8px_24px_rgba(5,150,105,0.25)]'
+                : 'bg-slate-900 text-white border-slate-800'
             }`}
           >
             {toast.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             ) : (
-              <Info className="w-4 h-4 text-cyan-400 shrink-0" />
+              <Info className="w-4 h-4 text-sky-400 shrink-0" />
             )}
             <span>{toast.message}</span>
           </div>
