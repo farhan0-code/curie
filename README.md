@@ -1,4 +1,4 @@
-# Curie (क्यूरी)
+# Curie
 
 ### *Ambient Clinical Voice Intelligence & SOAP Cockpit*
 **Real-Time Outpatient Voice Dictation, Acoustic Pharmacology Biasing, and Multi-Specialty EHR Ingestion**
