@@ -1,5 +1,6 @@
 import React from 'react'
-import { Stethoscope, Activity, Sparkles, BookOpen, ExternalLink, ArrowRight } from 'lucide-react'
+import { Activity, Sparkles, BookOpen, ExternalLink, ArrowRight } from 'lucide-react'
+import CurieLogo from './CurieLogo'
 
 export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onSelectView }) {
   return (
@@ -7,8 +8,8 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand & Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-xs">
-            <Stethoscope className="w-5 h-5" strokeWidth={2} />
+          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shadow-xs">
+            <CurieLogo className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
