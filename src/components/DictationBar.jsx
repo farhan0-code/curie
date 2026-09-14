@@ -1,14 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Mic, Square, Play, Pause, Sparkles, Zap, Volume2, RotateCcw } from 'lucide-react'
+import { Mic, Square, Play, Pause, Sparkles, Zap, Volume2, RotateCcw, CheckCircle2, Trash2, StepForward } from 'lucide-react'
 import TermTooltip from './TermTooltip'
 
 export default function DictationBar({
   isRecording,
+  isPaused,
   isProcessing,
   recordingDuration,
   audioLevel,
   frequencyData,
+  recordedBlob,        // { blob, url } — captured audio for playback preview
   onStartRecord,
+  onPauseRecord,
+  onResumeRecord,
+  onSubmitDictation,
+  onDiscardRecording,
   onStopRecord,
   onRunFixture,
   onReset,
@@ -16,12 +22,18 @@ export default function DictationBar({
   activeEncounter
 }) {
   const canvasRef = useRef(null)
-  const audioRef = useRef(null)
+  const audioRef = useRef(null)           // Demo fixture audio
+  const previewAudioRef = useRef(null)    // Recorded audio playback preview
   const animFrameRef = useRef(null)
 
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
   const [audioCurrentTime, setAudioCurrentTime] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
+
+  // Preview playback state (for the recorded blob)
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false)
+  const [previewCurrentTime, setPreviewCurrentTime] = useState(0)
+  const [previewDuration, setPreviewDuration] = useState(0)
 
   const isDemo = ['cardiology-stemi-followup', 'pediatric-asthma-exacerbation', 'ortho-sports-knee'].includes(activeEncounter?.id) || (!activeEncounter?.id?.startsWith('custom-'))
 
@@ -43,6 +55,18 @@ export default function DictationBar({
     }
   }, [activeEncounter?.id])
 
+  // Stop preview when blob changes or is cleared
+  useEffect(() => {
+    if (!recordedBlob) {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause()
+      }
+      setIsPlayingPreview(false)
+      setPreviewCurrentTime(0)
+      setPreviewDuration(0)
+    }
+  }, [recordedBlob])
+
   const togglePlayAudio = () => {
     if (!audioRef.current) return
     if (isPlayingAudio) {
@@ -52,6 +76,18 @@ export default function DictationBar({
       audioRef.current.play()
         .then(() => setIsPlayingAudio(true))
         .catch((err) => console.warn('Audio play error:', err))
+    }
+  }
+
+  const togglePlayPreview = () => {
+    if (!previewAudioRef.current) return
+    if (isPlayingPreview) {
+      previewAudioRef.current.pause()
+      setIsPlayingPreview(false)
+    } else {
+      previewAudioRef.current.play()
+        .then(() => setIsPlayingPreview(true))
+        .catch((err) => console.warn('Preview play error:', err))
     }
   }
 
@@ -94,6 +130,35 @@ export default function DictationBar({
           ctx.roundRect(x, y, barWidth, barHeight, 2)
           ctx.fill()
         }
+      } else if (isPaused) {
+        // Paused flatline with subtle grey bars
+        const barCount = 32
+        const barWidth = Math.floor(width / barCount) - 2
+        for (let i = 0; i < barCount; i++) {
+          const barHeight = 4
+          const x = i * (barWidth + 2)
+          const y = (height - barHeight) / 2
+          ctx.fillStyle = '#D4D4D4'
+          ctx.beginPath()
+          ctx.roundRect(x, y, barWidth, barHeight, 2)
+          ctx.fill()
+        }
+      } else if (isPlayingPreview) {
+        // Preview playback waveform
+        const time = Date.now() * 0.007
+        const barCount = 32
+        const barWidth = Math.floor(width / barCount) - 2
+        for (let i = 0; i < barCount; i++) {
+          const amp = Math.sin(time + i * 0.35) * 0.3 + Math.cos(time * 0.6 + i * 0.25) * 0.2 + 0.5
+          const barHeight = Math.max(4, amp * (height - 6))
+          const x = i * (barWidth + 2)
+          const y = (height - barHeight) / 2
+          ctx.fillStyle = '#737373'
+          ctx.beginPath()
+          ctx.roundRect(x, y, barWidth, barHeight, 2)
+          ctx.fill()
+        }
+        animFrameRef.current = requestAnimationFrame(draw)
       } else if (isPlayingAudio) {
         // Audio playback waveform animation
         const time = Date.now() * 0.007
@@ -139,10 +204,10 @@ export default function DictationBar({
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
-  }, [isRecording, isProcessing, isPlayingAudio, audioLevel, frequencyData])
+  }, [isRecording, isPaused, isProcessing, isPlayingAudio, isPlayingPreview, audioLevel, frequencyData])
 
   return (
-    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-neutral-200 shadow-xs">
+    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-neutral-200 shadow-xs space-y-4">
       {/* Hidden audio element for demo fixtures */}
       {isDemo && (
         <audio
@@ -158,6 +223,25 @@ export default function DictationBar({
           onEnded={() => {
             setIsPlayingAudio(false)
             setAudioCurrentTime(0)
+          }}
+        />
+      )}
+
+      {/* Hidden audio element for recorded blob preview */}
+      {recordedBlob?.url && (
+        <audio
+          ref={previewAudioRef}
+          src={recordedBlob.url}
+          preload="metadata"
+          onTimeUpdate={() => {
+            if (previewAudioRef.current) setPreviewCurrentTime(previewAudioRef.current.currentTime)
+          }}
+          onLoadedMetadata={() => {
+            if (previewAudioRef.current) setPreviewDuration(previewAudioRef.current.duration)
+          }}
+          onEnded={() => {
+            setIsPlayingPreview(false)
+            setPreviewCurrentTime(0)
           }}
         />
       )}
@@ -215,10 +299,33 @@ export default function DictationBar({
                 )}
               </button>
             </>
+          ) : isPaused ? (
+            /* === PAUSED STATE: Resume | Discard buttons === */
+            <>
+              <button
+                onClick={onResumeRecord}
+                disabled={isProcessing}
+                className="tactile-btn relative group px-5 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer bg-white hover:bg-neutral-50 text-black border-2 border-black"
+                title="Resume dictation from where you left off"
+              >
+                <Mic className="w-4 h-4 text-black" />
+                <span className="text-black font-bold">Resume Dictation</span>
+              </button>
+
+              <button
+                onClick={onDiscardRecording}
+                disabled={isProcessing}
+                className="tactile-btn px-4 py-3 rounded-xl text-xs font-bold border border-neutral-200 bg-white hover:bg-red-50 hover:border-red-300 text-neutral-500 hover:text-red-600 transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+                title="Discard recording and start over"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="font-bold">Discard</span>
+              </button>
+            </>
           ) : (
-            /* Custom Live Patient Action: Start/Stop Ambient Dictation */
+            /* === IDLE / RECORDING STATE: Start / Pause Ambient Dictation === */
             <button
-              onClick={isRecording ? onStopRecord : onStartRecord}
+              onClick={isRecording ? onPauseRecord : onStartRecord}
               disabled={isProcessing}
               className={`tactile-btn relative group px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all w-full sm:w-auto cursor-pointer ${
                 isRecording
@@ -230,8 +337,8 @@ export default function DictationBar({
             >
               {isRecording ? (
                 <>
-                  <Square className="w-4 h-4 fill-current" />
-                  <span className="text-black font-bold">Stop Dictation</span>
+                  <Pause className="w-4 h-4 fill-current text-black" />
+                  <span className="text-black font-bold">Pause Dictation</span>
                 </>
               ) : isProcessing ? (
                 <>
@@ -247,15 +354,17 @@ export default function DictationBar({
             </button>
           )}
 
-          {/* Reset / Clear */}
-          <button
-            onClick={onReset}
-            disabled={isRecording || isProcessing}
-            className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0"
-            title="Reset to fresh chart"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+          {/* Reset / Clear — always visible when idle */}
+          {!isRecording && !isPaused && (
+            <button
+              onClick={onReset}
+              disabled={isRecording || isProcessing}
+              className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+              title="Reset to fresh chart"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Center: Live Waveform Visualizer & Status */}
@@ -268,13 +377,23 @@ export default function DictationBar({
                   <span>Pre-recorded Voice</span>
                 </span>
               )}
+              {isPaused && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 font-mono font-bold text-[10px] whitespace-nowrap shrink-0 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span>Paused</span>
+                </span>
+              )}
               <span className="flex items-center gap-1.5 text-neutral-500 whitespace-nowrap truncate">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${isRecording || isPlayingAudio ? 'bg-black animate-ping' : 'bg-black'}`} />
+                <span className={`w-2 h-2 rounded-full shrink-0 ${isRecording || isPlayingAudio || isPlayingPreview ? 'bg-black animate-ping' : isPaused ? 'bg-amber-400' : 'bg-black'}`} />
                 <span className="truncate">
                   {isRecording
                     ? 'Mic Active (16kHz PCM)'
                     : isProcessing
                     ? 'Universal-3.5 Pro Transcribing...'
+                    : isPaused
+                    ? 'Dictation Paused — Review or Resume'
+                    : isPlayingPreview
+                    ? 'Playing Recorded Audio...'
                     : isPlayingAudio
                     ? 'Playing Encounter Audio...'
                     : isDemo
@@ -284,7 +403,9 @@ export default function DictationBar({
               </span>
             </div>
             <span className="font-bold text-black font-mono whitespace-nowrap shrink-0">
-              {isPlayingAudio
+              {isPlayingPreview
+                ? `${formatTime(previewCurrentTime)} / ${formatTime(previewDuration)}`
+                : isPlayingAudio
                 ? `${formatTime(audioCurrentTime)} / ${formatTime(audioDuration || 58)}`
                 : (recordingDuration || '00:00.0')}
             </span>
@@ -318,6 +439,8 @@ export default function DictationBar({
             <span className="text-[10px] text-neutral-500 font-mono whitespace-nowrap truncate block">
               {isDemo ? (
                 <>Listen with <strong className="text-black font-semibold">Play Voice</strong> • Click <strong className="text-black font-semibold">Run Audio Fixture</strong> to transcribe</>
+              ) : isPaused ? (
+                <>Review your recording below, then <strong className="text-black font-semibold">Resume</strong> or <strong className="text-black font-semibold">Run Dictation →</strong></>
               ) : (
                 <>Hold <strong className="text-black font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> or click <strong className="text-black font-semibold">Start Ambient Dictation</strong></>
               )}
@@ -345,6 +468,68 @@ export default function DictationBar({
           </div>
         </div>
       </div>
+
+      {/* ===== PAUSED: Recorded Audio Playback Preview + Submit/Discard ===== */}
+      {isPaused && recordedBlob && !isDemo && (
+        <div className="border-t border-neutral-100 pt-4 flex flex-col sm:flex-row items-center gap-4">
+          {/* Playback preview bar */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <button
+              onClick={togglePlayPreview}
+              className={`shrink-0 p-2.5 rounded-xl border transition-all cursor-pointer ${
+                isPlayingPreview
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-neutral-200 hover:border-black hover:bg-neutral-50'
+              }`}
+              title={isPlayingPreview ? 'Pause preview' : 'Play recorded audio'}
+            >
+              {isPlayingPreview
+                ? <Pause className="w-4 h-4 fill-current" />
+                : <Play className="w-4 h-4 fill-current" />}
+            </button>
+
+            <div className="flex-1 flex flex-col gap-1 min-w-0">
+              <div className="flex items-center justify-between text-[10px] font-mono text-neutral-500">
+                <span className="font-semibold text-black">Recorded Audio Preview</span>
+                <span>{formatTime(previewCurrentTime)} / {formatTime(previewDuration || 0)}</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max={previewDuration || 1}
+                step="0.05"
+                value={previewCurrentTime}
+                onChange={(e) => {
+                  const t = parseFloat(e.target.value)
+                  if (previewAudioRef.current) previewAudioRef.current.currentTime = t
+                  setPreviewCurrentTime(t)
+                }}
+                className="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black"
+              />
+            </div>
+          </div>
+
+          {/* Submit button */}
+          <button
+            onClick={onSubmitDictation}
+            disabled={isProcessing}
+            className="tactile-btn shrink-0 px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all cursor-pointer bg-black hover:bg-neutral-800 text-white border-2 border-black shadow-sm"
+            title="Submit recording to AssemblyAI Universal-3.5 Pro for SOAP synthesis"
+          >
+            {isProcessing ? (
+              <>
+                <Sparkles className="w-4 h-4 animate-spin text-white" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <StepForward className="w-4 h-4 fill-white text-white" />
+                <span>Run Dictation →</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

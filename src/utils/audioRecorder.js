@@ -12,9 +12,12 @@ export class ClinicalAudioRecorder {
     this.analyser = null;
     this.scriptProcessor = null;
     this.isRecording = false;
+    this.isPaused = false;
     this.audioChunks = [];
     this.sampleRate = 16000;
     this.startTime = 0;
+    this.pausedElapsed = 0;  // accumulated ms before pause
+    this.pauseStart = 0;
     this.animFrameId = null;
   }
 
@@ -100,6 +103,56 @@ export class ClinicalAudioRecorder {
     }
 
     this._trackVolume();
+  }
+
+  /** Pause audio collection (keeps mic stream alive). */
+  pause() {
+    if (!this.isRecording || this.isPaused) return;
+    this.isPaused = true;
+    this.isRecording = false;
+    this.pauseStart = Date.now();
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
+    }
+  }
+
+  /** Resume audio collection after a pause. */
+  resume() {
+    if (!this.isPaused) return;
+    this.pausedElapsed += Date.now() - this.pauseStart;
+    this.isPaused = false;
+    this.isRecording = true;
+    this._trackVolume();
+  }
+
+  /** Returns elapsed active recording time in milliseconds (excludes paused time). */
+  getElapsedMs() {
+    if (this.isPaused) {
+      return this.pausedElapsed + (this.pauseStart - this.startTime);
+    }
+    return this.pausedElapsed + (Date.now() - this.startTime) - this.pausedElapsed;
+  }
+
+  /**
+   * Encodes all collected chunks so far into a WAV Blob and object URL
+   * without terminating the recording session.
+   */
+  getPartialBlob() {
+    if (this.audioChunks.length === 0) return null;
+    let totalLength = 0;
+    for (const chunk of this.audioChunks) totalLength += chunk.length;
+    const merged = new Float32Array(totalLength);
+    let offset = 0;
+    for (const chunk of this.audioChunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+    const wavBlob = this._encodeWAV(merged, this.sampleRate);
+    return {
+      blob: wavBlob,
+      url: URL.createObjectURL(wavBlob),
+    };
   }
 
   _trackVolume() {

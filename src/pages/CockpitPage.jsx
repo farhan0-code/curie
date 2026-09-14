@@ -130,10 +130,12 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
 
   // Audio Recording states
   const [isRecording, setIsRecording] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [audioLevel, setAudioLevel] = useState(0)
   const [frequencyData, setFrequencyData] = useState(null)
   const [recordingDuration, setRecordingDuration] = useState('00:00.0')
+  const [recordedBlob, setRecordedBlob] = useState(null) // { blob, url } — captured after pause/stop
 
   // Modals & Sidebar state
   const [isLexiconOpen, setIsLexiconOpen] = useState(false)
@@ -172,7 +174,10 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
 
   // Start Audio Recording
   const startRecording = async () => {
-    if (isRecording || isProcessing) return
+    if (isRecording || isPaused || isProcessing) return
+    // Clear any previous recorded blob
+    if (recordedBlob?.url) URL.revokeObjectURL(recordedBlob.url)
+    setRecordedBlob(null)
     try {
       const recorder = new ClinicalAudioRecorder((level, freqData) => {
         setAudioLevel(level)
@@ -182,6 +187,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       await recorder.start()
       recorderRef.current = recorder
       setIsRecording(true)
+      setIsPaused(false)
 
       const startTime = Date.now()
       setRecordingDuration('00:00.0')
@@ -192,20 +198,91 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
     }
   }
 
-  // Stop Audio Recording & Submit to Dictation API
-  const stopRecording = async () => {
+  // Pause dictation — keeps mic stream alive, captures partial blob for playback
+  const pauseRecording = () => {
     if (!isRecording || !recorderRef.current) return
+    recorderRef.current.pause()
     setIsRecording(false)
+    setIsPaused(true)
 
+    // Stop the UI timer
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current)
       timerIntervalRef.current = null
     }
 
+    // Capture partial blob so user can listen before submitting
+    const partial = recorderRef.current.getPartialBlob()
+    if (partial) {
+      if (recordedBlob?.url) URL.revokeObjectURL(recordedBlob.url)
+      setRecordedBlob(partial)
+    }
+  }
+
+  // Resume dictation from pause
+  const resumeRecording = () => {
+    if (!isPaused || !recorderRef.current) return
+    recorderRef.current.resume()
+    setIsRecording(true)
+    setIsPaused(false)
+
+    // Resume timer from where it was
+    const lastDisplayed = recordingDuration
+    const [min, rest] = lastDisplayed.split(':')
+    const [sec, tenths] = rest.split('.')
+    const baseMs = (parseInt(min) * 60 + parseInt(sec)) * 1000 + parseInt(tenths) * 100
+    const resumeTime = Date.now() - baseMs
+    timerIntervalRef.current = setInterval(() => updateTimer(resumeTime), 100)
+  }
+
+  // Discard the recorded blob and reset to fresh state
+  const clearRecordedBlob = async () => {
+    if (recorderRef.current) {
+      // If still paused, fully stop and discard the recorder
+      await recorderRef.current.stop().catch(() => {})
+      recorderRef.current = null
+    }
+    if (recordedBlob?.url) URL.revokeObjectURL(recordedBlob.url)
+    setRecordedBlob(null)
+    setIsPaused(false)
+    setIsRecording(false)
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current)
+      timerIntervalRef.current = null
+    }
+    setRecordingDuration('00:00.0')
+    setAudioLevel(0)
+    setFrequencyData(null)
+  }
+
+  // Stop Audio Recording — now PAUSES and shows playback preview
+  const stopRecording = async () => {
+    if (isRecording && recorderRef.current) {
+      pauseRecording()
+    }
+  }
+
+  // Submit the dictation blob to the AI pipeline (called by user after reviewing playback)
+  const submitDictation = async () => {
+    if (!recorderRef.current || isProcessing) return
+    if (isRecording) {
+      // If still recording (no pause), stop first
+      recorderRef.current.pause()
+      setIsRecording(false)
+    }
+
+    setIsPaused(false)
     setIsProcessing(true)
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current)
+      timerIntervalRef.current = null
+    }
 
     try {
       const { blob } = await recorderRef.current.stop()
+      recorderRef.current = null
+      if (recordedBlob?.url) URL.revokeObjectURL(recordedBlob.url)
+      setRecordedBlob(null)
 
       // Call Curie Dictation Pipeline with Active Keyterms
       const result = await transcribeClinicalAudio(blob, {
@@ -249,7 +326,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       showToast('Transcription completed with verified fallback telemetry.', 'info')
     } finally {
       setIsProcessing(false)
-      recorderRef.current = null
+      setRecordingDuration('00:00.0')
     }
   }
 
@@ -435,10 +512,15 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         e.code === 'Space' &&
         !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)
       ) {
-        if (!isSpacePressedRef.current && !isRecording && !isProcessing) {
+        if (!isSpacePressedRef.current && !isRecording && !isPaused && !isProcessing) {
           e.preventDefault()
           isSpacePressedRef.current = true
           startRecording()
+        } else if (!isSpacePressedRef.current && !isRecording && isPaused) {
+          // Spacebar resumes if paused
+          e.preventDefault()
+          isSpacePressedRef.current = true
+          resumeRecording()
         }
       }
     }
@@ -451,7 +533,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         if (isSpacePressedRef.current) {
           e.preventDefault()
           isSpacePressedRef.current = false
-          stopRecording()
+          if (isRecording) pauseRecording()
         }
       }
     }
@@ -463,7 +545,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [isRecording, isProcessing, activeEncounterId, currentKeyterms])
+  }, [isRecording, isPaused, isProcessing, activeEncounterId, currentKeyterms])
 
   return (
     <div className="h-screen w-full bg-neutral-50/40 text-black font-sans selection:bg-neutral-200 selection:text-black flex flex-col lg:flex-row overflow-hidden">
@@ -588,11 +670,17 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
             {/* Dictation Command Bar (Record, Spacebar Push-to-Talk, Waveform, Fixture) */}
             <DictationBar
               isRecording={isRecording}
+              isPaused={isPaused}
               isProcessing={isProcessing}
               recordingDuration={recordingDuration}
               audioLevel={audioLevel}
               frequencyData={frequencyData}
+              recordedBlob={recordedBlob}
               onStartRecord={startRecording}
+              onPauseRecord={pauseRecording}
+              onResumeRecord={resumeRecording}
+              onSubmitDictation={submitDictation}
+              onDiscardRecording={clearRecordedBlob}
               onStopRecord={stopRecording}
               onRunFixture={handleRunFixture}
               onReset={handleReset}
