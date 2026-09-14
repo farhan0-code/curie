@@ -30,7 +30,7 @@ import {
   Terminal
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
-import TermTooltip, { CLINICAL_TERMS } from '../components/TermTooltip'
+import { CLINICAL_TERMS } from '../components/TermTooltip'
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
 
 const DOCS_NAV_GROUPS = [
@@ -119,15 +119,13 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
 
             <button
               onClick={onBackToLanding}
-              className="flex items-center gap-2 text-left cursor-pointer group"
+              className="flex items-center gap-2.5 text-left cursor-pointer group"
               title="Return to Home"
             >
-              <CurieLogo className="w-5 h-5 text-black group-hover:scale-105 transition-transform" />
-              <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-sm text-black tracking-tight group-hover:text-neutral-700 transition-colors">curie</span>
-                <span className="text-neutral-400 font-mono text-xs">/</span>
-                <span className="font-mono text-xs font-bold text-neutral-500 uppercase tracking-wider hidden sm:inline">
-                  VOICE-TO-SOAP
+              <CurieLogo className="w-7 h-7 shrink-0 group-hover:scale-105 transition-transform" />
+              <div className="flex items-center gap-2">
+                <span className="font-display text-xl tracking-tight text-black font-semibold group-hover:text-neutral-700 transition-colors">
+                  Curie
                 </span>
               </div>
             </button>
@@ -413,8 +411,8 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
                     <tbody className="divide-y divide-neutral-100">
                       <tr>
                         <td className="py-2.5 px-3 font-mono font-bold text-black">Hold Spacebar</td>
-                        <td className="py-2.5 px-3 font-semibold text-black"><TermTooltip term="PTT">Push-to-Talk</TermTooltip> Capture</td>
-                        <td className="py-2.5 px-3 text-neutral-600">Opens 16kHz audio stream; animates <TermTooltip term="RMS">RMS</TermTooltip> soundwave bar</td>
+                        <td className="py-2.5 px-3 font-semibold text-black">Push-to-Talk Capture</td>
+                        <td className="py-2.5 px-3 text-neutral-600">Opens 16kHz audio stream; animates RMS soundwave bar</td>
                       </tr>
                       <tr>
                         <td className="py-2.5 px-3 font-mono font-bold text-black">Release Spacebar</td>
@@ -611,7 +609,7 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
                   Specialty Lexicon &amp; Acoustic Biasing Mechanics
                 </h1>
                 <p className="text-xs text-neutral-600 leading-relaxed max-w-3xl">
-                  Generic automatic speech recognition (<TermTooltip term="ASR">ASR</TermTooltip>) engines routinely fail when decoding complex multi-syllabic pharmaceuticals and diagnostic codes. Curie eliminates phonetic drift through targeted beam search vocabulary biasing.
+                  Generic automatic speech recognition (ASR) engines routinely fail when decoding complex multi-syllabic pharmaceuticals and diagnostic codes. Curie eliminates phonetic drift through targeted beam search vocabulary biasing.
                 </p>
               </div>
 
@@ -640,17 +638,17 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
                       <td className="py-3 px-4 text-neutral-500 font-mono">Antiplatelet</td>
                       <td className="py-3 px-4 text-red-600 font-mono">"cloudy dog grill 75"</td>
                       <td className="py-3 px-4 text-emerald-700 font-mono font-bold">Clopidogrel 75mg PO</td>
-                      <td className="py-3 px-4 text-neutral-600">Omission of mandatory post-stent <TermTooltip term="DAPT">DAPT</TermTooltip></td>
+                      <td className="py-3 px-4 text-neutral-600">Omission of mandatory post-stent DAPT</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-bold text-black"><TermTooltip term="LVEF">LVEF</TermTooltip> 55%</td>
+                      <td className="py-3 px-4 font-bold text-black">LVEF 55%</td>
                       <td className="py-3 px-4 text-neutral-500 font-mono">Cardiology Metric</td>
                       <td className="py-3 px-4 text-red-600 font-mono">"ejection friction 55"</td>
                       <td className="py-3 px-4 text-emerald-700 font-mono font-bold">LVEF 55%</td>
                       <td className="py-3 px-4 text-neutral-600">Inaccurate hemodynamic tracking</td>
                     </tr>
                     <tr>
-                      <td className="py-3 px-4 font-bold text-black"><TermTooltip term="ICD-10">ICD-10</TermTooltip> I25.10</td>
+                      <td className="py-3 px-4 font-bold text-black">ICD-10 I25.10</td>
                       <td className="py-3 px-4 text-neutral-500 font-mono">Diagnostic Code</td>
                       <td className="py-3 px-4 text-red-600 font-mono">"ice d 10 i 25 dot 10"</td>
                       <td className="py-3 px-4 text-emerald-700 font-mono font-bold">ICD-10 I25.10</td>
@@ -873,11 +871,11 @@ BP: 138/84 | HR: 68 bpm | SpO2: 98% | Temp: 98.4°F
                   <h1 className="text-3xl font-display font-bold text-black tracking-tight flex items-center gap-2">
                     <span>Clinical &amp; Technical Acronyms Glossary</span>
                     <span className="text-xs font-mono px-2.5 py-0.5 rounded-lg bg-neutral-100 text-neutral-700 border border-neutral-200 font-semibold">
-                      Interactive Tooltips Enabled
+                      {Object.keys(CLINICAL_TERMS).length} Standard Acronyms
                     </span>
                   </h1>
                   <p className="text-xs text-neutral-600 leading-relaxed mt-1 max-w-2xl">
-                    Hover over or tap any acronym across Curie to view its full medical definition and clinical explanation in plain English.
+                    Reference directory of specialized clinical abbreviations, pharmacology terminology, and speech recognition architecture specifications.
                   </p>
                 </div>
 
@@ -921,9 +919,9 @@ BP: 138/84 | HR: 68 bpm | SpO2: 98% | Temp: 98.4°F
                         .map((item) => (
                           <tr key={item.term} className="hover:bg-neutral-50/80 transition-colors">
                             <td className="py-3.5 px-5 font-mono font-bold text-black">
-                              <TermTooltip term={item.term} showIcon={true}>
+                              <span className="px-2 py-1 rounded-md bg-neutral-100 border border-neutral-200 text-neutral-900 text-xs font-mono">
                                 {item.term}
-                              </TermTooltip>
+                              </span>
                             </td>
                             <td className="py-3.5 px-5 font-semibold text-black">
                               {item.fullForm}
@@ -940,29 +938,6 @@ BP: 138/84 | HR: 68 bpm | SpO2: 98% | Temp: 98.4°F
                         ))}
                     </tbody>
                   </table>
-                </div>
-              </div>
-
-              {/* Quick Interactive Tooltip Demonstration Callout */}
-              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
-                <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black shrink-0 mt-0.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-black">
-                    Interactive Contextual Tooltips in Clinical Practice
-                  </h4>
-                  <p className="text-xs text-neutral-600 leading-relaxed mt-0.5">
-                    Words with a subtle dotted underline (e.g.{' '}
-                    <TermTooltip term="ASR">ASR</TermTooltip>,{' '}
-                    <TermTooltip term="SOAP">SOAP</TermTooltip>,{' '}
-                    <TermTooltip term="EHR">EHR</TermTooltip>,{' '}
-                    <TermTooltip term="FHIR">FHIR</TermTooltip>,{' '}
-                    <TermTooltip term="PTT">PTT</TermTooltip>,{' '}
-                    <TermTooltip term="RMS">RMS</TermTooltip>,{' '}
-                    <TermTooltip term="ICD-10">ICD-10</TermTooltip>,{' '}
-                    <TermTooltip term="DAPT">DAPT</TermTooltip>) reveal instant contextual popovers on hover or touch, ensuring healthcare administrative staff, junior doctors, and non-specialists understand every abbreviation.
-                  </p>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { BookOpen } from 'lucide-react'
 
 export const CLINICAL_TERMS = {
@@ -117,8 +118,13 @@ export default function TermTooltip({
   accentColor = true
 }) {
   const [isVisible, setIsVisible] = useState(false)
-  const [placement, setPlacement] = useState('top') // 'top' | 'bottom'
-  const [horizontalAlign, setHorizontalAlign] = useState('center') // 'center' | 'left' | 'right'
+  const [coords, setCoords] = useState({
+    top: 0,
+    left: 0,
+    placement: 'top',
+    arrowLeft: 160,
+    width: 320
+  })
 
   const timeoutRef = useRef(null)
   const containerRef = useRef(null)
@@ -135,22 +141,44 @@ export default function TermTooltip({
   const updatePosition = () => {
     if (!containerRef.current) return
     const rect = containerRef.current.getBoundingClientRect()
-    
-    // If element is in top 280px of screen, pop BELOW to avoid clipping
-    if (rect.top < 280) {
-      setPlacement('bottom')
+    const viewportWidth = window.innerWidth
+
+    // Responsive width calculation: max 320px, clamped to viewport width minus margins
+    const tooltipWidth = Math.min(320, viewportWidth - 24)
+    const estimatedHeight = 230
+
+    // Vertical placement
+    let placement = 'top'
+    let top = 0
+
+    if (rect.top < estimatedHeight + 16) {
+      placement = 'bottom'
+      top = rect.bottom + 8
     } else {
-      setPlacement('top')
+      placement = 'top'
+      top = rect.top - 8
     }
 
-    // Horizontal bounds safety
-    if (rect.left < 160) {
-      setHorizontalAlign('left')
-    } else if (window.innerWidth - rect.right < 160) {
-      setHorizontalAlign('right')
-    } else {
-      setHorizontalAlign('center')
-    }
+    // Horizontal alignment: center on trigger
+    const triggerCenter = rect.left + rect.width / 2
+    let left = triggerCenter - tooltipWidth / 2
+
+    // Clamp left edge so card never bleeds offscreen
+    const minLeft = 12
+    const maxLeft = viewportWidth - tooltipWidth - 12
+    if (left < minLeft) left = minLeft
+    if (left > maxLeft) left = maxLeft
+
+    // Arrow alignment relative to tooltip left edge
+    const arrowLeft = Math.max(16, Math.min(tooltipWidth - 16, triggerCenter - left))
+
+    setCoords({
+      top,
+      left,
+      placement,
+      arrowLeft,
+      width: tooltipWidth
+    })
   }
 
   const handleMouseEnter = () => {
@@ -162,7 +190,7 @@ export default function TermTooltip({
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setIsVisible(false)
-    }, 120)
+    }, 150)
   }
 
   const handleClick = (e) => {
@@ -171,7 +199,7 @@ export default function TermTooltip({
     setIsVisible((prev) => !prev)
   }
 
-  // Close when clicking outside
+  // Close when clicking outside and handle scroll/resize
   useEffect(() => {
     if (!isVisible) return
     const handleClickOutside = (e) => {
@@ -179,57 +207,60 @@ export default function TermTooltip({
         setIsVisible(false)
       }
     }
+    const handleReposition = () => {
+      updatePosition()
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    window.addEventListener('scroll', handleReposition, true)
+    window.addEventListener('resize', handleReposition)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('scroll', handleReposition, true)
+      window.removeEventListener('resize', handleReposition)
+    }
   }, [isVisible])
-
-  // Compute position classes
-  const getPositionClasses = () => {
-    let classes = ''
-    if (placement === 'bottom') {
-      classes += 'top-full mt-2 '
-    } else {
-      classes += 'bottom-full mb-2 '
-    }
-
-    if (horizontalAlign === 'left') {
-      classes += 'left-0 '
-    } else if (horizontalAlign === 'right') {
-      classes += 'right-0 '
-    } else {
-      classes += 'left-1/2 -translate-x-1/2 '
-    }
-
-    return classes
-  }
 
   const triggerColorClass = accentColor
     ? 'text-[#E25C34] hover:text-[#C54722] border-[#E25C34]/70 hover:border-[#E25C34]'
     : 'text-black border-neutral-400 hover:border-black'
 
   return (
-    <span
-      ref={containerRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      className={`relative inline-flex items-baseline cursor-help group select-none ${className}`}
-      // NOTE: Intentionally NO `title` attribute to prevent native browser tooltip overlap!
-      aria-label={`${termData.term}: ${termData.fullForm}`}
-    >
-      {/* Trigger Text with Terracotta/Orange Dotted Underline */}
-      <span className={`border-b border-dotted font-medium transition-colors ${triggerColorClass}`}>
-        {children || term}
+    <>
+      <span
+        ref={containerRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        className={`relative inline-flex items-baseline cursor-help group select-none ${className}`}
+        aria-label={`${termData.term}: ${termData.fullForm}`}
+      >
+        {/* Trigger Text with Terracotta/Orange Dotted Underline */}
+        <span className={`border-b border-dotted font-medium transition-colors ${triggerColorClass}`}>
+          {children || term}
+        </span>
       </span>
 
-      {/* Floating Tooltip Card (Exact match to reference) */}
-      {isVisible && (
-        <span
+      {/* Floating Tooltip Card rendered via Portal to prevent any parent overflow clipping */}
+      {isVisible && typeof document !== 'undefined' && createPortal(
+        <div
           role="tooltip"
-          className={`absolute ${getPositionClasses()} z-[9999] w-72 sm:w-80 p-4 bg-[#141416] text-white rounded-2xl shadow-2xl border border-neutral-700/80 text-left pointer-events-auto animate-in fade-in zoom-in-95 duration-150`}
+          style={{
+            position: 'fixed',
+            left: `${coords.left}px`,
+            ...(coords.placement === 'bottom'
+              ? { top: `${coords.top}px` }
+              : { bottom: `${window.innerHeight - coords.top}px` }),
+            width: `${coords.width}px`,
+            zIndex: 999999
+          }}
+          className="p-4 bg-[#141416] text-white rounded-2xl shadow-2xl border border-neutral-700/80 text-left pointer-events-auto animate-in fade-in zoom-in-95 duration-150"
+          onMouseEnter={() => clearTimeout(timeoutRef.current)}
+          onMouseLeave={handleMouseLeave}
         >
           {/* Header Line */}
-          <span className="flex items-center justify-between gap-2 pb-2 border-b border-neutral-800/80">
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-neutral-800/80">
             <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-[#E25C34]">
               <BookOpen className="w-3 h-3 text-[#E25C34] shrink-0" />
               <span>{termData.category}</span>
@@ -237,45 +268,44 @@ export default function TermTooltip({
             <span className="text-[9px] font-mono uppercase tracking-widest text-neutral-500 font-semibold">
               TOOLTIP
             </span>
-          </span>
+          </div>
 
           {/* Term Name (White Bold) */}
-          <span className="block font-mono text-sm font-bold text-white mt-2.5">
+          <div className="font-mono text-sm font-bold text-white mt-2.5">
             {termData.term}
-          </span>
+          </div>
 
           {/* Full Form (Gold Amber) */}
-          <span className="block text-xs font-bold text-[#E5A93C] mt-0.5 leading-snug">
+          <div className="text-xs font-bold text-[#E5A93C] mt-0.5 leading-snug">
             {termData.fullForm}
-          </span>
+          </div>
 
           {/* Description Paragraph */}
-          <span className="block text-xs text-neutral-300 leading-relaxed font-sans font-normal mt-2">
+          <div className="text-xs text-neutral-300 leading-relaxed font-sans font-normal mt-2">
             {termData.description}
-          </span>
+          </div>
 
           {/* Bottom In curie Note */}
-          <span className="block mt-3 pt-2.5 border-t border-neutral-800/80 text-[11px] font-mono leading-relaxed text-neutral-300">
+          <div className="mt-3 pt-2.5 border-t border-neutral-800/80 text-[11px] font-mono leading-relaxed text-neutral-300">
             <strong className="text-[#E25C34] font-bold">In curie:</strong>{' '}
             <span>{termData.inCurie}</span>
-          </span>
+          </div>
 
           {/* Arrow */}
-          {placement === 'top' ? (
+          {coords.placement === 'top' ? (
             <span
-              className={`absolute top-full -mt-px border-4 border-transparent border-t-[#141416] ${
-                horizontalAlign === 'left' ? 'left-6' : horizontalAlign === 'right' ? 'right-6' : 'left-1/2 -translate-x-1/2'
-              }`}
+              style={{ left: `${coords.arrowLeft}px` }}
+              className="absolute top-full -translate-x-1/2 -mt-px border-4 border-transparent border-t-[#141416]"
             />
           ) : (
             <span
-              className={`absolute bottom-full -mb-px border-4 border-transparent border-b-[#141416] ${
-                horizontalAlign === 'left' ? 'left-6' : horizontalAlign === 'right' ? 'right-6' : 'left-1/2 -translate-x-1/2'
-              }`}
+              style={{ left: `${coords.arrowLeft}px` }}
+              className="absolute bottom-full -translate-x-1/2 -mb-px border-4 border-transparent border-b-[#141416]"
             />
           )}
-        </span>
+        </div>,
+        document.body
       )}
-    </span>
+    </>
   )
 }

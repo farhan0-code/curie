@@ -535,16 +535,15 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
             </div>
           </div>
 
-          {/* Right Header Quick Controls — Primary Export Action */}
+          {/* Right Header Quick Controls — New Patient Action */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* EHR / FHIR Export Trigger */}
             <button
-              onClick={() => setIsExportOpen(true)}
-              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-xs font-bold text-black border-2 border-black shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              onClick={() => setIsNewPatientOpen(true)}
+              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-xl bg-black hover:bg-neutral-800 text-xs font-bold text-white shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              title="Intake New Patient Encounter"
             >
-              <Share2 className="w-3.5 h-3.5 text-black" />
-              <span className="hidden xs:inline text-black">Export EHR / FHIR</span>
-              <span className="xs:hidden text-black">Export</span>
+              <Plus className="w-3.5 h-3.5 text-white" />
+              <span className="text-white font-bold">New Patient</span>
             </button>
           </div>
         </header>

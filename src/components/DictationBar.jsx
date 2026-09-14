@@ -70,57 +70,74 @@ export default function DictationBar({
     }
   }, [isRecording, isProcessing, audioLevel, frequencyData])
 
+  const isDemo = ['cardiology-stemi-followup', 'pediatric-asthma-exacerbation', 'ortho-sports-knee'].includes(activeEncounter?.id) || (!activeEncounter?.id?.startsWith('custom-'))
+
   return (
     <div className="bg-white rounded-2xl p-5 sm:p-6 border border-neutral-200 shadow-xs">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Left: Recording Controls & Button */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          {/* Main Record Button */}
-          <button
-            onClick={isRecording ? onStopRecord : onStartRecord}
-            disabled={isProcessing}
-            className={`tactile-btn relative group px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all w-full sm:w-auto ${
-              isRecording
-                ? 'bg-white hover:bg-neutral-100 text-black border-2 border-black shadow-sm animate-pulse'
-                : isProcessing
-                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
-                : 'bg-white hover:bg-neutral-100 text-black border-2 border-black shadow-sm'
-            }`}
-          >
-            {isRecording ? (
-              <>
-                <Square className="w-4 h-4 fill-current" />
-                <span>Stop Dictation</span>
-              </>
-            ) : isProcessing ? (
-              <>
-                <Sparkles className="w-4 h-4 animate-spin text-black" />
-                <span>Universal-3.5 Pro Processing...</span>
-              </>
-            ) : (
-              <>
-                <Mic className="w-4 h-4" />
-                <span>Start Ambient Dictation</span>
-              </>
-            )}
-          </button>
-
-          {/* Preset Audio Scenario Run Button (1-Click Instant Demo) */}
-          <button
-            onClick={onRunFixture}
-            disabled={isRecording || isProcessing}
-            className="tactile-btn hidden sm:inline-flex items-center gap-2 px-4 py-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-xs font-semibold text-neutral-800 transition-colors disabled:opacity-50"
-            title="Transcribe pre-recorded patient encounter directly through AssemblyAI"
-          >
-            <Play className="w-3.5 h-3.5 text-black fill-black" />
-            <span>Run Audio Fixture</span>
-          </button>
+          {isDemo ? (
+            /* Demo Encounter Primary Action: Run Audio Fixture */
+            <button
+              onClick={onRunFixture}
+              disabled={isProcessing}
+              className={`tactile-btn relative group px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all w-full sm:w-auto shadow-xs cursor-pointer ${
+                isProcessing
+                  ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+                  : 'bg-black hover:bg-neutral-800 text-white border-2 border-black'
+              }`}
+              title="Transcribe pre-recorded patient encounter directly through AssemblyAI"
+            >
+              {isProcessing ? (
+                <>
+                  <Sparkles className="w-4 h-4 animate-spin text-neutral-500" />
+                  <span className="text-neutral-500 font-bold">Universal-3.5 Pro Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-white text-white" />
+                  <span className="text-white font-bold">Run Audio Fixture</span>
+                </>
+              )}
+            </button>
+          ) : (
+            /* Custom Live Patient Action: Start/Stop Ambient Dictation */
+            <button
+              onClick={isRecording ? onStopRecord : onStartRecord}
+              disabled={isProcessing}
+              className={`tactile-btn relative group px-6 py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all w-full sm:w-auto cursor-pointer ${
+                isRecording
+                  ? 'bg-white hover:bg-neutral-100 text-black border-2 border-black shadow-sm animate-pulse'
+                  : isProcessing
+                  ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+                  : 'bg-black hover:bg-neutral-800 text-white border-2 border-black shadow-sm'
+              }`}
+            >
+              {isRecording ? (
+                <>
+                  <Square className="w-4 h-4 fill-current" />
+                  <span className="text-black font-bold">Stop Dictation</span>
+                </>
+              ) : isProcessing ? (
+                <>
+                  <Sparkles className="w-4 h-4 animate-spin text-white" />
+                  <span className="text-white font-bold">Universal-3.5 Pro Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4 text-white" />
+                  <span className="text-white font-bold">Start Ambient Dictation</span>
+                </>
+              )}
+            </button>
+          )}
 
           {/* Reset / Clear */}
           <button
             onClick={onReset}
             disabled={isRecording || isProcessing}
-            className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40"
+            className="tactile-btn p-3.5 rounded-xl bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 hover:text-neutral-800 transition-colors disabled:opacity-40 cursor-pointer"
             title="Reset to fresh chart"
           >
             <RotateCcw className="w-4 h-4" />
@@ -132,7 +149,7 @@ export default function DictationBar({
           <div className="w-full flex items-center justify-between text-[11px] font-mono text-neutral-500 mb-1.5 font-medium">
             <span className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${isRecording ? 'bg-black animate-ping' : 'bg-black'}`} />
-              {isRecording ? 'Microphone Active (16kHz PCM)' : isProcessing ? 'Universal-3.5 Pro Transcribing...' : 'Audio Hardware Ready'}
+              {isRecording ? 'Microphone Active (16kHz PCM)' : isProcessing ? 'Universal-3.5 Pro Transcribing...' : isDemo ? 'Benchmark Audio Fixture Ready' : 'Audio Hardware Ready'}
             </span>
             <span className="font-bold text-black">
               {recordingDuration || '00:00.0'}
@@ -145,7 +162,11 @@ export default function DictationBar({
 
           <div className="w-full text-center mt-1.5">
             <span className="text-[10px] text-neutral-500 font-mono">
-              Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> to dictate • Press <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> for 1-click test
+              {isDemo ? (
+                <>Click <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> to transcribe pre-recorded encounter • Or click <strong className="text-neutral-800 font-semibold">+ New Patient</strong> to record live</>
+              ) : (
+                <>Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> or click <strong className="text-neutral-800 font-semibold">Start Ambient Dictation</strong></>
+              )}
             </span>
           </div>
         </div>

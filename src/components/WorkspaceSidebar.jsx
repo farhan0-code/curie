@@ -88,9 +88,14 @@ export default function WorkspaceSidebar({
           {/* Patient Queue / Encounters */}
           <div className="px-3 pt-3">
             <div className="flex items-center justify-between px-3 mb-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
-                Patient Queue
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-bold">
+                  Patient Queue
+                </span>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                  3 Demos
+                </span>
+              </div>
               <button
                 onClick={onOpenNewPatient}
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 text-black text-[10px] font-bold transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
@@ -106,6 +111,7 @@ export default function WorkspaceSidebar({
                 const isActive = enc.id === activeEncounterId
                 const p = enc.patient
                 const initials = p.name.split(' ').map((n) => n[0]).join('')
+                const isDemo = ['cardiology-stemi-followup', 'pediatric-asthma-exacerbation', 'ortho-sports-knee'].includes(enc.id) || !enc.id.startsWith('custom-')
                 return (
                   <button
                     key={enc.id}
@@ -130,13 +136,30 @@ export default function WorkspaceSidebar({
                         >
                           {initials}
                         </div>
-                        <span className="font-semibold text-xs text-black truncate max-w-[120px]">
+                        <span className="font-semibold text-xs text-black truncate max-w-[110px]">
                           {p.name}
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-neutral-500">
-                        {p.age}yo {p.gender[0]}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {isDemo ? (
+                          <span
+                            className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                              isActive
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}
+                          >
+                            Demo
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Live
+                          </span>
+                        )}
+                        <span className="text-[10px] font-mono text-neutral-500">
+                          {p.age}yo {p.gender[0]}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] text-neutral-500">
@@ -144,7 +167,7 @@ export default function WorkspaceSidebar({
                         {enc.specialty.split(' ')[0]}
                       </span>
                       <span className="font-mono text-[10px] text-neutral-400">
-                        {p.mrn}
+                        {isDemo ? 'Pre-recorded' : p.mrn}
                       </span>
                     </div>
                   </button>
