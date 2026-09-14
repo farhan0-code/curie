@@ -107,8 +107,8 @@ export const CLINICAL_ENCOUNTERS = [
         indication: 'Statin Myalgia Relief'
       }
     ],
-    audioDuration: '14.2s',
-    latencyMs: 1120
+    audioUrl: '/fixtures/cardiology_consultation_en.wav',
+    audioDuration: '58.1s'
   },
   {
     id: 'pediatrics-asthma-acute',
@@ -202,8 +202,8 @@ export const CLINICAL_ENCOUNTERS = [
         indication: 'Rescue Bronchodilator'
       }
     ],
-    audioDuration: '12.8s',
-    latencyMs: 1045
+    audioUrl: '/fixtures/pediatric_asthma_en.wav',
+    audioDuration: '71.8s'
   },
   {
     id: 'orthopedics-knee-acl',
@@ -302,7 +302,7 @@ export const CLINICAL_ENCOUNTERS = [
         indication: 'Right Lower Extremity Unloading'
       }
     ],
-    audioDuration: '15.6s',
-    latencyMs: 1240
+    audioUrl: '/fixtures/orthopedic_knee_trauma_en.wav',
+    audioDuration: '76.6s'
   }
 ];

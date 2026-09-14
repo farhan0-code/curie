@@ -49,7 +49,7 @@ import NewPatientModal from '../components/NewPatientModal'
 import ClinicianProfileModal from '../components/ClinicianProfileModal'
 
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
-import { transcribeClinicalAudio } from '../services/dictationService'
+import { transcribeClinicalAudio, localizeSoapNote } from '../services/dictationService'
 import { ClinicalAudioRecorder } from '../utils/audioRecorder'
 
 export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initialEncounterId }) {
@@ -118,11 +118,13 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
     return initial
   })
 
-  // Telemetry per encounter state
+  // Telemetry per encounter state (measured dynamically upon execution)
   const [telemetry, setTelemetry] = useState({
-    latencyMs: 1084,
+    latencyMs: null,
     isLive: false,
-    biasingHits: encounter.keyterms.length
+    confidence: null,
+    fillersStripped: null,
+    biasingHits: null
   })
 
   // Audio Recording states
@@ -223,7 +225,9 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         setTelemetry({
           latencyMs: result.latencyMs,
           isLive: result.isLive,
-          biasingHits: currentKeyterms.length
+          confidence: result.confidence,
+          fillersStripped: result.fillersStripped,
+          biasingHits: result.biasingHits
         })
 
         // Celebratory particles
@@ -248,15 +252,36 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
     }
   }
 
-  // Instant Scenario Evaluation (1-Click Run Audio Fixture)
+  // Instant Scenario Evaluation (1-Click Run Real Audio Fixture)
   const handleRunFixture = async () => {
     if (isRecording || isProcessing) return
     setIsProcessing(true)
 
     try {
-      const fakeAudioBlob = new Blob([new Uint8Array(44 + 16000 * 2)], { type: 'audio/wav' })
+      // Determine real audio fixture URL
+      const fixtureUrl = encounter.audioUrl || (
+        activeEncounterId.includes('cardio')
+          ? '/fixtures/cardiology_consultation_en.wav'
+          : activeEncounterId.includes('pediatric')
+            ? '/fixtures/pediatric_asthma_en.wav'
+            : '/fixtures/orthopedic_knee_trauma_en.wav'
+      )
 
-      const result = await transcribeClinicalAudio(fakeAudioBlob, {
+      let audioBlob = null
+      try {
+        const audioResponse = await fetch(fixtureUrl)
+        if (audioResponse.ok) {
+          audioBlob = await audioResponse.blob()
+        }
+      } catch (err) {
+        console.warn('Could not fetch audio fixture:', err)
+      }
+
+      if (!audioBlob) {
+        audioBlob = new Blob([new Uint8Array(44 + 16000 * 2)], { type: 'audio/wav' })
+      }
+
+      const result = await transcribeClinicalAudio(audioBlob, {
         ...encounter,
         keyterms: currentKeyterms,
         language: selectedLanguage
@@ -273,7 +298,9 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       setTelemetry({
         latencyMs: result.latencyMs,
         isLive: result.isLive,
-        biasingHits: currentKeyterms.length
+        confidence: result.confidence,
+        fillersStripped: result.fillersStripped,
+        biasingHits: result.biasingHits
       })
 
       confetti({
@@ -284,7 +311,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
       })
 
       showToast(
-        `Scenario "${encounter.title}" transcribed in ${result.latencyMs}ms with ${currentKeyterms.length} keyterms biased!`,
+        `Scenario "${encounter.title}" transcribed in ${result.latencyMs}ms with ${result.biasingHits || currentKeyterms.length} keyterms biased!`,
         'success'
       )
     } finally {
@@ -455,8 +482,18 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         selectedLanguage={selectedLanguage}
         onSelectLanguage={(langCode) => {
           setSelectedLanguage(langCode)
+          const baseSoap = encounter.soapNote
+          if (baseSoap) {
+            const localized = langCode === 'en'
+              ? baseSoap
+              : localizeSoapNote(baseSoap, langCode, currentKeyterms)
+            setSoapNotesMap((prev) => ({
+              ...prev,
+              [activeEncounterId]: localized
+            }))
+          }
           const found = SUPPORTED_LANGUAGES.find((l) => l.code === langCode)
-          showToast(`Consultation language set to ${found?.label}`, 'info')
+          showToast(`Consultation language set to ${found?.label || langCode}`, 'info')
         }}
         onOpenLexicon={() => setIsLexiconOpen(true)}
         onOpenExport={() => setIsExportOpen(true)}

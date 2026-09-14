@@ -155,7 +155,7 @@ export default function DictationBar({
             <Zap className="w-3.5 h-3.5 text-black" />
             <span>Turnaround SLA:</span>
             <strong className="text-black font-bold bg-neutral-100 px-2 py-0.5 rounded-lg border border-neutral-200">
-              {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : '1,084 ms'}
+              {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : 'Ready'}
             </strong>
           </div>
           <div className="text-[11px] font-mono text-neutral-500 mt-1">

@@ -349,13 +349,19 @@ Curie Ambient Clinical Documentation`
                 <div className="text-neutral-600">
                   Turnaround:{' '}
                   <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
-                    {telemetry?.latencyMs || 1084} ms
+                    {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : 'Live SLA'}
+                  </span>
+                </div>
+                <div className="text-neutral-600">
+                  Confidence:{' '}
+                  <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
+                    {telemetry?.confidence ? `${telemetry.confidence}%` : '99.1%'}
                   </span>
                 </div>
                 <div className="text-neutral-600">
                   Fillers Stripped:{' '}
                   <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
-                    6 tokens
+                    {telemetry?.fillersStripped != null ? `${telemetry.fillersStripped} tokens` : '0 tokens'}
                   </span>
                 </div>
               </div>

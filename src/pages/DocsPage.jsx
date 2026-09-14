@@ -245,7 +245,7 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
                         {enc.specialty}
                       </span>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-100 font-bold text-black border border-neutral-200">
-                        {enc.latencyMs} ms
+                        {enc.audioDuration || `${enc.keyterms.length} terms`}
                       </span>
                     </div>
                     <div className="font-display font-bold text-sm text-black mb-1">{p.name}</div>
