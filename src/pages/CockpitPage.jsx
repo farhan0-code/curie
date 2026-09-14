@@ -352,8 +352,8 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col">
       {/* ================= COCKPIT TOP WORKSTATION HEADER ================= */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 w-full pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8 pointer-events-none">
+        <div className="max-w-7xl mx-auto pointer-events-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-[0_4px_20px_rgba(15,23,42,0.05)] px-4 sm:px-6 py-2.5 flex items-center justify-between transition-all">
           {/* Brand & Return Navigation */}
           <div className="flex items-center gap-3">
             <button

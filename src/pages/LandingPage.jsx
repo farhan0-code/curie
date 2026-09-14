@@ -71,13 +71,13 @@ export default function LandingPage({ onLaunchCockpit, onOpenLexicon, onSelectEn
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col">
-      {/* ================= LANDING NAVBAR ================= */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      {/* ================= SLEEK FLOATING LANDING NAVBAR ================= */}
+      <header className="sticky top-0 z-50 w-full pt-4 sm:pt-5 px-4 sm:px-6 lg:px-8 pointer-events-none">
+        <div className="max-w-7xl mx-auto pointer-events-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-[0_4px_24px_rgba(15,23,42,0.05)] px-4 sm:px-6 py-3 flex items-center justify-between transition-all">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center shadow-xs">
-              <CurieLogo className="w-7 h-7" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shadow-2xs shrink-0">
+              <CurieLogo className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
