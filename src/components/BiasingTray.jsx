@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Plus, Tag, ShieldCheck, Check, Sparkles, X, RotateCcw } from 'lucide-react'
+import TermTooltip, { CLINICAL_TERMS } from './TermTooltip'
 
 export default function BiasingTray({
   activeEncounter,
@@ -100,7 +101,7 @@ export default function BiasingTray({
                 : 'text-neutral-600 hover:text-black'
             }`}
           >
-            ICD-10
+            <TermTooltip term="ICD-10">ICD-10</TermTooltip>
           </button>
           <button
             onClick={() => setFilterCategory('anatomy')}
@@ -120,13 +121,20 @@ export default function BiasingTray({
         {filteredTerms.map((term) => {
           const cat = categorizeTerm(term)
           const badgeClass = getCategoryBadgeClass(cat)
+          const lookupKey = Object.keys(CLINICAL_TERMS).find((k) =>
+            term.toUpperCase().includes(k)
+          )
           return (
             <span
               key={term}
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-medium border transition-all group shadow-2xs ${badgeClass}`}
             >
               <ShieldCheck className="w-3.5 h-3.5 opacity-80" />
-              <span>{term}</span>
+              {lookupKey ? (
+                <TermTooltip term={lookupKey}>{term}</TermTooltip>
+              ) : (
+                <span>{term}</span>
+              )}
               <button
                 onClick={() => onRemoveKeyterm(term)}
                 title="Remove keyterm"

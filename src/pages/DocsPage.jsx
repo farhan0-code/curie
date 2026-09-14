@@ -20,15 +20,19 @@ import {
   Building2,
   Sparkles,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Search,
+  HelpCircle
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
+import TermTooltip, { CLINICAL_TERMS } from '../components/TermTooltip'
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
 
 export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectEncounter }) {
-  const [activeTab, setActiveTab] = useState('getting-started') // 'getting-started' | 'demos' | 'biasing' | 'ehr' | 'api'
+  const [activeTab, setActiveTab] = useState('getting-started') // 'getting-started' | 'demos' | 'biasing' | 'ehr' | 'api' | 'glossary'
   const [activeDemoIdx, setActiveDemoIdx] = useState(0)
   const [copiedFormat, setCopiedFormat] = useState(null)
+  const [glossarySearch, setGlossarySearch] = useState('')
 
   const selectedDemo = CLINICAL_ENCOUNTERS[activeDemoIdx] || CLINICAL_ENCOUNTERS[0]
 
@@ -40,43 +44,45 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
 
   return (
     <div className="min-h-screen bg-neutral-50 text-black font-sans selection:bg-neutral-200">
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-40 w-full h-16 border-b border-neutral-200 bg-white/95 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBackToLanding}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
-            title="Back to Overview"
-          >
-            <CurieLogo className="w-7 h-7" />
-            <span className="font-display font-bold text-base text-black tracking-tight">Curie</span>
-          </button>
-          <span className="text-neutral-300">/</span>
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-600">
-            System Documentation &amp; Reference Demos
-          </span>
-        </div>
+      {/* Top Header Banner */}
+      <header className="border-b border-neutral-200 bg-white sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBackToLanding}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-xs font-semibold text-neutral-800 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back</span>
+            </button>
+            <div className="h-4 w-px bg-neutral-200 mx-1" />
+            <div className="flex items-center gap-2">
+              <CurieLogo className="w-5 h-5 text-black" />
+              <span className="font-display font-bold text-base text-black tracking-tight">Curie Docs</span>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => onLaunchWorkspace()}
-            className="tactile-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-black hover:bg-neutral-800 text-xs font-bold text-white shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <span className="text-white font-bold">Open Clinical Cockpit</span>
-            <ArrowRight className="w-3.5 h-3.5 text-white" />
-          </button>
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={onLaunchWorkspace}
+              className="tactile-btn px-4 py-2 rounded-xl text-xs font-bold bg-white hover:bg-neutral-100 text-black border-2 border-black flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Open Workspace</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Hero Subheader */}
-      <div className="bg-white border-b border-neutral-200 py-10 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-mono font-semibold text-neutral-700">
+      {/* Docs Title & Description */}
+      <div className="border-b border-neutral-200 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-10">
+          <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 uppercase tracking-wider mb-2">
             <BookOpen className="w-3.5 h-3.5 text-black" />
-            <span>Curie v1.0 • Technical Architecture &amp; Clinical Guide</span>
+            <span>Developer &amp; Clinician Reference</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-black tracking-tight">
-            Curie Clinical Voice Scribe Documentation
+          <h1 className="text-3xl sm:text-4xl font-display font-bold text-black tracking-tight mb-3">
+            Documentation &amp; Clinical Architecture
           </h1>
           <p className="text-sm sm:text-base text-neutral-600 max-w-3xl leading-relaxed">
             A comprehensive guide to ambient outpatient voice transcription, targeted pharmacology keyterm biasing, single-pass SOAP restructuring with AssemblyAI Universal-3.5 Pro, and pre-loaded clinical reference encounters.
@@ -89,7 +95,8 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
               { id: 'demos', label: '2. Clinical Benchmark Demos (3 Cases)', icon: Activity },
               { id: 'biasing', label: '3. Acoustic Keyterm Biasing', icon: ShieldCheck },
               { id: 'ehr', label: '4. Multi-EHR Interoperability', icon: Share2 },
-              { id: 'api', label: '5. AssemblyAI Dictation API Spec', icon: Zap }
+              { id: 'api', label: '5. AssemblyAI Dictation API Spec', icon: Zap },
+              { id: 'glossary', label: '6. Acronyms & Medical Glossary', icon: HelpCircle }
             ].map((tab) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -622,6 +629,109 @@ BP: 138/84 | HR: 68 bpm | SpO2: 98% | Temp: 98.4°F
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 6: ACRONYMS & MEDICAL GLOSSARY ================= */}
+        {activeTab === 'glossary' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-display font-bold text-black tracking-tight flex items-center gap-2">
+                  <span>Clinical &amp; Technical Acronyms Glossary</span>
+                  <span className="text-xs font-mono px-2.5 py-0.5 rounded-lg bg-neutral-100 text-neutral-700 border border-neutral-200 font-semibold">
+                    Interactive Tooltips Enabled
+                  </span>
+                </h2>
+                <p className="text-xs text-neutral-600 leading-relaxed mt-1 max-w-2xl">
+                  Hover over or tap any acronym across Curie to view its full medical definition and clinical explanation in plain English.
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={glossarySearch}
+                  onChange={(e) => setGlossarySearch(e.target.value)}
+                  placeholder="Search acronym or term..."
+                  className="w-full bg-white border border-neutral-200 rounded-xl pl-8 pr-3 py-1.5 text-xs text-black placeholder:text-neutral-400 focus:outline-none focus:border-black shadow-2xs font-sans"
+                />
+              </div>
+            </div>
+
+            {/* Glossary Table */}
+            <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-700 font-mono text-[11px] uppercase tracking-wider">
+                      <th className="py-3.5 px-5 font-semibold w-28">Term</th>
+                      <th className="py-3.5 px-5 font-semibold w-64">Full Form</th>
+                      <th className="py-3.5 px-5 font-semibold w-36">Category</th>
+                      <th className="py-3.5 px-5 font-semibold">Plain-English Meaning &amp; Clinical Context</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 text-neutral-800">
+                    {Object.values(CLINICAL_TERMS)
+                      .filter((item) => {
+                        if (!glossarySearch.trim()) return true
+                        const q = glossarySearch.toLowerCase()
+                        return (
+                          item.term.toLowerCase().includes(q) ||
+                          item.fullForm.toLowerCase().includes(q) ||
+                          item.description.toLowerCase().includes(q) ||
+                          item.category.toLowerCase().includes(q)
+                        )
+                      })
+                      .map((item) => (
+                        <tr key={item.term} className="hover:bg-neutral-50/80 transition-colors">
+                          <td className="py-3.5 px-5 font-mono font-bold text-black">
+                            <TermTooltip term={item.term} showIcon={true}>
+                              {item.term}
+                            </TermTooltip>
+                          </td>
+                          <td className="py-3.5 px-5 font-semibold text-black">
+                            {item.fullForm}
+                          </td>
+                          <td className="py-3.5 px-5">
+                            <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-neutral-100 text-neutral-700 border border-neutral-200">
+                              {item.category}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-5 text-xs text-neutral-600 leading-relaxed font-sans">
+                            {item.description}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Quick Interactive Tooltip Demonstration Callout */}
+            <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 flex items-start gap-3">
+              <div className="w-7 h-7 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center text-black shrink-0 mt-0.5">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-black">
+                  Interactive Contextual Tooltips in Clinical Practice
+                </h4>
+                <p className="text-xs text-neutral-600 leading-relaxed mt-0.5">
+                  Words with a subtle dotted underline (e.g.{' '}
+                  <TermTooltip term="ASR">ASR</TermTooltip>,{' '}
+                  <TermTooltip term="SOAP">SOAP</TermTooltip>,{' '}
+                  <TermTooltip term="EHR">EHR</TermTooltip>,{' '}
+                  <TermTooltip term="FHIR">FHIR</TermTooltip>,{' '}
+                  <TermTooltip term="PTT">PTT</TermTooltip>,{' '}
+                  <TermTooltip term="RMS">RMS</TermTooltip>,{' '}
+                  <TermTooltip term="ICD-10">ICD-10</TermTooltip>,{' '}
+                  <TermTooltip term="DAPT">DAPT</TermTooltip>) reveal instant contextual popovers on hover or touch, ensuring healthcare administrative staff, junior doctors, and non-specialists understand every abbreviation.
+                </p>
+              </div>
             </div>
           </div>
         )}

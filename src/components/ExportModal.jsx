@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { X, Copy, Check, Download, Printer, Share2, Code, FileText, CheckCircle2 } from 'lucide-react'
+import TermTooltip from './TermTooltip'
 
 export default function ExportModal({ isOpen, onClose, encounter, soapNote, prescriptions, clinicianProfile }) {
   const [selectedFormat, setSelectedFormat] = useState('epic') // 'epic' | 'fhir' | 'cerner'
@@ -187,10 +188,10 @@ Curie Voice Intelligence Engine - Verified
             </div>
             <div>
               <h3 className="font-display text-xl font-semibold text-slate-900">
-                Export Clinical Encounter &amp; SOAP Note
+                Export Clinical Encounter &amp; <TermTooltip term="SOAP">SOAP</TermTooltip> Note
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Targeting EHR interop: Epic Hyperspace, Cerner Millennium, or HL7 FHIR R4 standard.
+                Targeting <TermTooltip term="EHR">EHR</TermTooltip> interop: Epic Hyperspace, Cerner Millennium, or HL7 <TermTooltip term="FHIR">FHIR R4</TermTooltip> standard.
               </p>
             </div>
           </div>
@@ -226,7 +227,7 @@ Curie Voice Intelligence Engine - Verified
               }`}
             >
               <Code className="w-3.5 h-3.5" />
-              <span>HL7 FHIR R4 (.json)</span>
+              <span>HL7 <TermTooltip term="FHIR">FHIR R4</TermTooltip> (.json)</span>
             </button>
 
             <button

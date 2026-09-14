@@ -17,6 +17,7 @@ import {
   Clock,
   CheckCircle2
 } from 'lucide-react'
+import TermTooltip from './TermTooltip'
 
 export default function SoapNoteView({
   encounter,
@@ -108,7 +109,7 @@ Curie Ambient Clinical Documentation`
             }`}
           >
             <FileText className={`w-3.5 h-3.5 ${activeTab === 'soap' ? 'text-black' : 'text-neutral-500'}`} />
-            <span>Structured SOAP Note</span>
+            <span>Structured <TermTooltip term="SOAP">SOAP</TermTooltip> Note</span>
           </button>
 
           <button
@@ -182,7 +183,7 @@ Curie Ambient Clinical Documentation`
             className="tactile-btn px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-neutral-100 text-black border-2 border-black flex items-center gap-1.5 transition-all shadow-xs"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>Export EHR / FHIR</span>
+            <span>Export <TermTooltip term="EHR">EHR</TermTooltip> / <TermTooltip term="FHIR">FHIR</TermTooltip></span>
           </button>
         </div>
       </div>
@@ -260,7 +261,7 @@ Curie Ambient Clinical Documentation`
                   </h4>
                 </div>
                 <span className="text-[11px] font-mono text-black font-semibold flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Universal-3.5 Biased ICD-10
+                  <ShieldCheck className="w-3.5 h-3.5" /> Universal-3.5 Biased <TermTooltip term="ICD-10">ICD-10</TermTooltip>
                 </span>
               </div>
 
@@ -347,7 +348,7 @@ Curie Ambient Clinical Documentation`
               </div>
               <div className="flex items-center gap-3 text-xs font-mono">
                 <div className="text-neutral-600">
-                  Turnaround:{' '}
+                  <TermTooltip term="SLA">Turnaround SLA</TermTooltip>:{' '}
                   <span className="text-black font-bold bg-neutral-100 px-1.5 py-0.5 rounded border border-neutral-200">
                     {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : 'Live SLA'}
                   </span>

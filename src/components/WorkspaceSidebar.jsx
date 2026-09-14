@@ -18,6 +18,7 @@ import {
   Settings
 } from 'lucide-react'
 import CurieLogo from './CurieLogo'
+import TermTooltip from './TermTooltip'
 
 export default function WorkspaceSidebar({
   isOpen,
@@ -235,9 +236,9 @@ export default function WorkspaceSidebar({
                     <Share2 className="w-3.5 h-3.5 text-black" />
                   </div>
                   <div className="text-left">
-                    <div className="text-xs font-semibold text-black">Export EHR / FHIR</div>
+                    <div className="text-xs font-semibold text-black">Export <TermTooltip term="EHR">EHR</TermTooltip> / <TermTooltip term="FHIR">FHIR</TermTooltip></div>
                     <div className="text-[10px] text-neutral-500 font-mono">
-                      Epic • FHIR R4 • Cerner
+                      Epic • <TermTooltip term="FHIR">FHIR R4</TermTooltip> • Cerner
                     </div>
                   </div>
                 </div>

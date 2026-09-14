@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { Mic, Square, Play, Sparkles, Clock, Zap, Volume2, RotateCcw } from 'lucide-react'
+import TermTooltip from './TermTooltip'
 
 export default function DictationBar({
   isRecording,
@@ -144,7 +145,7 @@ export default function DictationBar({
 
           <div className="w-full text-center mt-1.5">
             <span className="text-[10px] text-neutral-500 font-mono">
-              Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200">Spacebar</strong> to dictate • Press <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> for 1-click test
+              Hold <strong className="text-neutral-800 font-semibold bg-neutral-100 px-1 py-0.5 rounded border border-neutral-200"><TermTooltip term="PTT">Spacebar (PTT)</TermTooltip></strong> to dictate • Press <strong className="text-neutral-800 font-semibold">Run Audio Fixture</strong> for 1-click test
             </span>
           </div>
         </div>
@@ -153,7 +154,7 @@ export default function DictationBar({
         <div className="flex flex-col items-end shrink-0 text-right">
           <div className="flex items-center gap-1.5 text-xs font-mono text-neutral-800">
             <Zap className="w-3.5 h-3.5 text-black" />
-            <span>Turnaround SLA:</span>
+            <span><TermTooltip term="SLA">Turnaround SLA</TermTooltip>:</span>
             <strong className="text-black font-bold bg-neutral-100 px-2 py-0.5 rounded-lg border border-neutral-200">
               {telemetry?.latencyMs ? `${telemetry.latencyMs} ms` : 'Ready'}
             </strong>
@@ -164,7 +165,7 @@ export default function DictationBar({
                 {telemetry.biasingHits} medical terms locked in vocabulary
               </span>
             ) : (
-              <span>Universal-3.5 Pro • Single-pass SOAP rewrite</span>
+              <span>Universal-3.5 Pro • Single-pass <TermTooltip term="SOAP">SOAP</TermTooltip> rewrite</span>
             )}
           </div>
         </div>

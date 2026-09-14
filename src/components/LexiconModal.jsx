@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Search, AlertTriangle, ShieldCheck, ArrowRight, BookOpen, Check } from 'lucide-react'
 import { MEDICAL_LEXICON } from '../data/medicalLexicon'
+import TermTooltip from './TermTooltip'
 
 export default function LexiconModal({ isOpen, onClose }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -54,7 +55,7 @@ export default function LexiconModal({ isOpen, onClose }) {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Empirical benchmark: standard un-biased ASR phonetic hallucinations vs. Curie domain-biased clinical transcription.
+                Empirical benchmark: standard un-biased <TermTooltip term="ASR">ASR</TermTooltip> phonetic hallucinations vs. Curie domain-biased clinical transcription.
               </p>
             </div>
           </div>

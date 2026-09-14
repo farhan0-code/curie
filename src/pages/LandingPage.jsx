@@ -26,6 +26,7 @@ import {
   Copy
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
+import TermTooltip from '../components/TermTooltip'
 import { CLINICAL_ENCOUNTERS } from '../data/clinicalEncounters'
 
 export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavigateToDocs, onOpenLexicon, onSelectEncounter }) {
@@ -782,7 +783,7 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavi
       <section id="comparison" className="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-black font-semibold tracking-tight mb-3">
-            Acoustic Biasing vs. Unconstrained ASR
+            Acoustic Biasing vs. Unconstrained <TermTooltip term="ASR">ASR</TermTooltip>
           </h2>
           <p className="text-xs sm:text-sm md:text-base text-neutral-600 leading-relaxed">
             Direct phonetic comparison showing how Curie eliminates high-risk transcription misinterpretations.
@@ -796,7 +797,7 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavi
                 <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-700 font-mono text-[11px] uppercase tracking-wider">
                   <th className="py-3.5 px-5 font-semibold">Clinical Term</th>
                   <th className="py-3.5 px-5 font-semibold">Category</th>
-                  <th className="py-3.5 px-5 font-semibold text-neutral-500">Generic ASR (Unbiased)</th>
+                  <th className="py-3.5 px-5 font-semibold text-neutral-500">Generic <TermTooltip term="ASR">ASR</TermTooltip> (Unbiased)</th>
                   <th className="py-3.5 px-5 font-semibold text-black font-bold">Curie (Universal-3.5 Pro)</th>
                   <th className="py-3.5 px-5 font-semibold">Patient Safety Impact</th>
                 </tr>
@@ -810,11 +811,11 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavi
                   <td className="py-3 px-5 text-xs text-neutral-600">Eliminates pharmacy dispensing reject</td>
                 </tr>
                 <tr className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-3 px-5 font-semibold font-mono">Clopidogrel</td>
+                  <td className="py-3 px-5 font-semibold font-mono"><TermTooltip term="DAPT">Clopidogrel</TermTooltip></td>
                   <td className="py-3 px-5 text-neutral-600">Antiplatelet</td>
                   <td className="py-3 px-5 font-mono text-neutral-500 line-through">"cloudy dog grill 75"</td>
                   <td className="py-3 px-5 font-mono text-black font-bold">Clopidogrel 75mg</td>
-                  <td className="py-3 px-5 text-xs text-neutral-600">Prevents fatal post-stent DAPT omission</td>
+                  <td className="py-3 px-5 text-xs text-neutral-600">Prevents fatal post-stent <TermTooltip term="DAPT">DAPT</TermTooltip> omission</td>
                 </tr>
                 <tr className="hover:bg-neutral-50/80 transition-colors">
                   <td className="py-3 px-5 font-semibold font-mono">Lachman test</td>
@@ -824,14 +825,14 @@ export default function LandingPage({ onLaunchWorkspace, onLaunchCockpit, onNavi
                   <td className="py-3 px-5 text-xs text-neutral-600">Preserves orthopedic ACL diagnostic score</td>
                 </tr>
                 <tr className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-3 px-5 font-semibold font-mono">LVEF 55%</td>
+                  <td className="py-3 px-5 font-semibold font-mono"><TermTooltip term="LVEF">LVEF 55%</TermTooltip></td>
                   <td className="py-3 px-5 text-neutral-600">Cardiology</td>
                   <td className="py-3 px-5 font-mono text-neutral-500 line-through">"ejection friction 55"</td>
                   <td className="py-3 px-5 font-mono text-black font-bold">LVEF 55%</td>
                   <td className="py-3 px-5 text-xs text-neutral-600">Accurate hemodynamic assessment in CHF</td>
                 </tr>
                 <tr className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-3 px-5 font-semibold font-mono">ICD-10 I25.10</td>
+                  <td className="py-3 px-5 font-semibold font-mono"><TermTooltip term="ICD-10">ICD-10 I25.10</TermTooltip></td>
                   <td className="py-3 px-5 text-neutral-600">Diagnostic</td>
                   <td className="py-3 px-5 font-mono text-neutral-500 line-through">"ice d 10 i 25 dot 10"</td>
                   <td className="py-3 px-5 font-mono text-black font-bold">ICD-10 I25.10</td>

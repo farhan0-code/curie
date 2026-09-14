@@ -1,5 +1,6 @@
 import React from 'react'
 import { User, AlertCircle, Heart, Activity, Thermometer, Wind, CheckCircle2, ShieldAlert } from 'lucide-react'
+import TermTooltip from './TermTooltip'
 
 export default function PatientHeader({
   encounters,
@@ -58,7 +59,7 @@ export default function PatientHeader({
                   {p.age} y/o {p.gender}
                 </span>
                 <span className="text-xs font-mono font-semibold text-black bg-neutral-100 px-2.5 py-0.5 rounded-lg border border-neutral-200">
-                  {p.mrn}
+                  <TermTooltip term="MRN">{p.mrn}</TermTooltip>
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-neutral-500">
@@ -105,7 +106,9 @@ export default function PatientHeader({
                 <Wind className="w-3.5 h-3.5" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-mono font-medium text-neutral-400">SpO2</div>
+                <div className="text-[10px] uppercase font-mono font-medium text-neutral-400">
+                  <TermTooltip term="SpO2">SpO2</TermTooltip>
+                </div>
                 <div className="text-xs font-mono font-bold text-black">
                   {p.vitals.spo2}%
                 </div>
