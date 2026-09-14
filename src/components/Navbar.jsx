@@ -4,36 +4,34 @@ import CurieLogo from './CurieLogo'
 
 export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onSelectView }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-xs">
+    <header className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur-md shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand & Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shadow-xs">
-            <CurieLogo className="w-6 h-6" />
-          </div>
+          <CurieLogo className="w-8 h-8 shrink-0" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight text-slate-900 font-sans">
+              <span className="font-bold text-lg tracking-tight text-black font-sans">
                 Curie
               </span>
-              <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200">
+              <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-800 font-semibold border border-neutral-200">
                 v1.0 Pro
               </span>
             </div>
-            <p className="text-[11px] font-medium text-slate-500 hidden sm:block">
+            <p className="text-[11px] font-medium text-neutral-500 hidden sm:block">
               Ambient Clinical Voice Scribe &amp; SOAP Cockpit
             </p>
           </div>
         </div>
 
         {/* View Switcher Navigation (Landing vs Cockpit) */}
-        <div className="hidden md:flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200">
+        <div className="hidden md:flex items-center gap-1 p-1 bg-neutral-100 rounded-xl border border-neutral-200">
           <button
             onClick={() => onSelectView('landing')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               activeView === 'landing'
-                ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-black shadow-xs font-semibold'
+                : 'text-neutral-600 hover:text-black'
             }`}
           >
             Overview &amp; Architecture
@@ -42,13 +40,13 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
             onClick={() => onSelectView('cockpit')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
               activeView === 'cockpit'
-                ? 'bg-emerald-600 text-white shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
+                : 'text-neutral-600 hover:text-black'
             }`}
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
             </span>
             <span>Clinical Scribe Cockpit</span>
           </button>
@@ -57,22 +55,22 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
         {/* Engine Status & Action Buttons */}
         <div className="flex items-center gap-3">
           {/* Universal-3.5 Pro Engine Status Pill */}
-          <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-mono">
+          <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-[11px] font-mono">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
             </span>
-            <span className="text-slate-600">AssemblyAI</span>
-            <span className="text-slate-400">•</span>
-            <span className="text-emerald-700 font-semibold">Universal-3.5 Pro</span>
+            <span className="text-neutral-500">AssemblyAI</span>
+            <span className="text-neutral-300">•</span>
+            <span className="text-black font-bold">Universal-3.5 Pro</span>
           </div>
 
           {/* Lexicon Inspector Button */}
           <button
             onClick={onOpenLexicon}
-            className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs transition-colors"
+            className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 hover:text-black shadow-xs transition-colors"
           >
-            <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+            <BookOpen className="w-3.5 h-3.5 text-black" />
             <span className="hidden sm:inline">Phonetic Lexicon</span>
             <span className="sm:hidden">Lexicon</span>
           </button>
@@ -82,7 +80,7 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
             href="https://github.com/farhan0-code/curie"
             target="_blank"
             rel="noreferrer"
-            className="tactile-btn p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-xs transition-colors"
+            className="tactile-btn p-2 rounded-lg bg-white border border-neutral-200 text-neutral-600 hover:text-black hover:bg-neutral-50 shadow-xs transition-colors"
             title="GitHub Repository"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">

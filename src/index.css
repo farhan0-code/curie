@@ -2,65 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: light;
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
 :root {
   color-scheme: light;
+  --background: #FFFFFF;
+  --surface-base: #FFFFFF;
+  --surface-raised: #FAFAFA;
+  --surface-hover: #F5F5F5;
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --text-muted: #737373;
+  --border-hairline: #E5E5E5;
+  --border-strong: #D4D4D4;
+  --accent-teal: #000000;
+  --accent-cyan: #000000;
+  --accent-rose: #000000;
+  --accent-emerald: #000000;
+  --accent-curie: #000000;
 }
 
 body {
   margin: 0;
-  background-color: #F8FAFC;
-  color: #0F172A;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom surgical scrollbar (Light Mode) */
+/* Ensure all text is black on white backgrounds - prevents any inherited white text */
+h1, h2, h3, h4, h5, h6, p, span, li, td, th, label, a:not([class*='text-']) {
+  color: inherit;
+}
+
+/* Global safety net: never show white text on white background */
+.bg-white h1:not([class*='text-']),
+.bg-white h2:not([class*='text-']),
+.bg-white h3:not([class*='text-']),
+.bg-white h4:not([class*='text-']),
+.bg-white h5:not([class*='text-']),
+.bg-white h6:not([class*='text-']),
+.bg-white p:not([class*='text-']),
+.bg-white span:not([class*='text-']) {
+  color: #000000;
+}
+
+/* Subtle clean minimal background */
+.ambient-grid {
+  background-color: #FFFFFF;
+}
+
+/* Display Typography — Outfit geometric modern sans */
+.font-display {
+  font-family: 'Outfit', sans-serif;
+  font-feature-settings: 'cv01', 'liga';
+  color: inherit;
+}
+
+/* Backwards compat alias */
+.font-editorial {
+  font-family: 'Outfit', sans-serif;
+  font-feature-settings: 'cv01', 'liga';
+  color: inherit;
+}
+
+/* Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #FFFFFF;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #D4D4D4;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #737373;
 }
 
-/* Subtle grid line background */
-.bg-clinical-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
-}
-
-/* Pristine clinical light panels */
+/* Crisp Minimal Panels */
 .glass-panel {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .glass-panel-subtle {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
 }
 
-/* Monospace data pill */
+/* Monospace clinical data pill */
 .data-mono {
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: -0.02em;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: -0.01em;
 }
 
 /* Tactile interaction helper */
 .tactile-btn {
-  transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .tactile-btn:active {
   transform: scale(0.98) translateY(0.5px);
+}
+
+/* Sound wave animation */
+@keyframes waveAnim {
+  0%, 100% { height: 4px; }
+  50% { height: 20px; }
+}
+.animate-soundwave {
+  animation: waveAnim 1.2s ease-in-out infinite;
+}
+
+/* Bounce short for toast */
+@keyframes bounceShort {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-bounce-short {
+  animation: bounceShort 0.4s ease-in-out;
+}
+
+/* Fade in for modals */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.18s ease-out;
 }

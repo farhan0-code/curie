@@ -193,7 +193,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
           particleCount: 40,
           spread: 60,
           origin: { y: 0.8 },
-          colors: ['#10B981', '#059669', '#0284C7']
+          colors: ['#000000', '#525252', '#737373', '#A3A3A3']
         })
 
         showToast(
@@ -242,7 +242,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
         particleCount: 35,
         spread: 55,
         origin: { y: 0.8 },
-        colors: ['#10B981', '#059669', '#0284C7']
+        colors: ['#000000', '#525252', '#737373', '#A3A3A3']
       })
 
       showToast(
@@ -350,55 +350,52 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
   }, [isRecording, isProcessing, activeEncounterId, currentKeyterms])
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col">
+    <div className="relative min-h-screen bg-white text-black font-sans selection:bg-neutral-200 selection:text-black flex flex-col overflow-x-hidden">
+
+
       {/* ================= COCKPIT TOP WORKSTATION HEADER ================= */}
       <header className="sticky top-0 z-40 w-full pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8 pointer-events-none">
-        <div className="max-w-7xl mx-auto pointer-events-auto bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-[0_4px_20px_rgba(15,23,42,0.05)] px-4 sm:px-6 py-2.5 flex items-center justify-between transition-all">
+        <div className="max-w-7xl mx-auto pointer-events-auto bg-white/95 backdrop-blur-xl border border-neutral-200 rounded-2xl px-5 sm:px-6 py-2.5 flex items-center justify-between shadow-xs transition-all">
           {/* Brand & Return Navigation */}
           <div className="flex items-center gap-3">
             <button
               onClick={onBackToLanding}
-              className="tactile-btn p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors border border-slate-200 shadow-xs"
+              className="tactile-btn p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors border border-neutral-200"
               title="Return to Product Overview"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shadow-xs">
-              <CurieLogo className="w-5 h-5" />
-            </div>
+            <CurieLogo className="w-8 h-8 shrink-0" />
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-base tracking-tight text-slate-900">
+                <span className="font-display text-xl font-bold tracking-tight text-black">
                   Curie Cockpit
                 </span>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-100 text-black border border-neutral-200">
                   Live Scribe
                 </span>
               </div>
-              <p className="text-[11px] font-medium text-slate-500 hidden sm:block">
-                Ambient Clinical Workstation • {encounter.doctor}
-              </p>
             </div>
           </div>
 
           {/* Engine & Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Universal-3.5 Pro Pulse Pill */}
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-mono">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-neutral-100 border border-neutral-200 text-[11px] font-mono">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
               </span>
-              <span className="text-slate-600">AssemblyAI</span>
-              <span className="text-slate-400">•</span>
-              <span className="text-emerald-700 font-bold">Universal-3.5 Pro</span>
+              <span className="text-neutral-500">AssemblyAI</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-black font-bold">Universal-3.5 Pro</span>
             </div>
 
             {/* Language Selector (18 Languages Supported) */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700 shadow-2xs">
-              <Globe className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 border border-neutral-200 text-xs font-medium text-neutral-800">
+              <Globe className="w-3.5 h-3.5 text-black shrink-0" />
               <select
                 value={selectedLanguage}
                 onChange={(e) => {
@@ -406,11 +403,11 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
                   const found = SUPPORTED_LANGUAGES.find((l) => l.code === e.target.value)
                   showToast(`Consultation language set to ${found?.label}`, 'info')
                 }}
-                className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-xs font-medium text-neutral-800 focus:outline-none cursor-pointer pr-1"
                 title="Select Consultation Language (AssemblyAI 18 Languages)"
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
+                  <option key={lang.code} value={lang.code} className="bg-white text-black">
                     {lang.label}
                   </option>
                 ))}
@@ -420,9 +417,9 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
             {/* Lexicon Modal Trigger */}
             <button
               onClick={() => setIsLexiconOpen(true)}
-              className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"
+              className="tactile-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-neutral-200 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors shadow-2xs"
             >
-              <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+              <BookOpen className="w-3.5 h-3.5 text-black" />
               <span className="hidden sm:inline">Phonetic Lexicon</span>
               <span className="sm:hidden">Lexicon</span>
             </button>
@@ -430,9 +427,9 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
             {/* EHR / FHIR Export Trigger */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-300 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-xs transition-colors"
+              className="tactile-btn inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-white hover:bg-neutral-100 text-xs font-bold text-black border-2 border-black shadow-xs transition-all hover:scale-105"
             >
-              <Share2 className="w-3.5 h-3.5 text-emerald-700" />
+              <Share2 className="w-3.5 h-3.5 text-black" />
               <span className="hidden sm:inline">Export EHR / FHIR</span>
               <span className="sm:hidden">Export</span>
             </button>
@@ -440,7 +437,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
             {/* Back to Landing text link */}
             <button
               onClick={onBackToLanding}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors ml-1 hidden md:block"
+              className="text-xs font-medium text-neutral-500 hover:text-black transition-colors ml-1 hidden md:block"
             >
               Overview &rarr;
             </button>
@@ -449,7 +446,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
       </header>
 
       {/* ================= MAIN CLINICAL WORKSPACE ================= */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Patient Demographics & Vitals Header */}
         <PatientHeader
           encounters={CLINICAL_ENCOUNTERS}
@@ -497,26 +494,26 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
       </main>
 
       {/* Footer Benchmark Bar */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <footer className="relative z-10 border-t border-neutral-200 bg-white py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
           <div className="flex items-center gap-2.5">
-            <CurieLogo className="w-5 h-5" />
-            <span className="font-bold text-slate-900 font-sans">Curie Ambient Scribe</span>
+            <CurieLogo className="w-4 h-4" />
+            <span className="font-display text-sm font-bold text-black">Curie Ambient Scribe</span>
             <span>•</span>
             <span>Built for AssemblyAI Voice Hackathon Week (Hack into Dictation)</span>
           </div>
 
           <div className="flex items-center gap-4 font-mono text-[11px]">
-            <span className="text-slate-500">
-              Model: <strong className="text-emerald-700 font-bold">Universal-3.5 Pro</strong>
+            <span className="text-neutral-500">
+              Model: <strong className="text-black font-bold">Universal-3.5 Pro</strong>
             </span>
             <span>•</span>
-            <span className="text-slate-500">
-              Biasing: <strong className="text-sky-700 font-bold">keyterms_prompt active</strong>
+            <span className="text-neutral-500">
+              Biasing: <strong className="text-black font-bold">keyterms_prompt active</strong>
             </span>
             <span>•</span>
-            <span className="text-slate-500">
-              SLA: <strong className="text-slate-900 font-bold">~1.1s roundtrip</strong>
+            <span className="text-neutral-500">
+              SLA: <strong className="text-black font-bold">~1.1s roundtrip</strong>
             </span>
           </div>
         </div>
@@ -541,16 +538,16 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 animate-bounce-short">
           <div
-            className={`px-4 py-3 rounded-xl shadow-lg border text-xs font-medium flex items-center gap-2.5 backdrop-blur-md ${
+            className={`px-4 py-3 rounded-xl shadow-lg border-2 border-black text-xs font-semibold flex items-center gap-2.5 backdrop-blur-md ${
               toast.type === 'success'
-                ? 'bg-emerald-900 text-white border-emerald-700 shadow-[0_8px_24px_rgba(5,150,105,0.25)]'
-                : 'bg-slate-900 text-white border-slate-800'
+                ? 'bg-white text-black shadow-md'
+                : 'bg-white text-black shadow-md'
             }`}
           >
             {toast.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-black shrink-0" />
             ) : (
-              <Info className="w-4 h-4 text-sky-400 shrink-0" />
+              <Info className="w-4 h-4 text-black shrink-0" />
             )}
             <span>{toast.message}</span>
           </div>

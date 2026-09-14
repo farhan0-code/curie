@@ -8,7 +8,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Core light surfaces
+        slate: {
+          950: '#020617',
+          900: '#0F172A',
+          850: '#1E293B',
+          800: '#334155',
+          700: '#475569',
+          600: '#64748B',
+          500: '#94A3B8',
+          400: '#CBD5E1',
+          300: '#E2E8F0',
+          200: '#E2E8F0',
+          100: '#F1F5F9',
+          50: '#F8FAFC',
+        },
         paper: {
+          DEFAULT: '#FFFFFF',
           50: '#F8FAFC',
           100: '#F1F5F9',
           200: '#E2E8F0',
@@ -21,10 +37,42 @@ export default {
           900: '#0F172A',
           950: '#020617',
         },
+        oats: {
+          DEFAULT: '#F8FAFC',
+          hover: '#F1F5F9',
+          border: 'rgba(15, 23, 42, 0.08)',
+          strong: 'rgba(15, 23, 42, 0.16)',
+        },
+        ink: {
+          DEFAULT: '#0F172A',
+          primary: '#0F172A',
+          secondary: '#334155',
+          muted: '#64748B',
+          subtle: '#94A3B8',
+        },
+        curie: {
+          50: '#F0FDFA',
+          100: '#CCFBF1',
+          200: '#99F6E4',
+          300: '#5EEAD4',
+          400: '#2DD4BF',
+          500: '#0891B2',
+          600: '#0E7490',
+          700: '#155E75',
+          800: '#164E63',
+          900: '#083344',
+        },
+        brand: {
+          teal: '#0D9488',
+          cyan: '#0891B2',
+          emerald: '#059669',
+          rose: '#E11D48',
+          slate: '#0F172A',
+        },
         clinical: {
           slate: '#0F172A',
           border: 'rgba(15, 23, 42, 0.08)',
-          'border-active': 'rgba(5, 150, 105, 0.35)',
+          'border-active': 'rgba(8, 145, 178, 0.35)',
           muted: '#64748B',
           subtle: '#94A3B8',
           dark: '#0F172A',
@@ -49,17 +97,34 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        display: ['Outfit', 'sans-serif'],
+        editorial: ['Outfit', 'sans-serif'],
+        sans: ['"DM Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       animation: {
         'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-slow': 'pulseSlow 4s ease-in-out infinite',
         'wave-bar': 'waveBar 1.2s ease-in-out infinite',
+        'wave': 'soundWave 1.2s ease-in-out infinite',
+        'marquee': 'marqueeScroll 28s linear infinite',
       },
       keyframes: {
         waveBar: {
           '0%, 100%': { transform: 'scaleY(0.2)' },
           '50%': { transform: 'scaleY(1)' },
+        },
+        soundWave: {
+          '0%, 100%': { height: '6px' },
+          '50%': { height: '22px' },
+        },
+        pulseSlow: {
+          '0%, 100%': { opacity: 0.15 },
+          '50%': { opacity: 0.35 },
+        },
+        marqueeScroll: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
         }
       }
     },
