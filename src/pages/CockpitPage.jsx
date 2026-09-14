@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   Menu,
   Plus,
-  BookOpen
+  BookOpen,
+  ChevronRight
 } from 'lucide-react'
 
 const SUPPORTED_LANGUAGES = [
@@ -86,10 +87,10 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
   })
 
   const [activeEncounterId, setActiveEncounterId] = useState(
-    initialEncounterId || CLINICAL_ENCOUNTERS[0].id
+    initialEncounterId || null
   )
   const [selectedLanguage, setSelectedLanguage] = useState('en')
-  const encounter = encountersList.find((e) => e.id === activeEncounterId) || encountersList[0]
+  const encounter = encountersList.find((e) => e.id === activeEncounterId) || null
 
   // Keyterms per encounter state
   const [keytermsMap, setKeytermsMap] = useState(() => {
@@ -153,9 +154,9 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
   const timerIntervalRef = useRef(null)
   const isSpacePressedRef = useRef(false)
 
-  const currentKeyterms = keytermsMap[activeEncounterId] || encounter.keyterms
-  const currentSoapNote = soapNotesMap[activeEncounterId] || encounter.soapNote
-  const currentTranscript = transcriptsMap[activeEncounterId] || encounter.spokenTranscript
+  const currentKeyterms = encounter ? (keytermsMap[activeEncounterId] || encounter.keyterms) : []
+  const currentSoapNote = encounter ? (soapNotesMap[activeEncounterId] || encounter.soapNote) : null
+  const currentTranscript = encounter ? (transcriptsMap[activeEncounterId] || encounter.spokenTranscript) : ''
 
   // Format recording timer
   const updateTimer = (startTime) => {
@@ -518,21 +519,33 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
             </button>
 
             {/* Breadcrumb & Active Encounter Information */}
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-mono text-neutral-500 uppercase tracking-wider hidden sm:inline shrink-0 font-semibold">
-                Patient:
-              </span>
-              <span className="font-display font-bold text-sm sm:text-base text-black truncate">
-                {encounter.patient.name}
-              </span>
-              <span className="text-neutral-300 shrink-0">•</span>
-              <span className="text-xs font-medium text-neutral-600 truncate hidden md:inline">
-                {encounter.specialty}: {encounter.title.split(':')[1] || encounter.title}
-              </span>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-100 text-black border border-neutral-200 shrink-0 ml-1">
-                Live Scribe
-              </span>
-            </div>
+            {encounter ? (
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs font-mono text-neutral-500 uppercase tracking-wider hidden sm:inline shrink-0 font-semibold">
+                  Patient:
+                </span>
+                <span className="font-display font-bold text-sm sm:text-base text-black truncate">
+                  {encounter.patient.name}
+                </span>
+                <span className="text-neutral-300 shrink-0">•</span>
+                <span className="text-xs font-medium text-neutral-600 truncate hidden md:inline">
+                  {encounter.specialty}: {encounter.title.split(':')[1] || encounter.title}
+                </span>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-100 text-black border border-neutral-200 shrink-0 ml-1">
+                  Live Scribe
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-display font-bold text-sm sm:text-base text-neutral-800">
+                  Curie Ambient Scribe
+                </span>
+                <span className="text-neutral-300 shrink-0 hidden sm:inline">•</span>
+                <span className="text-xs font-mono text-neutral-500 hidden sm:inline">
+                  Awaiting Patient Selection
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Right Header Quick Controls — New Patient Action */}
@@ -549,53 +562,139 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         </header>
 
         {/* ================= MAIN CLINICAL WORKSPACE ================= */}
-        <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {/* Patient Demographics & Vitals Header (Switcher hidden since it is in sidebar) */}
-          <PatientHeader
-            encounters={encountersList}
-            activeEncounterId={activeEncounterId}
-            onSelectEncounter={(id) => {
-              setActiveEncounterId(id)
-              setRecordingDuration('00:00.0')
-            }}
-            showEncounterSwitcher={false}
-          />
+        {encounter ? (
+          <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+            {/* Patient Demographics & Vitals Header (Switcher hidden since it is in sidebar) */}
+            <PatientHeader
+              encounters={encountersList}
+              activeEncounterId={activeEncounterId}
+              onSelectEncounter={(id) => {
+                setActiveEncounterId(id)
+                setRecordingDuration('00:00.0')
+              }}
+              showEncounterSwitcher={false}
+            />
 
-          {/* Dictation Command Bar (Record, Spacebar Push-to-Talk, Waveform, Fixture) */}
-          <DictationBar
-            isRecording={isRecording}
-            isProcessing={isProcessing}
-            recordingDuration={recordingDuration}
-            audioLevel={audioLevel}
-            frequencyData={frequencyData}
-            onStartRecord={startRecording}
-            onStopRecord={stopRecording}
-            onRunFixture={handleRunFixture}
-            onReset={handleReset}
-            telemetry={telemetry}
-            activeEncounter={encounter}
-          />
+            {/* Dictation Command Bar (Record, Spacebar Push-to-Talk, Waveform, Fixture) */}
+            <DictationBar
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+              recordingDuration={recordingDuration}
+              audioLevel={audioLevel}
+              frequencyData={frequencyData}
+              onStartRecord={startRecording}
+              onStopRecord={stopRecording}
+              onRunFixture={handleRunFixture}
+              onReset={handleReset}
+              telemetry={telemetry}
+              activeEncounter={encounter}
+            />
 
-          {/* Acoustic Biasing Dictionary Tray (keyterms_prompt) */}
-          <BiasingTray
-            activeEncounter={encounter}
-            keyterms={currentKeyterms}
-            onAddKeyterm={handleAddKeyterm}
-            onRemoveKeyterm={handleRemoveKeyterm}
-            onResetKeyterms={handleResetKeyterms}
-          />
+            {/* Acoustic Biasing Dictionary Tray (keyterms_prompt) */}
+            <BiasingTray
+              activeEncounter={encounter}
+              keyterms={currentKeyterms}
+              onAddKeyterm={handleAddKeyterm}
+              onRemoveKeyterm={handleRemoveKeyterm}
+              onResetKeyterms={handleResetKeyterms}
+            />
 
-          {/* Formatted SOAP Note, Audio Stream, and E-Prescription Orders */}
-          <SoapNoteView
-            encounter={encounter}
-            soapNote={currentSoapNote}
-            verbatimTranscript={currentTranscript}
-            prescriptions={encounter.prescriptions}
-            telemetry={telemetry}
-            onUpdateSoapNote={handleUpdateSoapNote}
-            onOpenExportModal={() => setIsExportOpen(true)}
-          />
-        </main>
+            {/* Formatted SOAP Note, Audio Stream, and E-Prescription Orders */}
+            <SoapNoteView
+              encounter={encounter}
+              soapNote={currentSoapNote}
+              verbatimTranscript={currentTranscript}
+              prescriptions={encounter.prescriptions}
+              telemetry={telemetry}
+              onUpdateSoapNote={handleUpdateSoapNote}
+              onOpenExportModal={() => setIsExportOpen(true)}
+            />
+          </main>
+        ) : (
+          <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 flex flex-col justify-center">
+            <div className="text-center max-w-xl mx-auto mb-10">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-black text-white shadow-md mb-4">
+                <Stethoscope className="w-7 h-7 text-white" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-black tracking-tight">
+                Ready for Consultation
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                Intake a new patient to dictate live ambient notes, or select a pre-recorded benchmark encounter from the queue.
+              </p>
+            </div>
+
+            {/* Dual Action Bento Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto w-full">
+              {/* Option 1: Intake New Patient */}
+              <div
+                onClick={() => setIsNewPatientOpen(true)}
+                className="group p-6 sm:p-7 rounded-2xl bg-white border-2 border-dashed border-neutral-300 hover:border-black transition-all cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 text-black flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-display font-bold text-lg text-black">
+                    Intake New Patient
+                  </h3>
+                  <p className="text-xs text-neutral-600 mt-1.5 leading-relaxed">
+                    Register a new patient chart, configure clinical keyterms, and dictate in real time using your microphone.
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-neutral-100 flex items-center text-xs font-bold text-black group-hover:translate-x-1 transition-transform">
+                  <span>Start Live Intake</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </div>
+              </div>
+
+              {/* Option 2: Explore Benchmark Demos */}
+              <div className="p-6 sm:p-7 rounded-2xl bg-white border border-neutral-200 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center font-mono font-bold text-xs">
+                      DEMO
+                    </div>
+                    <span className="text-[10px] font-mono text-neutral-400 font-semibold uppercase tracking-wider">
+                      3 Pre-Recorded Encounters
+                    </span>
+                  </div>
+                  <h3 className="font-display font-bold text-lg text-black">
+                    Benchmark Demos
+                  </h3>
+                  <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
+                    Select a benchmark encounter to evaluate single-pass SOAP generation:
+                  </p>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  {CLINICAL_ENCOUNTERS.map((demo) => (
+                    <button
+                      key={demo.id}
+                      onClick={() => {
+                        setActiveEncounterId(demo.id)
+                        setRecordingDuration('00:00.0')
+                      }}
+                      className="w-full text-left p-2.5 rounded-xl border border-neutral-200 hover:border-black hover:bg-neutral-50 transition-all flex items-center justify-between group cursor-pointer"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <div className="font-semibold text-xs text-black truncate">
+                          {demo.patient.name}
+                        </div>
+                        <div className="text-[10px] text-neutral-500 font-mono truncate">
+                          {demo.specialty}
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-neutral-100 text-neutral-800 group-hover:bg-black group-hover:text-white shrink-0 transition-colors">
+                        Load Demo →
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </main>
+        )}
 
         {/* Footer Benchmark Bar */}
         <footer className="relative z-10 border-t border-neutral-200 bg-white py-6 mt-12">
