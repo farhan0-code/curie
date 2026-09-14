@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import {
   BookOpen,
-  ArrowLeft,
   Activity,
   Heart,
   Stethoscope,
@@ -120,60 +119,19 @@ export default function DocsPage({ onBackToLanding, onLaunchWorkspace, onSelectE
 
             <button
               onClick={onBackToLanding}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-xs font-semibold text-neutral-800 transition-colors cursor-pointer"
+              className="flex items-center gap-2 text-left cursor-pointer group"
               title="Return to Home"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back</span>
-            </button>
-
-            <div className="h-4 w-px bg-neutral-200 mx-1 hidden sm:block" />
-
-            <div className="flex items-center gap-2">
-              <CurieLogo className="w-5 h-5 text-black" />
+              <CurieLogo className="w-5 h-5 text-black group-hover:scale-105 transition-transform" />
               <div className="flex items-center gap-1.5">
-                <span className="font-display font-bold text-sm text-black tracking-tight">curie</span>
+                <span className="font-display font-bold text-sm text-black tracking-tight group-hover:text-neutral-700 transition-colors">curie</span>
                 <span className="text-neutral-400 font-mono text-xs">/</span>
                 <span className="font-mono text-xs font-bold text-neutral-500 uppercase tracking-wider hidden sm:inline">
                   VOICE-TO-SOAP
                 </span>
               </div>
-            </div>
+            </button>
           </div>
-
-          {/* Quick Center Nav Links (Hidden on small mobile) */}
-          <nav className="hidden md:flex items-center gap-5 text-xs font-medium text-neutral-600">
-            <button
-              onClick={() => setActiveTab('intro')}
-              className={`transition-colors hover:text-black cursor-pointer ${activeTab === 'intro' ? 'text-black font-bold' : ''}`}
-            >
-              Pipeline
-            </button>
-            <button
-              onClick={() => setActiveTab('demos')}
-              className={`transition-colors hover:text-black cursor-pointer ${activeTab === 'demos' ? 'text-black font-bold' : ''}`}
-            >
-              Benchmarks
-            </button>
-            <button
-              onClick={() => setActiveTab('biasing')}
-              className={`transition-colors hover:text-black cursor-pointer ${activeTab === 'biasing' ? 'text-black font-bold' : ''}`}
-            >
-              Keyterm Biasing
-            </button>
-            <button
-              onClick={() => setActiveTab('ehr')}
-              className={`transition-colors hover:text-black cursor-pointer ${activeTab === 'ehr' ? 'text-black font-bold' : ''}`}
-            >
-              EHR Interop
-            </button>
-            <button
-              onClick={() => setActiveTab('glossary')}
-              className={`transition-colors hover:text-black cursor-pointer ${activeTab === 'glossary' ? 'text-black font-bold' : ''}`}
-            >
-              Glossary
-            </button>
-          </nav>
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2.5">
