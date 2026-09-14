@@ -8,7 +8,6 @@
 export async function transcribeClinicalAudio(audioBlob, encounter) {
   const startTime = performance.now();
 
-  const apiKey = import.meta.env.VITE_ASSEMBLYAI_API_KEY || '';
   const keyterms = encounter.keyterms || [];
   const sttPrompt = encounter.sttPrompt || '';
   const llmInstruction = encounter.llmInstruction || 
