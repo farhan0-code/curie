@@ -4,9 +4,9 @@ import CockpitPage from './pages/CockpitPage'
 import LexiconModal from './components/LexiconModal'
 
 export default function App() {
-  // Sync state with URL hash (#cockpit vs root)
+  // Sync state with URL hash (#workspace or #cockpit vs root)
   const [currentRoute, setCurrentRoute] = useState(() => {
-    return window.location.hash === '#cockpit' ? 'cockpit' : 'landing'
+    return window.location.hash === '#workspace' || window.location.hash === '#cockpit' ? 'workspace' : 'landing'
   })
   const [selectedEncounterId, setSelectedEncounterId] = useState(null)
   const [isLexiconModalOpen, setIsLexiconModalOpen] = useState(false)
@@ -14,8 +14,8 @@ export default function App() {
   // Listen to browser hash changes (support back / forward navigation)
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#cockpit') {
-        setCurrentRoute('cockpit')
+      if (window.location.hash === '#workspace' || window.location.hash === '#cockpit') {
+        setCurrentRoute('workspace')
       } else {
         setCurrentRoute('landing')
       }
@@ -25,12 +25,12 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange)
   }, [])
 
-  const navigateToCockpit = (encounterId = null) => {
+  const navigateToWorkspace = (encounterId = null) => {
     if (encounterId) {
       setSelectedEncounterId(encounterId)
     }
-    window.location.hash = '#cockpit'
-    setCurrentRoute('cockpit')
+    window.location.hash = '#workspace'
+    setCurrentRoute('workspace')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -42,16 +42,17 @@ export default function App() {
 
   return (
     <>
-      {currentRoute === 'cockpit' ? (
+      {currentRoute === 'workspace' ? (
         <CockpitPage
           onBackToLanding={navigateToLanding}
           initialEncounterId={selectedEncounterId}
         />
       ) : (
         <LandingPage
-          onLaunchCockpit={() => navigateToCockpit()}
+          onLaunchWorkspace={() => navigateToWorkspace()}
+          onLaunchCockpit={() => navigateToWorkspace()}
           onOpenLexicon={() => setIsLexiconModalOpen(true)}
-          onSelectEncounter={(id) => navigateToCockpit(id)}
+          onSelectEncounter={(id) => navigateToWorkspace(id)}
         />
       )}
 

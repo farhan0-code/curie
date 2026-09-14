@@ -19,12 +19,12 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
               </span>
             </div>
             <p className="text-[11px] font-medium text-neutral-500 hidden sm:block">
-              Ambient Clinical Voice Scribe &amp; SOAP Cockpit
+              Ambient Clinical Voice Intelligence &amp; Workspace
             </p>
           </div>
         </div>
 
-        {/* View Switcher Navigation (Landing vs Cockpit) */}
+        {/* View Switcher Navigation (Overview vs Workspace) */}
         <div className="hidden md:flex items-center gap-1 p-1 bg-neutral-100 rounded-xl border border-neutral-200">
           <button
             onClick={() => onSelectView('landing')}
@@ -34,12 +34,12 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
                 : 'text-neutral-600 hover:text-black'
             }`}
           >
-            Overview &amp; Architecture
+            Platform Overview
           </button>
           <button
             onClick={() => onSelectView('cockpit')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-              activeView === 'cockpit'
+              activeView === 'cockpit' || activeView === 'workspace'
                 ? 'bg-neutral-200 text-black border border-black font-bold shadow-xs'
                 : 'text-neutral-600 hover:text-black'
             }`}
@@ -48,7 +48,7 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
             </span>
-            <span>Clinical Scribe Cockpit</span>
+            <span>Clinical Workspace</span>
           </button>
         </div>
 
@@ -71,7 +71,7 @@ export default function Navbar({ onOpenLexicon, activeEncounter, activeView, onS
             className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-200 text-xs font-medium text-neutral-700 hover:bg-neutral-50 hover:text-black shadow-xs transition-colors"
           >
             <BookOpen className="w-3.5 h-3.5 text-black" />
-            <span className="hidden sm:inline">Phonetic Lexicon</span>
+            <span className="hidden sm:inline">Clinical Lexicon</span>
             <span className="sm:hidden">Lexicon</span>
           </button>
 

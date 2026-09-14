@@ -371,7 +371,7 @@ export default function CockpitPage({ onBackToLanding, initialEncounterId }) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display text-xl font-bold tracking-tight text-black">
-                  Curie Cockpit
+                  Curie Clinical Workspace
                 </span>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-neutral-100 text-black border border-neutral-200">
                   Live Scribe
