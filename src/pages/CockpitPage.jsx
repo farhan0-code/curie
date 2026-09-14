@@ -483,7 +483,7 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
         selectedLanguage={selectedLanguage}
         onSelectLanguage={(langCode) => {
           setSelectedLanguage(langCode)
-          const baseSoap = encounter.soapNote
+          const baseSoap = encounter?.soapNote
           if (baseSoap) {
             const localized = langCode === 'en'
               ? baseSoap
@@ -731,11 +731,11 @@ export default function CockpitPage({ onBackToLanding, onNavigateToDocs, initial
 
       {/* EHR Export Modal (Epic, FHIR, Cerner) */}
       <ExportModal
-        isOpen={isExportOpen}
+        isOpen={isExportOpen && !!encounter}
         onClose={() => setIsExportOpen(false)}
         encounter={encounter}
         soapNote={currentSoapNote}
-        prescriptions={encounter.prescriptions}
+        prescriptions={encounter?.prescriptions || []}
         clinicianProfile={clinicianProfile}
       />
 

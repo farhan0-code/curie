@@ -24,7 +24,7 @@
 | **Curie Clinical Docs & Demos** | [**localhost:3000/#docs**](http://localhost:3000/#docs) | Full clinical documentation portal, workflow guides, EHR specs, and deep-dive benchmark demo showcase |
 | **Product Landing Page & Scribe** | [**localhost:3000**](http://localhost:3000) | Editorial product landing page featuring interactive consultation stage, 18-locale explorer, and biasing benchmark |
 | **Core Engine Repository** | [**github.com/farhan0-code/curie**](https://github.com/farhan0-code/curie) | Full source code for Curie web application, acoustic biasing tray, and EHR exporter |
-| **Bundled Audio Fixtures** | [**fixtures/**](./fixtures) | 3 verified 16kHz mono linear PCM WAV test files with real clinical doctor-patient dialogues |
+| **Bundled Audio Fixtures** | [**public/fixtures/**](./public/fixtures) | 3 verified 16kHz mono linear PCM WAV test files with real clinical doctor-patient dialogues |
 | **AssemblyAI Dictation Docs** | [**assemblyai.com/docs/dictation**](https://www.assemblyai.com/docs/dictation) | Official documentation for AssemblyAI's Universal-3.5 Pro speech recognition and single-pass dictation engine |
 
 ---
@@ -41,7 +41,7 @@ Jump directly to any section without scrolling:
 | **Repository Project Structure** | Tree diagram of components, pages, fixtures, data fixtures, audio services, and configs | [Jump to Project Structure](#repository-project-structure) |
 | **Deep Dive: 5-Stage Pipeline** | Audio ingestion, Acoustic Biasing (`keyterms_prompt`), Spacebar PTT, Universal-3.5 Pro engine, SOAP & EHR export | [Jump to 5-Stage Pipeline](#deep-dive-the-5-stage-clinical-pipeline) |
 | **Empirical Live Benchmarks** | Measured sync latency (765ms–812ms), confidence scores (98.4%–99.1%), side-by-side phonetic comparison, Patient Safety risk audit | [Jump to Benchmarks](#empirical-live-benchmarks--evaluation) |
-| **Bundled Audio Fixtures (`fixtures/`)** | 3 verified reproducible 16kHz WAV test files with scenarios, durations, and execution scripts | [Jump to Audio Fixtures](#bundled-audio-fixtures-directory-fixtures) |
+| **Bundled Audio Fixtures (`public/fixtures/`)** | 3 verified reproducible 16kHz WAV test files with scenarios, durations, and execution scripts | [Jump to Audio Fixtures](#bundled-audio-fixtures-directory-publicfixtures) |
 | **How to Use the Clinical Cockpit** | Typical clinician workflow, high-contrast Cockpit UI ASCII mockup, keyboard interaction matrix | [Jump to Cockpit Usage](#how-to-use-the-clinical-cockpit) |
 | **Real-World Execution Telemetry** | Verified encounters across Cardiology, Pediatrics, and Orthopedics + Multilingual telemetry runs | [Jump to Telemetry](#real-world-execution-telemetry) |
 | **Benchmark Demos & Real Intake** | 3 hardcoded reference benchmark demos + real patient dynamic intake (`+ New Patient`) & workplace profile | [Jump to Encounters](#pre-configured-clinical-encounters) |
@@ -84,7 +84,7 @@ Jump directly to any section without scrolling:
   - [Reproduce Live Benchmarks](#reproduce-live-benchmarks)
   - [2. Acoustic Biasing vs. Unconstrained ASR Benchmark Table](#2-acoustic-biasing-vs-unconstrained-asr-benchmark-table)
   - [3. Clinical Workflow Comparison (Manual vs. Curie)](#3-clinical-workflow-comparison-manual-vs-curie)
-- [Bundled Audio Fixtures Directory (`fixtures/`)](#bundled-audio-fixtures-directory-fixtures)
+- [Bundled Audio Fixtures Directory (`public/fixtures/`)](#bundled-audio-fixtures-directory-publicfixtures)
 - [How to Use the Clinical Cockpit](#how-to-use-the-clinical-cockpit)
   - [Typical Clinician Workflow](#typical-clinician-workflow)
   - [Clinical Cockpit Interface Mockup](#clinical-cockpit-interface-mockup)
@@ -342,11 +342,11 @@ flowchart TD
 
 ```text
 curie/
-├── fixtures/                        # 3 bundled reproducible 16kHz WAV clinical audio test files
-│   ├── cardiology_consultation_en.wav # Cardiology Post-STEMI encounter (58.1s, 1.86MB)
-│   ├── pediatric_asthma_en.wav      # Pediatric Pulmonology asthma flare (71.8s, 2.30MB)
-│   └── orthopedic_knee_trauma_en.wav# Orthopedic Sports Medicine ACL tear (76.6s, 2.45MB)
 ├── public/
+│   ├── fixtures/                    # 3 bundled reproducible 16kHz WAV clinical audio test files
+│   │   ├── cardiology_consultation_en.wav # Cardiology Post-STEMI encounter (58.1s, 1.86MB)
+│   │   ├── pediatric_asthma_en.wav  # Pediatric Pulmonology asthma flare (71.8s, 2.30MB)
+│   │   └── orthopedic_knee_trauma_en.wav # Orthopedic Sports Medicine ACL tear (76.6s, 2.45MB)
 │   └── favicon.svg                  # Curie clinical soundwave SVG brandmark
 ├── src/
 │   ├── components/
@@ -452,16 +452,16 @@ All test runs below were measured live end-to-end against the production Assembl
 
 | Clinical Encounter & Fixture | Audio Duration | Sync Inference Time | Model Confidence | Total Roundtrip Latency | Synthesized Clinical Output |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Cardiology Follow-Up**<br/>`fixtures/cardiology_consultation_en.wav` | 58.1s | **812 ms** | **99.09%** | **3,927 ms** | `I25.10 Atherosclerotic Heart Disease`<br/>`- Continue DAPT (Aspirin 81mg + Clopidogrel 75mg)`<br/>`- Atorvastatin 80mg + add CoQ10 200mg`<br/>`- Titrate Metoprolol to 50mg PO daily` |
-| **Pediatric Pulmonology**<br/>`fixtures/pediatric_asthma_en.wav` | 71.8s | **773 ms** | **98.73%** | **3,976 ms** | `J45.901 Acute Asthma Exacerbation`<br/>`- Prednisolone 15mg PO daily × 5 days`<br/>`- Albuterol 2.5mg + Ipratropium 0.5mg neb`<br/>`- Step-up Fluticasone HFA 88mcg via spacer` |
-| **Orthopedic Sports Trauma**<br/>`fixtures/orthopedic_knee_trauma_en.wav` | 76.6s | **765 ms** | **98.40%** | **4,804 ms** | `S83.511A Acute Right ACL Rupture`<br/>`- Stat 3T non-contrast MRI right knee`<br/>`- Hinged knee brace locked at 0° + crutches NWB`<br/>`- Naproxen 500mg PO BID with meals` |
+| **Cardiology Follow-Up**<br/>`public/fixtures/cardiology_consultation_en.wav` | 58.1s | **812 ms** | **99.09%** | **3,927 ms** | `I25.10 Atherosclerotic Heart Disease`<br/>`- Continue DAPT (Aspirin 81mg + Clopidogrel 75mg)`<br/>`- Atorvastatin 80mg + add CoQ10 200mg`<br/>`- Titrate Metoprolol to 50mg PO daily` |
+| **Pediatric Pulmonology**<br/>`public/fixtures/pediatric_asthma_en.wav` | 71.8s | **773 ms** | **98.73%** | **3,976 ms** | `J45.901 Acute Asthma Exacerbation`<br/>`- Prednisolone 15mg PO daily × 5 days`<br/>`- Albuterol 2.5mg + Ipratropium 0.5mg neb`<br/>`- Step-up Fluticasone HFA 88mcg via spacer` |
+| **Orthopedic Sports Trauma**<br/>`public/fixtures/orthopedic_knee_trauma_en.wav` | 76.6s | **765 ms** | **98.40%** | **4,804 ms** | `S83.511A Acute Right ACL Rupture`<br/>`- Stat 3T non-contrast MRI right knee`<br/>`- Hinged knee brace locked at 0° + crutches NWB`<br/>`- Naproxen 500mg PO BID with meals` |
 
 ### Reproduce Live Benchmarks:
 ```bash
 # Test Cardiology encounter live through Curie proxy:
 python -c "
 import requests, json
-with open('fixtures/cardiology_consultation_en.wav', 'rb') as f:
+with open('public/fixtures/cardiology_consultation_en.wav', 'rb') as f:
     res = requests.post('http://localhost:3000/api/dictate', files={'audio': f}, data={
         'stt_prompt': 'A cardiologist dictating an outpatient note for Robert Vance.',
         'language_code': 'en',
@@ -508,15 +508,15 @@ Or open the Clinical Workspace at [http://localhost:3000/#workspace](http://loca
 
 ---
 
-## <a id="bundled-audio-fixtures-directory-fixtures"></a>Bundled Audio Fixtures Directory (`fixtures/`)
+## <a id="bundled-audio-fixtures-directory-publicfixtures"></a>Bundled Audio Fixtures Directory (`public/fixtures/`)
 
-Curie includes three reproducible, production-grade 16kHz mono linear PCM WAV test fixtures in [`fixtures/`](fixtures/). Evaluators and clinical reviewers can reproduce the live end-to-end benchmarks independently:
+Curie includes three reproducible, production-grade 16kHz mono linear PCM WAV test fixtures in [`public/fixtures/`](public/fixtures/). Evaluators and clinical reviewers can reproduce the live end-to-end benchmarks independently:
 
 | Audio Fixture File | Voice Profile | Duration | File Size | Clinical Specialty & Test Scenario |
 | :--- | :--- | :--- | :--- | :--- |
-| [`fixtures/cardiology_consultation_en.wav`](fixtures/cardiology_consultation_en.wav) | `en-US-ChristopherNeural` | 58.1s | 1.86 MB | **Cardiology Post-STEMI**: Routine 6-month follow-up post LAD stenting; evaluates Atorvastatin 80mg, Clopidogrel 75mg, preserved LVEF 55%, CoQ10 200mg, and ICD-10 I25.10. |
-| [`fixtures/pediatric_asthma_en.wav`](fixtures/pediatric_asthma_en.wav) | `en-US-JennyNeural` | 71.8s | 2.30 MB | **Pediatric Asthma Exacerbation**: Mother and 7yo child; evaluates Albuterol neb, Prednisolone 15mg PO, PEFR 65%, valved holding chamber spacer instructions, and ICD-10 J45.901. |
-| [`fixtures/orthopedic_knee_trauma_en.wav`](fixtures/orthopedic_knee_trauma_en.wav) | `en-US-GuyNeural` | 76.6s | 2.45 MB | **Orthopedic Sports Trauma**: Acute soccer knee injury; evaluates positive Lachman test (Grade 2B), hemarthrosis, non-weight bearing crutches, and ICD-10 S83.511A. |
+| [`public/fixtures/cardiology_consultation_en.wav`](public/fixtures/cardiology_consultation_en.wav) | `en-US-ChristopherNeural` | 58.1s | 1.86 MB | **Cardiology Post-STEMI**: Routine 6-month follow-up post LAD stenting; evaluates Atorvastatin 80mg, Clopidogrel 75mg, preserved LVEF 55%, CoQ10 200mg, and ICD-10 I25.10. |
+| [`public/fixtures/pediatric_asthma_en.wav`](public/fixtures/pediatric_asthma_en.wav) | `en-US-JennyNeural` | 71.8s | 2.30 MB | **Pediatric Asthma Exacerbation**: Mother and 7yo child; evaluates Albuterol neb, Prednisolone 15mg PO, PEFR 65%, valved holding chamber spacer instructions, and ICD-10 J45.901. |
+| [`public/fixtures/orthopedic_knee_trauma_en.wav`](public/fixtures/orthopedic_knee_trauma_en.wav) | `en-US-GuyNeural` | 76.6s | 2.45 MB | **Orthopedic Sports Trauma**: Acute soccer knee injury; evaluates positive Lachman test (Grade 2B), hemarthrosis, non-weight bearing crutches, and ICD-10 S83.511A. |
 
 ---
 
@@ -628,7 +628,7 @@ AUDIT PASS: Acoustic keyterms locked into beam search vocabulary.
 ```
 
 ### Step 3: Cardiology Consultation Telemetry (Robert Vance, Post-STEMI)
-- **Audio Fixture**: `fixtures/cardiology_consultation_en.wav` (58.1s, 1.86 MB)
+- **Audio Fixture**: `public/fixtures/cardiology_consultation_en.wav` (58.1s, 1.86 MB)
 - **HTTP Status**: `200 OK`
 - **Sync Model Time**: **812 ms**
 - **Model Confidence**: **99.09%** (`0.99092`)
@@ -649,7 +649,7 @@ AUDIT PASS: Acoustic keyterms locked into beam search vocabulary.
 ---
 
 ### Step 4: Pediatric Pulmonology Consultation Telemetry (Maya Chen, Asthma)
-- **Audio Fixture**: `fixtures/pediatric_asthma_en.wav` (71.8s, 2.30 MB)
+- **Audio Fixture**: `public/fixtures/pediatric_asthma_en.wav` (71.8s, 2.30 MB)
 - **HTTP Status**: `200 OK`
 - **Sync Model Time**: **773 ms**
 - **Model Confidence**: **98.73%** (`0.98729`)
@@ -665,7 +665,7 @@ AUDIT PASS: Acoustic keyterms locked into beam search vocabulary.
 ---
 
 ### Step 5: Orthopedic Sports Surgery Consultation Telemetry (Lucas Miller, ACL Tear)
-- **Audio Fixture**: `fixtures/orthopedic_knee_trauma_en.wav` (76.6s, 2.45 MB)
+- **Audio Fixture**: `public/fixtures/orthopedic_knee_trauma_en.wav` (76.6s, 2.45 MB)
 - **HTTP Status**: `200 OK`
 - **Sync Model Time**: **765 ms**
 - **Model Confidence**: **98.40%** (`0.98396`)
@@ -749,7 +749,7 @@ SUCCESS: Zero-dependency clinical turnaround verified.
 
 > [!IMPORTANT]
 > **Why are Robert Vance, Maya Chen, and Lucas Miller hardcoded?**  
-> The 3 pre-configured patients below are **hardcoded reference benchmark fixtures** bundled directly into the codebase (`src/data/clinicalEncounters.js`), the audio fixtures directory (`fixtures/`), and the [**Curie Clinical Docs & Benchmark Demos Portal (`#docs`)**](http://localhost:3000/#docs).
+> The 3 pre-configured patients below are **hardcoded reference benchmark fixtures** bundled directly into the codebase (`src/data/clinicalEncounters.js`), the audio fixtures directory (`public/fixtures/`), and the [**Curie Clinical Docs & Benchmark Demos Portal (`#docs`)**](http://localhost:3000/#docs).
 >
 > They are intentionally standardized and hardcoded for three clinical engineering objectives:
 > 1. **Zero-Flake Reproducible Evaluation**: Evaluators, hackathon judges, and hospital IT committees can execute end-to-end ambient dictation against verified 16kHz mono linear PCM WAV recordings without requiring an active doctor-patient room or microphone.

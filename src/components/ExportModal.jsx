@@ -19,7 +19,7 @@ export default function ExportModal({ isOpen, onClose, encounter, soapNote, pres
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!isOpen || !encounter) return null
 
   // Generate Epic Hyperspace SmartText
   const generateEpicText = () => {
