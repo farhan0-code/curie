@@ -35,25 +35,25 @@ export default function LexiconModal({ isOpen, onClose }) {
   })
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
       {/* Modal Card */}
-      <div className="bg-slate-900 border border-white/[0.12] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-[0_16px_64px_rgba(0,0,0,0.6)] overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/[0.08] flex items-start justify-between gap-4 bg-slate-950/40">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+        <div className="px-6 py-5 border-b border-slate-200 flex items-start justify-between gap-4 bg-slate-50">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0 shadow-xs">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold text-white">
+                <h3 className="text-base font-bold text-slate-900">
                   Acoustic Biasing Lexicon Benchmark
                 </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                   Universal-3.5 Pro STT
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Side-by-side empirical comparison: standard un-biased ASR phonetic hallucinations vs. Curie domain-biased clinical transcription.
               </p>
             </div>
@@ -61,22 +61,22 @@ export default function LexiconModal({ isOpen, onClose }) {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="px-6 py-3.5 border-b border-white/[0.06] bg-slate-900/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="px-6 py-3.5 border-b border-slate-200 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search medical terminology..."
-              className="w-full bg-slate-950/60 border border-white/[0.08] focus:border-emerald-500/50 rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all font-mono"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/15 transition-all font-mono"
             />
           </div>
 
@@ -85,10 +85,10 @@ export default function LexiconModal({ isOpen, onClose }) {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-all shrink-0 ${
+                className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all shrink-0 ${
                   selectedCategory === cat
-                    ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 {cat}
@@ -98,16 +98,16 @@ export default function LexiconModal({ isOpen, onClose }) {
         </div>
 
         {/* Table Content */}
-        <div className="overflow-y-auto p-6 space-y-3">
+        <div className="overflow-y-auto p-6 space-y-3 bg-slate-50">
           {filteredItems.map((item, idx) => (
             <div
               key={idx}
-              className="border border-white/[0.06] rounded-xl p-4 bg-slate-950/40 hover:border-white/[0.12] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="border border-slate-200 rounded-xl p-4 bg-white hover:border-slate-300 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs"
             >
               {/* Term & Category */}
               <div className="md:w-1/4">
-                <div className="text-sm font-semibold text-slate-100 font-mono">{item.term}</div>
-                <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-white/5">
+                <div className="text-sm font-bold text-slate-900 font-mono">{item.term}</div>
+                <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">
                   {item.category}
                 </span>
               </div>
@@ -115,31 +115,31 @@ export default function LexiconModal({ isOpen, onClose }) {
               {/* Comparison: Generic ASR vs Biased */}
               <div className="md:w-2/5 flex items-center gap-3">
                 {/* Generic ASR Error */}
-                <div className="flex-1 p-2 rounded-lg bg-rose-950/20 border border-rose-500/20">
-                  <div className="flex items-center gap-1 text-[10px] uppercase font-mono text-rose-400 font-semibold mb-1">
+                <div className="flex-1 p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                  <div className="flex items-center gap-1 text-[10px] uppercase font-mono text-rose-700 font-bold mb-1">
                     <AlertTriangle className="w-3 h-3" /> Generic ASR Error
                   </div>
-                  <div className="text-xs font-mono text-rose-300 line-through opacity-80">
+                  <div className="text-xs font-mono text-rose-800 line-through font-medium">
                     "{item.genericAsrError}"
                   </div>
                 </div>
 
-                <ArrowRight className="w-4 h-4 text-slate-600 shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />
 
                 {/* Curie Biased Output */}
-                <div className="flex-1 p-2 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
-                  <div className="flex items-center gap-1 text-[10px] uppercase font-mono text-emerald-400 font-semibold mb-1">
-                    <ShieldCheck className="w-3 h-3" /> Curie Biased
+                <div className="flex-1 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <div className="flex items-center gap-1 text-[10px] uppercase font-mono text-emerald-800 font-bold mb-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" /> Curie Biased
                   </div>
-                  <div className="text-xs font-mono text-emerald-300 font-medium">
+                  <div className="text-xs font-mono text-emerald-900 font-bold">
                     {item.biasedOutput}
                   </div>
                 </div>
               </div>
 
               {/* Clinical Risk */}
-              <div className="md:w-1/3 text-xs text-slate-400 leading-relaxed border-t md:border-t-0 md:border-l border-white/[0.06] pt-2 md:pt-0 md:pl-4">
-                <span className="text-slate-500 text-[10px] uppercase font-mono block mb-0.5">Clinical Risk</span>
+              <div className="md:w-1/3 text-xs text-slate-600 leading-relaxed border-t md:border-t-0 md:border-l border-slate-100 pt-2 md:pt-0 md:pl-4">
+                <span className="text-slate-400 text-[10px] uppercase font-mono font-bold block mb-0.5">Clinical Risk</span>
                 {item.risk}
               </div>
             </div>
@@ -153,14 +153,14 @@ export default function LexiconModal({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-white/[0.08] bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
+        <div className="px-6 py-3.5 border-t border-slate-200 bg-white flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Active in all Curie dictation sessions via AssemblyAI Dictation API</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-medium text-slate-700">Active in all Curie dictation sessions via AssemblyAI Dictation API</span>
           </div>
           <button
             onClick={onClose}
-            className="tactile-btn px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 font-medium transition-all"
+            className="tactile-btn px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium transition-all shadow-xs"
           >
             Close Lexicon
           </button>

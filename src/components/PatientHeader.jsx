@@ -1,5 +1,5 @@
 import React from 'react'
-import { User, AlertCircle, Heart, Activity, Thermometer, Wind, CheckCircle2 } from 'lucide-react'
+import { User, AlertCircle, Heart, Activity, Thermometer, Wind, CheckCircle2, ShieldAlert } from 'lucide-react'
 
 export default function PatientHeader({ encounters, activeEncounterId, onSelectEncounter }) {
   const current = encounters.find((e) => e.id === activeEncounterId) || encounters[0]
@@ -8,23 +8,23 @@ export default function PatientHeader({ encounters, activeEncounterId, onSelectE
   return (
     <div className="space-y-4">
       {/* Encounter Switcher Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
-            Active Clinical Scenario:
+          <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">
+            Active Clinical Encounter:
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           {encounters.map((enc) => {
             const isActive = enc.id === activeEncounterId
             return (
               <button
                 key={enc.id}
                 onClick={() => onSelectEncounter(enc.id)}
-                className={`tactile-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`tactile-btn px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-sage-500/15 border border-sage-500/40 text-sage-300 font-semibold shadow-[0_0_12px_rgba(16,185,129,0.15)]'
-                    : 'bg-slate-900/80 border border-white/[0.06] text-slate-400 hover:text-slate-200 hover:border-white/15'
+                    ? 'bg-emerald-50 border border-emerald-300 text-emerald-800 font-semibold shadow-xs ring-2 ring-emerald-500/10'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300'
                 }`}
               >
                 {enc.title}
@@ -34,80 +34,88 @@ export default function PatientHeader({ encounters, activeEncounterId, onSelectE
         </div>
       </div>
 
-      {/* Patient Profile Card */}
-      <div className="glass-panel rounded-xl p-4 sm:p-5 border border-white/[0.08] relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-80 h-32 bg-sage-500/[0.03] blur-3xl pointer-events-none" />
+      {/* Patient Profile Card (Crisp Clinical Light Theme) */}
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs relative overflow-hidden">
+        {/* Subtle decorative gradient */}
+        <div className="absolute top-0 right-0 w-80 h-32 bg-emerald-500/[0.04] blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           {/* Patient Demographics */}
-          <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-slate-800/90 border border-white/10 flex items-center justify-center text-slate-300 font-mono font-bold text-lg shrink-0">
+          <div className="flex items-start gap-4">
+            <div className="w-13 h-13 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-mono font-bold text-lg shrink-0 shadow-xs">
               {p.name.split(' ').map((n) => n[0]).join('')}
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-bold text-white tracking-tight">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight font-sans">
                   {p.name}
                 </h2>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-white/[0.06] border border-white/10 text-slate-300">
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
                   {p.age} y/o {p.gender}
                 </span>
-                <span className="text-xs font-mono text-slate-400">
+                <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                   {p.mrn}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-400">
-                <span>DOB: <strong className="text-slate-300 font-mono">{p.dob}</strong></span>
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
+                <span>DOB: <strong className="text-slate-700 font-mono">{p.dob}</strong></span>
                 <span>•</span>
-                <span>Specialty: <strong className="text-sage-400">{current.specialty}</strong></span>
+                <span>Specialty: <strong className="text-emerald-700 font-medium">{current.specialty}</strong></span>
                 <span>•</span>
-                <span>Attending: <strong className="text-slate-300">{current.doctor}</strong></span>
+                <span>Attending: <strong className="text-slate-800">{current.doctor}</strong></span>
               </div>
             </div>
           </div>
 
           {/* Vitals Summary Pill Grid */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/[0.06]">
+          <div className="flex flex-wrap items-center gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
             {/* Blood Pressure */}
-            <div className="px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.08] flex items-center gap-2">
-              <Heart className="w-3.5 h-3.5 text-vital-rose" />
+            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 border border-rose-100">
+                <Heart className="w-4 h-4" />
+              </div>
               <div>
-                <div className="text-[10px] uppercase font-mono text-slate-400">BP</div>
-                <div className="text-xs font-mono font-semibold text-white">
-                  {p.vitals.bp} <span className="text-[10px] font-normal text-slate-400">mmHg</span>
+                <div className="text-[10px] uppercase font-mono font-medium text-slate-400">BP</div>
+                <div className="text-xs font-mono font-bold text-slate-900">
+                  {p.vitals.bp} <span className="text-[10px] font-normal text-slate-500">mmHg</span>
                 </div>
               </div>
             </div>
 
             {/* Heart Rate */}
-            <div className="px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.08] flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-vital-cyan" />
+            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 border border-sky-100">
+                <Activity className="w-4 h-4" />
+              </div>
               <div>
-                <div className="text-[10px] uppercase font-mono text-slate-400">HR</div>
-                <div className="text-xs font-mono font-semibold text-white">
-                  {p.vitals.hr} <span className="text-[10px] font-normal text-slate-400">bpm</span>
+                <div className="text-[10px] uppercase font-mono font-medium text-slate-400">HR</div>
+                <div className="text-xs font-mono font-bold text-slate-900">
+                  {p.vitals.hr} <span className="text-[10px] font-normal text-slate-500">bpm</span>
                 </div>
               </div>
             </div>
 
             {/* SpO2 */}
-            <div className="px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.08] flex items-center gap-2">
-              <Wind className="w-3.5 h-3.5 text-sage-400" />
+            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                <Wind className="w-4 h-4" />
+              </div>
               <div>
-                <div className="text-[10px] uppercase font-mono text-slate-400">SpO2</div>
-                <div className="text-xs font-mono font-semibold text-white">
+                <div className="text-[10px] uppercase font-mono font-medium text-slate-400">SpO2</div>
+                <div className="text-xs font-mono font-bold text-slate-900">
                   {p.vitals.spo2}%
                 </div>
               </div>
             </div>
 
-            {/* Temp */}
-            <div className="px-2.5 py-1.5 rounded-lg bg-obsidian-900 border border-white/[0.08] flex items-center gap-2">
-              <Thermometer className="w-3.5 h-3.5 text-vital-amber" />
+            {/* Body Temperature */}
+            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100">
+                <Thermometer className="w-4 h-4" />
+              </div>
               <div>
-                <div className="text-[10px] uppercase font-mono text-slate-400">Temp</div>
-                <div className="text-xs font-mono font-semibold text-white">
+                <div className="text-[10px] uppercase font-mono font-medium text-slate-400">Temp</div>
+                <div className="text-xs font-mono font-bold text-slate-900">
                   {p.vitals.temp}°F
                 </div>
               </div>
@@ -115,18 +123,22 @@ export default function PatientHeader({ encounters, activeEncounterId, onSelectE
           </div>
         </div>
 
-        {/* Chief Complaint & Allergy Callout Bar */}
-        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-300">Chief Complaint:</span>
-            <span className="text-slate-400 truncate max-w-xl">
-              {current.chiefComplaint}
+        {/* Chief Complaint & Allergy Alert Banner */}
+        <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-slate-700">
+            <span className="font-semibold text-slate-900 font-mono text-[11px] uppercase tracking-wide">
+              Chief Complaint:
+            </span>
+            <span className="font-medium text-slate-600">
+              "{current.chiefComplaint}"
             </span>
           </div>
+
+          {/* Allergies Alert */}
           {p.allergies && p.allergies.length > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-vital-amber/10 border border-vital-amber/25 text-vital-amber text-[11px] font-mono shrink-0">
-              <AlertCircle className="w-3 h-3" />
-              <span>Allergies: {p.allergies.join(', ')}</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 font-medium text-[11px] shrink-0 self-start sm:self-auto">
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+              <span>Allergy Alert: {p.allergies.join(', ')}</span>
             </div>
           )}
         </div>

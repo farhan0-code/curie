@@ -175,19 +175,19 @@ Curie Voice Intelligence Engine - Verified
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-slate-900 border border-white/[0.12] rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-[0_16px_64px_rgba(0,0,0,0.6)] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/[0.08] flex items-center justify-between bg-slate-950/40">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+        <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-xs">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white">
-                Export Clinical Encounter & SOAP Note
+              <h3 className="text-base font-bold text-slate-900">
+                Export Clinical Encounter &amp; SOAP Note
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Targeting EHR interop: Epic Hyperspace, Cerner Millennium, or HL7 FHIR R4 standard.
               </p>
             </div>
@@ -195,21 +195,21 @@ Curie Voice Intelligence Engine - Verified
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Format Selector Bar */}
-        <div className="px-6 py-3 border-b border-white/[0.06] bg-slate-900/60 flex items-center justify-between">
-          <div className="flex items-center gap-2 p-1 bg-slate-950/60 rounded-xl border border-white/[0.05]">
+        <div className="px-6 py-3 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
             <button
               onClick={() => setSelectedFormat('epic')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedFormat === 'epic'
-                  ? 'bg-slate-800 text-white shadow-sm border border-white/10'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Epic SmartText (.epic)
@@ -217,22 +217,22 @@ Curie Voice Intelligence Engine - Verified
 
             <button
               onClick={() => setSelectedFormat('fhir')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 selectedFormat === 'fhir'
-                  ? 'bg-slate-800 text-white shadow-sm border border-white/10'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Code className="w-3.5 h-3.5 text-cyan-400" />
+              <Code className="w-3.5 h-3.5 text-sky-600" />
               <span>HL7 FHIR R4 (.json)</span>
             </button>
 
             <button
               onClick={() => setSelectedFormat('cerner')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedFormat === 'cerner'
-                  ? 'bg-slate-800 text-white shadow-sm border border-white/10'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               Cerner PowerChart
@@ -242,7 +242,7 @@ Curie Voice Intelligence Engine - Verified
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="tactile-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm"
+              className="tactile-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
             >
               {copied ? (
                 <>
@@ -259,37 +259,37 @@ Curie Voice Intelligence Engine - Verified
 
             <button
               onClick={handleDownload}
-              className="tactile-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-all"
+              className="tactile-btn px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs"
             >
-              <Download className="w-3.5 h-3.5 text-slate-400" />
+              <Download className="w-3.5 h-3.5 text-slate-500" />
               <span>Download</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="tactile-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-all"
+              className="tactile-btn px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs"
               title="Print formatted note"
             >
-              <Printer className="w-3.5 h-3.5 text-slate-400" />
+              <Printer className="w-3.5 h-3.5 text-slate-500" />
             </button>
           </div>
         </div>
 
         {/* Code / Text Preview */}
-        <div className="p-6 overflow-y-auto max-h-[500px] bg-slate-950/80">
-          <pre className="text-xs font-mono text-slate-300 leading-relaxed whitespace-pre-wrap select-all">
+        <div className="p-6 overflow-y-auto max-h-[500px] bg-slate-950">
+          <pre className="text-xs font-mono text-emerald-400 leading-relaxed whitespace-pre-wrap select-all">
             {getContent()}
           </pre>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-white/[0.08] bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
-          <span className="font-mono text-[11px] text-emerald-400/90 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Ready for EHR Integration & Ingestion
+        <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+          <span className="font-mono text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Ready for EHR Ingestion (HIPAA / HL7 R4)
           </span>
           <button
             onClick={onClose}
-            className="tactile-btn px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 font-medium transition-all"
+            className="tactile-btn px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium transition-all shadow-xs"
           >
             Done
           </button>
