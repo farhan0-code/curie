@@ -73,12 +73,20 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [partialText, setPartialText] = useState('')
   const [recentLines, setRecentLines] = useState([])
   const [errorMsg, setErrorMsg] = useState('')
+  const [warningMsg, setWarningMsg] = useState('')
   const [waveActive, setWaveActive] = useState(false)
+  const [showCompat, setShowCompat] = useState(false)
+
+  const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : ''
+  const isFirefox = userAgent.includes('firefox')
+  const isSafari = userAgent.includes('safari') && !userAgent.includes('chrome') && !userAgent.includes('chromium')
+  const isMac = typeof navigator !== 'undefined' && (navigator.platform?.toLowerCase().includes('mac') || userAgent.includes('mac'))
 
   const sttRef = useRef(null)
   const timerRef = useRef(null)
   const startTimeRef = useRef(null)
   const transcriptRef = useRef('')
+  const stopHandlerRef = useRef(null)
 
   // Sync transcript to ref for access in callbacks
   useEffect(() => {
@@ -102,6 +110,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const handleStartMeeting = async () => {
     if (status === 'recording' || status === 'connecting') return
     setErrorMsg('')
+    setWarningMsg('')
     setStatus('connecting')
     setWaveActive(false)
 
@@ -137,6 +146,16 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
             const next = [...prev, text]
             return next.slice(-8) // keep last 8 lines visible
           })
+        },
+        onWarning: ({ message }) => {
+          setWarningMsg(message)
+        },
+        onScreenShareEnded: () => {
+          // When user clicks "Stop Sharing" on the browser floating bar, stop listening & analyze
+          console.log('[MeetingCapturePage] Screen share ended, auto-stopping meeting')
+          if (stopHandlerRef.current) {
+            stopHandlerRef.current()
+          }
         },
         onError: (err) => {
           console.error('[StreamingSTT error]:', err)
@@ -191,6 +210,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       language: selectedLanguage,
     })
   }
+  stopHandlerRef.current = handleStopAndAnalyze
 
   const handleRunFixture = async () => {
     if (status === 'recording') return
@@ -294,7 +314,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       </header>
 
       {/* Main */}
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-10 flex flex-col gap-8">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 flex flex-col gap-8">
 
         {/* Title */}
         <div className="text-center">
@@ -373,14 +393,19 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                   <div className="flex items-center gap-2 mb-1">
                     <Monitor className="w-4 h-4 shrink-0" />
                     <span className="font-bold text-xs">Meeting Tab + Mic</span>
-                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
-                      audioSource === 'tab_mic' ? 'bg-white text-black' : 'bg-neutral-100 text-neutral-600'
-                    }`}>
+                    <span
+                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                        audioSource === 'tab_mic'
+                          ? 'bg-white text-black badge-light'
+                          : 'bg-neutral-100 text-neutral-600'
+                      }`}
+                      style={{ color: audioSource === 'tab_mic' ? '#000000' : undefined }}
+                    >
                       Recommended
                     </span>
                   </div>
                   <p className={`text-[11px] leading-tight ${audioSource === 'tab_mic' ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                    Shares Google Meet / Zoom tab audio + your microphone. Perfect for headphones.
+                    Shares Google Meet / Zoom / YouTube tab audio + your microphone. Perfect for headphones.
                   </p>
                 </button>
 
@@ -401,6 +426,75 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                     Listens to your room / laptop speakers directly. No screen-sharing prompt.
                   </p>
                 </button>
+              </div>
+
+              {isFirefox && audioSource === 'tab_mic' ? (
+                <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-normal flex items-start gap-2">
+                  <span className="text-sm shrink-0">🦊</span>
+                  <div>
+                    <strong>Firefox Note:</strong> Firefox does not support capturing tab/system audio. For digital YouTube or Google Meet tab audio, open Curie in <strong>Google Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong>. In Firefox, use <strong>Microphone Only</strong> with your laptop speakers turned on.
+                  </div>
+                </div>
+              ) : isSafari && audioSource === 'tab_mic' ? (
+                <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-normal flex items-start gap-2">
+                  <span className="text-sm shrink-0">🧭</span>
+                  <div>
+                    <strong>Safari Note:</strong> Apple Safari does not support capturing tab audio. For digital tab audio on Mac, open Curie in <strong>Google Chrome</strong> or <strong>Edge</strong>. In Safari, use <strong>Microphone Only</strong> with your speakers turned on.
+                  </div>
+                </div>
+              ) : audioSource === 'tab_mic' ? (
+                <p className="text-[11px] text-neutral-500 flex items-center gap-1.5 pt-0.5">
+                  <span>💡</span> {isMac ? 'In Chrome/Edge on Mac' : 'In Chrome/Edge'}, be sure to check <strong>"Also share tab audio"</strong> at the bottom of the share picker.
+                </p>
+              ) : null}
+
+              {/* Collapsible Browser & Mac Compatibility Guide */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowCompat(!showCompat)}
+                  className="text-[11px] text-neutral-500 hover:text-black flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
+                >
+                  <span className="text-[9px]">{showCompat ? '▼' : '▶'}</span>
+                  <span>Browser & Mac Compatibility Guide</span>
+                </button>
+
+                {showCompat && (
+                  <div className="mt-2.5 p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 text-xs space-y-2.5 animate-fadeIn">
+                    <div className="font-semibold text-neutral-900 text-xs flex items-center justify-between">
+                      <span>Audio Capture Support Matrix</span>
+                      <span className="text-[10px] font-mono text-neutral-500">Windows & macOS</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                      <div className="p-2.5 rounded-lg bg-white border border-neutral-200">
+                        <div className="font-bold text-neutral-900 flex items-center gap-1.5">
+                          <span className="text-emerald-600 font-bold">✓</span> Chrome, Edge & Brave
+                        </div>
+                        <p className="mt-1 text-neutral-500 leading-relaxed">
+                          <strong>Full support:</strong> Direct digital audio from any Meet/Zoom/YouTube tab + mic. In Windows, can also capture Zoom/Discord desktop apps via "Entire Screen + System Audio".
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-lg bg-white border border-neutral-200">
+                        <div className="font-bold text-neutral-900 flex items-center gap-1.5">
+                          <span className="text-amber-600 font-bold">⚡</span> Firefox & Safari
+                        </div>
+                        <p className="mt-1 text-neutral-500 leading-relaxed">
+                          <strong>Microphone Only:</strong> Listens to room/laptop speakers. (Browser engines lack tab audio capture APIs).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-neutral-600 pt-2 border-t border-neutral-200/60 leading-relaxed">
+                      🍏 <strong>Does Curie work on Mac?</strong> Yes, 100%!
+                      <ul className="list-disc pl-4 mt-1 space-y-0.5 text-[10.5px] text-neutral-500">
+                        <li><strong>Chrome / Edge on macOS:</strong> Captures tab audio and mic cleanly. (First time: allow Microphone & Screen Recording in <em>System Settings → Privacy & Security</em>).</li>
+                        <li><strong>Safari on macOS:</strong> Works smoothly with "Microphone Only".</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -444,69 +538,100 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         {/* Recording State */}
         {isActive && (
           <div className="space-y-5">
-            {/* Live Status Banner */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
-                  <span className="text-sm font-bold text-black">Listening to your meeting</span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200">
-                    {audioSource === 'tab_mic' ? '🖥️ Tab + Mic Mixed' : '🎙️ Mic Only'}
-                  </span>
+            {/* Warning / Compatibility Notice */}
+            {warningMsg && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3 shadow-2xs">
+                <span className="text-base shrink-0">⚠️</span>
+                <div className="flex-1 leading-relaxed">
+                  <span className="font-bold">Audio Source Notice: </span>
+                  {warningMsg}
                 </div>
-                <span className="text-xs font-mono text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-lg">
-                  {SUPPORTED_LANGUAGES.find((l) => l.code === selectedLanguage)?.label}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setWarningMsg('')}
+                  className="text-amber-800 hover:text-black font-semibold text-xs px-2 py-0.5 rounded cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {/* Side-by-Side Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+              {/* Left Card: Live Audio Status & Waveform */}
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
+                      <span className="text-sm font-bold text-black">Listening to meeting</span>
+                    </div>
+                    <span className="text-xs font-mono text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-lg">
+                      {SUPPORTED_LANGUAGES.find((l) => l.code === selectedLanguage)?.label}
+                    </span>
+                  </div>
+
+                  <div className="my-2">
+                    <WaveformBars active={waveActive} />
+                  </div>
+
+                  <div className="flex items-center justify-center my-2">
+                    <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200">
+                      {audioSource === 'tab_mic' ? '🖥️ Tab + Mic Mixed' : '🎙️ Mic Only'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-neutral-100 mt-2">
+                  <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
+                    <div className="flex items-center justify-center gap-1 text-neutral-500 mb-0.5">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="font-mono font-bold text-sm sm:text-base text-black">{formatDuration(duration)}</div>
+                    <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Duration</div>
+                  </div>
+                  <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
+                    <div className="flex items-center justify-center gap-1 text-neutral-500 mb-0.5">
+                      <Hash className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="font-mono font-bold text-sm sm:text-base text-black">{wordCount.toLocaleString()}</div>
+                    <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Words</div>
+                  </div>
+                  <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
+                    <div className="flex items-center justify-center gap-1 text-neutral-500 mb-0.5">
+                      <Zap className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="font-mono font-bold text-sm sm:text-base text-black">U-3.6 Pro</div>
+                    <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Model</div>
+                  </div>
+                </div>
               </div>
 
-              <WaveformBars active={waveActive} />
-
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <div className="flex items-center justify-center gap-1 text-neutral-500 mb-1">
-                    <Clock className="w-3.5 h-3.5" />
+              {/* Right Card: Live Transcript Stream */}
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs flex flex-col">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Radio className="w-3.5 h-3.5 text-black" />
+                    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-neutral-500">Live Transcript</span>
                   </div>
-                  <div className="font-mono font-bold text-base text-black">{formatDuration(duration)}</div>
-                  <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Duration</div>
+                  <span className="text-[10px] font-mono text-neutral-400">Streamed</span>
                 </div>
-                <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <div className="flex items-center justify-center gap-1 text-neutral-500 mb-1">
-                    <Hash className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="font-mono font-bold text-base text-black">{wordCount.toLocaleString()}</div>
-                  <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Words</div>
-                </div>
-                <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <div className="flex items-center justify-center gap-1 text-neutral-500 mb-1">
-                    <Zap className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="font-mono font-bold text-base text-black">U-3.5</div>
-                  <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide mt-0.5">Model</div>
-                </div>
-              </div>
-            </div>
 
-            {/* Live Transcript Stream */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-              <div className="flex items-center gap-2 mb-3">
-                <Radio className="w-3.5 h-3.5 text-black" />
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-neutral-500">Live Transcript</span>
-              </div>
-
-              <div className="min-h-[120px] max-h-[200px] overflow-y-auto custom-scrollbar space-y-1.5">
-                {recentLines.length === 0 && !partialText && (
-                  <p className="text-sm text-neutral-400 italic">Waiting for speech…</p>
-                )}
-                {recentLines.map((line, i) => (
-                  <p key={i} className="text-sm text-neutral-700 leading-relaxed">
-                    {line}
-                  </p>
-                ))}
-                {partialText && (
-                  <p className="text-sm text-neutral-400 italic leading-relaxed">
-                    {partialText}
-                  </p>
-                )}
+                <div className="flex-1 min-h-[170px] max-h-[230px] overflow-y-auto custom-scrollbar space-y-2 p-3 rounded-xl bg-neutral-50/70 border border-neutral-100">
+                  {recentLines.length === 0 && !partialText && (
+                    <p className="text-sm text-neutral-400 italic">Waiting for speech…</p>
+                  )}
+                  {recentLines.map((line, i) => (
+                    <p key={i} className="text-sm text-neutral-800 leading-relaxed">
+                      {line}
+                    </p>
+                  ))}
+                  {partialText && (
+                    <p className="text-sm text-neutral-500 italic leading-relaxed">
+                      {partialText}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

@@ -42,18 +42,27 @@ h1, h2, h3, h4, h5, h6, p, span, li, td, th, label {
 
 /* Dark buttons & dark badges MUST always display crisp white text and white icons */
 button.bg-black,
-button.bg-black span,
+button.bg-black span:not(.bg-white):not(.badge-light),
 button.bg-black p,
 button.bg-black strong,
 button.bg-neutral-900,
-button.bg-neutral-900 span,
+button.bg-neutral-900 span:not(.bg-white):not(.badge-light),
 button.bg-neutral-900 p,
 button.bg-neutral-900 strong,
 a.bg-black,
-a.bg-black span,
+a.bg-black span:not(.bg-white):not(.badge-light),
 .badge-dark,
 .badge-dark span {
   color: #FFFFFF !important;
+}
+
+/* Light badges/pills inside dark buttons MUST always have crisp black text */
+button.bg-neutral-900 .bg-white,
+button.bg-neutral-900 span.bg-white,
+button.bg-black .bg-white,
+button.bg-black span.bg-white,
+.badge-light {
+  color: #000000 !important;
 }
 
 button.bg-black svg,

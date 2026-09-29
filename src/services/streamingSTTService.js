@@ -7,12 +7,14 @@
 const STREAMING_WSS_URL = 'wss://streaming.assemblyai.com/v3/ws'
 
 export class StreamingSTTService {
-  constructor({ onPartial, onFinal, onSessionStart, onError, onClose }) {
+  constructor({ onPartial, onFinal, onSessionStart, onError, onClose, onWarning, onScreenShareEnded }) {
     this.onPartial = onPartial || (() => {})
     this.onFinal = onFinal || (() => {})
     this.onSessionStart = onSessionStart || (() => {})
     this.onError = onError || (() => {})
     this.onClose = onClose || (() => {})
+    this.onWarning = onWarning || (() => {})
+    this.onScreenShareEnded = onScreenShareEnded || (() => {})
 
     this.ws = null
     this.audioContext = null
@@ -25,6 +27,7 @@ export class StreamingSTTService {
     this.wordCount = 0
     this.finalTranscript = ''
     this.partialText = ''
+    this.hasTabAudio = false
   }
 
   async connect(tempToken, languageCode = 'en') {
@@ -33,6 +36,10 @@ export class StreamingSTTService {
       encoding: 'pcm_s16le',
       speech_model: 'universal-3-6-pro',
     })
+
+    if (languageCode) {
+      params.append('language_codes', JSON.stringify([languageCode]))
+    }
 
     // Use temp token auth — keeps real API key server-side
     const url = `${STREAMING_WSS_URL}?token=${tempToken}&${params.toString()}`
@@ -158,42 +165,70 @@ export class StreamingSTTService {
     }
 
     let connectedSources = 0
+    this.hasTabAudio = false
 
     // 1. If tab/meeting audio requested, capture Google Meet / Zoom tab audio
     if (captureTab && navigator.mediaDevices?.getDisplayMedia) {
       try {
         this.tabStream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
-          audio: {
-            channelCount: 1,
-            sampleRate: 16000,
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-          },
+          audio: true, // Use boolean true for max browser compatibility
+          systemAudio: 'include',
+          selfBrowserSurface: 'exclude',
+          surfaceSwitching: 'include',
+        })
+
+        // Auto-stop listening when user clicks "Stop Sharing" in browser bar
+        const handleShareEnded = () => {
+          if (this.isRecording) {
+            console.log('[StreamingSTT] Screen/tab share ended by user')
+            this.onScreenShareEnded()
+          }
+        }
+        this.tabStream.getVideoTracks().forEach((track) => {
+          track.addEventListener('ended', handleShareEnded, { once: true })
+        })
+        this.tabStream.getAudioTracks().forEach((track) => {
+          track.addEventListener('ended', handleShareEnded, { once: true })
         })
 
         const audioTracks = this.tabStream.getAudioTracks()
         if (audioTracks.length > 0) {
           const tabSource = this.audioContext.createMediaStreamSource(this.tabStream)
           tabSource.connect(this.scriptProcessor)
+          this.hasTabAudio = true
           connectedSources++
         } else {
-          console.warn('[StreamingSTT] Tab shared without audio enabled by user.')
+          const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : ''
+          const isFirefox = ua.includes('firefox')
+          const isSafari = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('chromium')
+          let message = 'The tab was shared without audio. In Chrome/Edge, be sure to check "Also share tab audio" at the bottom of the share picker.'
+          if (isFirefox) {
+            message = 'Firefox cannot capture tab/system audio. To transcribe digital audio from YouTube or Google Meet, please open this app in Google Chrome, Microsoft Edge, or Brave.'
+          } else if (isSafari) {
+            message = 'Apple Safari cannot capture tab audio. On Mac, open this app in Google Chrome or Microsoft Edge for digital tab audio, or switch to Microphone Only.'
+          }
+          this.onWarning({
+            type: 'no_tab_audio',
+            isFirefox,
+            isSafari,
+            message,
+          })
         }
       } catch (tabErr) {
         console.warn('[StreamingSTT] Tab audio share cancelled or failed, falling back to mic:', tabErr)
       }
     }
 
-    // 2. Also capture microphone (for the user's voice)
+    // 2. Also capture microphone (for the user's voice + room audio)
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
           sampleRate: 16000,
-          echoCancellation: true,
-          noiseSuppression: true,
+          // Set to false so browser echo cancellation doesn't cancel out laptop speaker voices
+          echoCancellation: false,
+          noiseSuppression: false,
           autoGainControl: true,
         },
       })
