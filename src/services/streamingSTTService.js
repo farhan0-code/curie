@@ -17,7 +17,9 @@ export class StreamingSTTService {
     this.ws = null
     this.audioContext = null
     this.mediaStream = null
+    this.tabStream = null
     this.scriptProcessor = null
+    this.muteGain = null
     this.isConnected = false
     this.isRecording = false
     this.wordCount = 0
@@ -132,32 +134,11 @@ export class StreamingSTTService {
     }
   }
 
-  async startCapture() {
+  async startCapture({ captureTab = false } = {}) {
     if (!this.isConnected) throw new Error('WebSocket not connected')
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext
     this.audioContext = new AudioContextClass({ sampleRate: 16000 })
-
-    try {
-      // Try to capture tab/system audio (works with getDisplayMedia or getUserMedia)
-      // For meeting capture, we use getUserMedia microphone as the accessible option
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      })
-    } catch (err) {
-      console.warn('[StreamingSTT] Microphone unavailable, using synthetic stream:', err.message)
-      this.mediaStream = null
-    }
-
-    const source = this.mediaStream
-      ? this.audioContext.createMediaStreamSource(this.mediaStream)
-      : this._createSyntheticSource()
 
     const bufferSize = 2048 // Valid Web Audio API power of 2 (128ms at 16kHz)
     this.scriptProcessor = this.audioContext.createScriptProcessor(bufferSize, 1, 1)
@@ -176,9 +157,59 @@ export class StreamingSTTService {
       this.ws.send(int16.buffer)
     }
 
-    source.connect(this.scriptProcessor)
+    let connectedSources = 0
 
-    // Route through a gain node with volume 0 to prevent mic audio echo in speakers
+    // 1. If tab/meeting audio requested, capture Google Meet / Zoom tab audio
+    if (captureTab && navigator.mediaDevices?.getDisplayMedia) {
+      try {
+        this.tabStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: {
+            channelCount: 1,
+            sampleRate: 16000,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+        })
+
+        const audioTracks = this.tabStream.getAudioTracks()
+        if (audioTracks.length > 0) {
+          const tabSource = this.audioContext.createMediaStreamSource(this.tabStream)
+          tabSource.connect(this.scriptProcessor)
+          connectedSources++
+        } else {
+          console.warn('[StreamingSTT] Tab shared without audio enabled by user.')
+        }
+      } catch (tabErr) {
+        console.warn('[StreamingSTT] Tab audio share cancelled or failed, falling back to mic:', tabErr)
+      }
+    }
+
+    // 2. Also capture microphone (for the user's voice)
+    try {
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
+      const micSource = this.audioContext.createMediaStreamSource(this.mediaStream)
+      micSource.connect(this.scriptProcessor)
+      connectedSources++
+    } catch (micErr) {
+      console.warn('[StreamingSTT] Microphone error:', micErr.message)
+      if (connectedSources === 0) {
+        // Fall back to synthetic speech simulation if neither mic nor tab is available
+        const synthetic = this._createSyntheticSource()
+        synthetic.connect(this.scriptProcessor)
+      }
+    }
+
+    // Route through a gain node with volume 0 to prevent mic/tab feedback in speakers
     this.muteGain = this.audioContext.createGain()
     this.muteGain.gain.value = 0
     this.scriptProcessor.connect(this.muteGain)
@@ -223,6 +254,11 @@ export class StreamingSTTService {
     if (this.muteGain) {
       this.muteGain.disconnect()
       this.muteGain = null
+    }
+
+    if (this.tabStream) {
+      this.tabStream.getTracks().forEach((t) => t.stop())
+      this.tabStream = null
     }
 
     if (this.mediaStream) {

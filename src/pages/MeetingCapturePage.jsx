@@ -13,6 +13,8 @@ import {
   Globe,
   Play,
   Settings2,
+  Monitor,
+  Headphones,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 import { StreamingSTTService } from '../services/streamingSTTService'
@@ -63,6 +65,7 @@ function WaveformBars({ active }) {
 export default function MeetingCapturePage({ onBackToLanding, onNavigateToResults }) {
   const [meetingName, setMeetingName] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('en')
+  const [audioSource, setAudioSource] = useState('tab_mic') // 'tab_mic' | 'mic_only'
   const [status, setStatus] = useState('idle') // idle | connecting | recording | stopping | error
   const [duration, setDuration] = useState(0)
   const [wordCount, setWordCount] = useState(0)
@@ -153,7 +156,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
       sttRef.current = stt
       await stt.connect(token, selectedLanguage)
-      await stt.startCapture()
+      await stt.startCapture({ captureTab: audioSource === 'tab_mic' })
     } catch (err) {
       console.error('[Meeting capture start error]:', err)
       setErrorMsg(err.message || 'Failed to start capture. Check microphone permissions.')
@@ -347,6 +350,60 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
               </div>
             </div>
 
+            {/* Audio Source Picker */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-neutral-700 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Headphones className="w-3.5 h-3.5" />
+                  Audio Source
+                </span>
+                <span className="text-[10px] font-mono text-neutral-400">Headphone friendly</span>
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAudioSource('tab_mic')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    audioSource === 'tab_mic'
+                      ? 'border-black bg-neutral-900 text-white shadow-xs'
+                      : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Monitor className="w-4 h-4 shrink-0" />
+                    <span className="font-bold text-xs">Meeting Tab + Mic</span>
+                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                      audioSource === 'tab_mic' ? 'bg-white text-black' : 'bg-neutral-100 text-neutral-600'
+                    }`}>
+                      Recommended
+                    </span>
+                  </div>
+                  <p className={`text-[11px] leading-tight ${audioSource === 'tab_mic' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Shares Google Meet / Zoom tab audio + your microphone. Perfect for headphones.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAudioSource('mic_only')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    audioSource === 'mic_only'
+                      ? 'border-black bg-neutral-900 text-white shadow-xs'
+                      : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Mic className="w-4 h-4 shrink-0" />
+                    <span className="font-bold text-xs">Microphone Only</span>
+                  </div>
+                  <p className={`text-[11px] leading-tight ${audioSource === 'mic_only' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Listens to your room / laptop speakers directly. No screen-sharing prompt.
+                  </p>
+                </button>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
@@ -355,7 +412,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                 className="tactile-btn flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-black text-white text-sm font-bold hover:bg-neutral-800 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm"
               >
                 <Mic className="w-4 h-4 text-white" />
-                Start Listening
+                {audioSource === 'tab_mic' ? 'Share Tab & Start Listening' : 'Start Listening'}
               </button>
               <button
                 id="run-demo-btn"
@@ -393,6 +450,9 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
                   <span className="text-sm font-bold text-black">Listening to your meeting</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200">
+                    {audioSource === 'tab_mic' ? '🖥️ Tab + Mic Mixed' : '🎙️ Mic Only'}
+                  </span>
                 </div>
                 <span className="text-xs font-mono text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-lg">
                   {SUPPORTED_LANGUAGES.find((l) => l.code === selectedLanguage)?.label}
