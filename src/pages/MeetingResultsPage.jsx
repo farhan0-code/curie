@@ -27,10 +27,10 @@ function formatDuration(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-function SectionCard({ icon, title, children, defaultOpen = true }) {
+function SectionCard({ icon, title, children, defaultOpen = true, className = '' }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="bg-white border border-neutral-200 rounded-2xl shadow-xs overflow-hidden">
+    <div className={`bg-white border border-neutral-200 rounded-2xl shadow-xs overflow-hidden flex flex-col ${className}`}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-neutral-50 transition-colors cursor-pointer"
@@ -42,7 +42,7 @@ function SectionCard({ icon, title, children, defaultOpen = true }) {
         {open ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
       </button>
       {open && (
-        <div className="px-5 pb-5 border-t border-neutral-100">
+        <div className="px-5 pb-5 border-t border-neutral-100 flex-1">
           {children}
         </div>
       )}
@@ -274,7 +274,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
       </header>
 
       {/* Main */}
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 space-y-5">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 space-y-5">
 
         {/* Meeting Header Card */}
         <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
@@ -308,11 +308,33 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
             </div>
             <div className="text-center p-2.5 bg-neutral-50 rounded-xl border border-neutral-100">
               <Zap className="w-3.5 h-3.5 text-neutral-400 mx-auto mb-1" />
-              <div className="font-mono font-bold text-sm text-black">U-3.5</div>
+              <div className="font-mono font-bold text-sm text-black">U-3.6 Pro</div>
               <div className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wide">Model</div>
             </div>
           </div>
         </div>
+
+        {/* Download Full Report CTA - Moved to top */}
+        {summary && !isAnalyzing && (
+          <div className="bg-black rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div>
+              <p className="font-bold text-white text-sm">Download Full Report</p>
+              <p className="text-xs text-neutral-400 mt-0.5">Summary, topics, action items + full transcript in PDF format</p>
+            </div>
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              className="shrink-0 tactile-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-neutral-100 transition-all cursor-pointer disabled:opacity-60"
+            >
+              {isDownloading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              Download PDF
+            </button>
+          </div>
+        )}
 
         {/* Analyzing State */}
         {isAnalyzing && (
@@ -331,62 +353,64 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
         {/* Summary Results */}
         {summary && !isAnalyzing && (
           <>
-            {/* Summary */}
-            <SectionCard icon={<MessageSquare className="w-4 h-4" />} title="Executive Summary">
-              <p className="text-sm text-neutral-700 leading-relaxed mt-3">{summary.summary}</p>
-            </SectionCard>
+            {/* Side-by-Side: Executive Summary & Key Topics Discussed */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+              <SectionCard icon={<MessageSquare className="w-4 h-4" />} title="Executive Summary">
+                <p className="text-sm text-neutral-700 leading-relaxed mt-3">{summary.summary}</p>
+              </SectionCard>
 
-            {/* Key Topics */}
-            <SectionCard icon={<Target className="w-4 h-4" />} title="Key Topics Discussed">
-              <div className="mt-3 flex flex-wrap gap-2">
-                {(summary.keyTopics || []).map((topic, i) => (
-                  <span
-                    key={i}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-neutral-100 text-black border border-neutral-200"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            </SectionCard>
+              <SectionCard icon={<Target className="w-4 h-4" />} title="Key Topics Discussed">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(summary.keyTopics || []).map((topic, i) => (
+                    <span
+                      key={i}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-neutral-100 text-black border border-neutral-200"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
 
-            {/* Key Points */}
+            {/* Key Discussion Points */}
             <SectionCard icon={<BookOpen className="w-4 h-4" />} title="Key Discussion Points">
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 space-y-2.5">
                 {(summary.keyPoints || []).map((point, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-700 leading-relaxed">
                     <span className="shrink-0 w-5 h-5 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-bold text-neutral-600 flex items-center justify-center mt-0.5">
                       {i + 1}
                     </span>
-                    {point}
+                    <span>{point}</span>
                   </li>
                 ))}
               </ul>
             </SectionCard>
 
-            {/* Decisions */}
-            <SectionCard icon={<CheckCircle2 className="w-4 h-4" />} title="Decisions Made">
-              <ul className="mt-3 space-y-2">
-                {(summary.decisions || []).map((decision, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-700 leading-relaxed">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-black mt-0.5" />
-                    {decision}
-                  </li>
-                ))}
-              </ul>
-            </SectionCard>
+            {/* Side-by-Side: Decisions Made & Action Items */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+              <SectionCard icon={<CheckCircle2 className="w-4 h-4" />} title="Decisions Made">
+                <ul className="mt-3 space-y-2">
+                  {(summary.decisions || []).map((decision, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-700 leading-relaxed">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-black mt-0.5" />
+                      <span>{decision}</span>
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
 
-            {/* Action Items */}
-            <SectionCard icon={<ListChecks className="w-4 h-4" />} title="Action Items">
-              <ul className="mt-3 space-y-2">
-                {(summary.actionItems || []).map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-700 leading-relaxed">
-                    <ArrowRight className="w-4 h-4 shrink-0 text-black mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </SectionCard>
+              <SectionCard icon={<ListChecks className="w-4 h-4" />} title="Action Items">
+                <ul className="mt-3 space-y-2">
+                  {(summary.actionItems || []).map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-neutral-700 leading-relaxed">
+                      <ArrowRight className="w-4 h-4 shrink-0 text-black mt-0.5" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
+            </div>
 
             {/* Full Transcript (collapsed by default) */}
             <SectionCard icon={<FileText className="w-4 h-4" />} title="Full Transcript" defaultOpen={false}>
@@ -396,26 +420,6 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
                 </p>
               </div>
             </SectionCard>
-
-            {/* Download CTA */}
-            <div className="bg-black rounded-2xl p-5 flex items-center justify-between gap-4">
-              <div>
-                <p className="font-bold text-white text-sm">Download Full Report</p>
-                <p className="text-xs text-neutral-400 mt-0.5">Summary, topics, action items + full transcript in PDF format</p>
-              </div>
-              <button
-                onClick={handleDownloadPDF}
-                disabled={isDownloading}
-                className="shrink-0 tactile-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-neutral-100 transition-all cursor-pointer disabled:opacity-60"
-              >
-                {isDownloading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-                Download PDF
-              </button>
-            </div>
           </>
         )}
 
