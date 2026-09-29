@@ -16,6 +16,9 @@ import {
   Monitor,
   Headphones,
   Sparkles,
+  Volume2,
+  VolumeX,
+  FastForward,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 import { StreamingSTTService } from '../services/streamingSTTService'
@@ -78,6 +81,8 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [warningMsg, setWarningMsg] = useState('')
   const [waveActive, setWaveActive] = useState(false)
   const [showCompat, setShowCompat] = useState(false)
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [isDemoMuted, setIsDemoMuted] = useState(false)
 
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : ''
   const isFirefox = userAgent.includes('firefox')
@@ -89,6 +94,9 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const startTimeRef = useRef(null)
   const transcriptRef = useRef('')
   const stopHandlerRef = useRef(null)
+  const isDemoRef = useRef(false)
+  const demoAudioRef = useRef(null)
+  const demoIntervalRef = useRef(null)
 
   // Sync transcript to ref for access in callbacks
   useEffect(() => {
@@ -111,6 +119,17 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
   const handleStartMeeting = async () => {
     if (status === 'recording' || status === 'connecting') return
+    setIsDemoMode(false)
+    isDemoRef.current = false
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+
     setErrorMsg('')
     setWarningMsg('')
     setStatus('connecting')
@@ -192,6 +211,16 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
     setWaveActive(false)
     stopTimer()
 
+    // Stop demo audio & interval if running
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+
     const stt = sttRef.current
     if (stt) {
       await stt.stopCapture()
@@ -201,19 +230,55 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       stt.disconnect()
     }
 
-    const transcript = transcriptRef.current || sttRef.current?.getFullTranscript() || ''
+    let transcript = transcriptRef.current || sttRef.current?.getFullTranscript() || ''
+    // If in demo mode and user stopped early, ensure rich analysis data
+    if (isDemoRef.current && (!transcript || transcript.length < 50)) {
+      transcript = DEMO_TRANSCRIPT
+    }
 
     // Navigate to results
     onNavigateToResults({
-      meetingName: meetingName || 'Untitled Meeting',
+      meetingName: meetingName || (isDemoRef.current ? 'Product Team Weekly — Demo' : 'Untitled Meeting'),
       transcript,
-      duration,
-      wordCount,
+      duration: duration || (isDemoRef.current ? 35 : 0),
+      wordCount: wordCount || (isDemoRef.current ? 459 : 0),
       language: selectedLanguage,
       analysisModel,
+      isDemo: isDemoRef.current,
     })
   }
   stopHandlerRef.current = handleStopAndAnalyze
+
+  const handleSkipDemoToEnd = () => {
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+    setStatus('stopping')
+    setWaveActive(false)
+    stopTimer()
+    onNavigateToResults({
+      meetingName: meetingName || 'Product Team Weekly — Demo',
+      transcript: DEMO_TRANSCRIPT,
+      duration: 165,
+      wordCount: 459,
+      language: selectedLanguage,
+      analysisModel,
+      isDemo: true,
+    })
+  }
+
+  const toggleDemoMute = () => {
+    if (demoAudioRef.current) {
+      const nextMuted = !demoAudioRef.current.muted
+      demoAudioRef.current.muted = nextMuted
+      setIsDemoMuted(nextMuted)
+    }
+  }
 
   const handleRunFixture = async () => {
     if (status === 'recording') return
@@ -225,63 +290,158 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
     setWordCount(0)
     setDuration(0)
     transcriptRef.current = ''
+    setIsDemoMode(true)
+    isDemoRef.current = true
+    setIsDemoMuted(false)
 
-    // Load fixture transcript from demo file
+    // Stop previous demo instances if any
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+
     try {
-      const res = await fetch('/fixtures/meeting_demo_transcript.txt')
-      let fixtureText = ''
-      if (res.ok) {
-        fixtureText = await res.text()
-      } else {
-        fixtureText = DEMO_TRANSCRIPT
+      // 1. Fetch timed lines metadata
+      let timedLines = []
+      try {
+        const res = await fetch('/fixtures/meeting_demo_timed.json')
+        if (res.ok) {
+          const timedData = await res.json()
+          timedLines = timedData.lines || []
+        }
+      } catch (err) {
+        console.warn('Timed JSON load warning:', err)
       }
+
+      // Fallback to text lines if timed JSON missing
+      if (!timedLines || timedLines.length === 0) {
+        let fixtureText = DEMO_TRANSCRIPT
+        try {
+          const txtRes = await fetch('/fixtures/meeting_demo_transcript.txt')
+          if (txtRes.ok) fixtureText = await txtRes.text()
+        } catch (e) {}
+        const rawLines = fixtureText.split('\n').filter((l) => l.trim().length > 0)
+        let cur = 0
+        rawLines.forEach((t, i) => {
+          timedLines.push({ index: i, text: t, startTime: cur, duration: 6 })
+          cur += 6
+        })
+      }
+
+      // 2. Initialize and play demo meeting audio
+      const audio = new Audio('/fixtures/meeting_demo.mp3')
+      audio.preload = 'auto'
+      demoAudioRef.current = audio
 
       setStatus('recording')
       setWaveActive(true)
       startTimer()
 
-      // Simulate streaming line by line
-      const lines = fixtureText.split('\n').filter((l) => l.trim().length > 0)
+      // Play audio right away from user click
+      try {
+        await audio.play()
+      } catch (playErr) {
+        console.warn('Demo audio autoplay notification:', playErr)
+      }
+
+      // 3. Synchronize streaming transcript with audio timeline
+      let lineIndex = 0
       let accumulated = ''
       let wc = 0
 
-      for (let i = 0; i < lines.length; i++) {
-        await new Promise((r) => setTimeout(r, 400 + Math.random() * 200))
-        accumulated += (accumulated ? ' ' : '') + lines[i]
-        wc += lines[i].split(/\s+/).filter(Boolean).length
-        transcriptRef.current = accumulated
-        setFullTranscript(accumulated)
-        setWordCount(wc)
-        setRecentLines((prev) => [...prev, lines[i]].slice(-8))
-      }
+      demoIntervalRef.current = setInterval(() => {
+        if (!isDemoRef.current) {
+          if (demoIntervalRef.current) clearInterval(demoIntervalRef.current)
+          return
+        }
 
-      setStatus('stopping')
-      setWaveActive(false)
-      stopTimer()
+        // Current playback time in seconds
+        const currentTime = audio && !isNaN(audio.currentTime) && audio.currentTime > 0
+          ? audio.currentTime
+          : (Date.now() - startTimeRef.current) / 1000
 
-      await new Promise((r) => setTimeout(r, 600))
+        while (lineIndex < timedLines.length && currentTime >= timedLines[lineIndex].startTime) {
+          const nextLine = timedLines[lineIndex].text
+          accumulated += (accumulated ? ' ' : '') + nextLine
+          wc += nextLine.split(/\s+/).filter(Boolean).length
+          transcriptRef.current = accumulated
+          setFullTranscript(accumulated)
+          setWordCount(wc)
+          setRecentLines((prev) => [...prev, nextLine].slice(-8))
+          lineIndex++
+        }
 
-      onNavigateToResults({
-        meetingName: meetingName || 'Product Team Weekly — Demo',
-        transcript: accumulated,
-        duration: Math.floor(lines.length * 2.5),
-        wordCount: wc,
-        language: selectedLanguage,
-        analysisModel,
-        isDemo: true,
-      })
+        // Finished all lines or audio ended
+        if ((audio && audio.ended) || lineIndex >= timedLines.length) {
+          if (demoIntervalRef.current) {
+            clearInterval(demoIntervalRef.current)
+            demoIntervalRef.current = null
+          }
+          if (audio) {
+            audio.pause()
+            demoAudioRef.current = null
+          }
+          setStatus('stopping')
+          setWaveActive(false)
+          stopTimer()
+
+          setTimeout(() => {
+            onNavigateToResults({
+              meetingName: meetingName || 'Product Team Weekly — Demo',
+              transcript: accumulated || DEMO_TRANSCRIPT,
+              duration: Math.max(duration, Math.round(currentTime)),
+              wordCount: wc || 459,
+              language: selectedLanguage,
+              analysisModel,
+              isDemo: true,
+            })
+          }, 600)
+        }
+      }, 150)
     } catch (err) {
+      console.error('Demo run error:', err)
       setStatus('error')
-      setErrorMsg('Failed to load demo fixture.')
+      setErrorMsg('Failed to run demo fixture.')
       setWaveActive(false)
       stopTimer()
+      setIsDemoMode(false)
+      isDemoRef.current = false
     }
+  }
+
+  const handleBack = () => {
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+    stopTimer()
+    if (sttRef.current) {
+      sttRef.current.stopCapture().catch(() => {})
+      sttRef.current.disconnect()
+    }
+    onBackToLanding()
   }
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopTimer()
+      if (demoAudioRef.current) {
+        demoAudioRef.current.pause()
+        demoAudioRef.current = null
+      }
+      if (demoIntervalRef.current) {
+        clearInterval(demoIntervalRef.current)
+        demoIntervalRef.current = null
+      }
       if (sttRef.current) {
         sttRef.current.stopCapture().catch(() => {})
         sttRef.current.disconnect()
@@ -298,8 +458,8 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       <header className="sticky top-0 z-30 w-full h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-3">
           <button
-            onClick={onBackToLanding}
-            className="text-xs font-semibold text-neutral-500 hover:text-black transition-colors"
+            onClick={handleBack}
+            className="text-xs font-semibold text-neutral-500 hover:text-black transition-colors cursor-pointer"
           >
             ← Back
           </button>
@@ -634,10 +794,21 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                     <WaveformBars active={waveActive} />
                   </div>
 
-                  <div className="flex items-center justify-center my-2">
+                  <div className="flex items-center justify-center gap-2 my-2">
                     <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200">
-                      {audioSource === 'tab_mic' ? 'Tab + Mic Mixed' : 'Mic Only'}
+                      {isDemoMode ? 'Demo Audio Playing' : audioSource === 'tab_mic' ? 'Tab + Mic Mixed' : 'Mic Only'}
                     </span>
+                    {isDemoMode && (
+                      <button
+                        type="button"
+                        onClick={toggleDemoMute}
+                        className="flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border border-neutral-200 transition-colors cursor-pointer"
+                        title={isDemoMuted ? 'Unmute Demo Audio' : 'Mute Demo Audio'}
+                      >
+                        {isDemoMuted ? <VolumeX className="w-3 h-3 text-neutral-500" /> : <Volume2 className="w-3 h-3 text-black" />}
+                        <span>{isDemoMuted ? 'Muted' : 'Audio On'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -694,7 +865,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
               </div>
             </div>
 
-            {/* Stop Button */}
+            {/* Stop & Skip Buttons */}
             <div className="flex gap-3">
               <button
                 id="stop-analyze-btn"
@@ -704,10 +875,26 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                 <Square className="w-4 h-4 text-white" />
                 Stop & Analyze Meeting
               </button>
+              {isDemoMode && (
+                <button
+                  type="button"
+                  id="skip-demo-btn"
+                  onClick={handleSkipDemoToEnd}
+                  className="tactile-btn flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl border border-neutral-300 bg-white text-neutral-800 text-sm font-semibold hover:border-black hover:text-black transition-all cursor-pointer"
+                  title="Skip to end and analyze full meeting"
+                >
+                  <FastForward className="w-4 h-4" />
+                  Skip to Analysis
+                </button>
+              )}
             </div>
 
             <p className="text-center text-xs text-neutral-400">
-              {meetingName ? `Recording: "${meetingName}"` : 'Recording untitled meeting'} — click Stop when done
+              {isDemoMode
+                ? 'Playing simulated team meeting audio — click Stop & Analyze whenever you are ready'
+                : meetingName
+                ? `Recording: "${meetingName}" — click Stop when done`
+                : 'Recording untitled meeting — click Stop when done'}
             </p>
           </div>
         )}

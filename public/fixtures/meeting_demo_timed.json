@@ -1,0 +1,155 @@
+{
+  "totalDuration": 165.01,
+  "lines": [
+    {
+      "index": 0,
+      "text": "Alright everyone, let's get started. We have a lot to cover today for our Q4 product planning.",
+      "startTime": 0,
+      "duration": 6.11
+    },
+    {
+      "index": 1,
+      "text": "First item on the agenda is the new dashboard redesign. Our designer Sarah has completed the mockups and they look great.",
+      "startTime": 6.11,
+      "duration": 7.55
+    },
+    {
+      "index": 2,
+      "text": "The main focus is improving the metrics overview section and making the navigation more intuitive for new users.",
+      "startTime": 13.66,
+      "duration": 6.47
+    },
+    {
+      "index": 3,
+      "text": "We need to ship this by end of October to align with the marketing campaign.",
+      "startTime": 20.13,
+      "duration": 5.39
+    },
+    {
+      "index": 4,
+      "text": "Next up is the backend performance issues. Our API response times have been degrading since last week's deployment.",
+      "startTime": 25.52,
+      "duration": 6.47
+    },
+    {
+      "index": 5,
+      "text": "The team identified that the database queries on the user analytics endpoint are not using indexes properly.",
+      "startTime": 32,
+      "duration": 6.11
+    },
+    {
+      "index": 6,
+      "text": "John has already started a fix. He estimates it will be merged by Thursday.",
+      "startTime": 38.11,
+      "duration": 5.03
+    },
+    {
+      "index": 7,
+      "text": "We should see a 60% improvement in response times after that.",
+      "startTime": 43.14,
+      "duration": 3.95
+    },
+    {
+      "index": 8,
+      "text": "Now let me talk about the mobile app update. We received feedback from beta testers that the onboarding flow is too long.",
+      "startTime": 47.09,
+      "duration": 7.91
+    },
+    {
+      "index": 9,
+      "text": "We're going to cut it from 7 steps down to 4. The key steps we'll keep are account creation, profile setup, and the feature tour.",
+      "startTime": 55,
+      "duration": 8.99
+    },
+    {
+      "index": 10,
+      "text": "This should improve our Day 1 retention by roughly 25% based on similar experiments at other companies.",
+      "startTime": 63.99,
+      "duration": 6.11
+    },
+    {
+      "index": 11,
+      "text": "For the Q4 roadmap overall, our three main priorities are: first, the dashboard redesign I mentioned; second, the mobile onboarding improvements; and third, integrating the new payment provider before the holiday shopping season.",
+      "startTime": 70.1,
+      "duration": 11.86
+    },
+    {
+      "index": 12,
+      "text": "The payment provider switch is critical because our current provider has been having reliability issues and our checkout failure rate went up 2% this month.",
+      "startTime": 81.97,
+      "duration": 8.99
+    },
+    {
+      "index": 13,
+      "text": "Let's discuss budget. We have 40 thousand dollars remaining in the engineering budget for Q4.",
+      "startTime": 90.95,
+      "duration": 5.39
+    },
+    {
+      "index": 14,
+      "text": "We're allocating 15k for infrastructure scaling, 10k for third party tools and licenses, and 15k stays as a reserve for unexpected work.",
+      "startTime": 96.35,
+      "duration": 7.91
+    },
+    {
+      "index": 15,
+      "text": "Everyone please update your project timelines in Jira by end of day Friday.",
+      "startTime": 104.25,
+      "duration": 4.67
+    },
+    {
+      "index": 16,
+      "text": "Our next all-hands is scheduled for October 15th. That's everything for today. Any final questions?",
+      "startTime": 108.93,
+      "duration": 5.39
+    },
+    {
+      "index": 17,
+      "text": "The design team mentioned they want to run a quick user research session next week to validate the dashboard changes before we fully commit.",
+      "startTime": 114.32,
+      "duration": 8.63
+    },
+    {
+      "index": 18,
+      "text": "I think that's a great idea. Let's schedule that for Monday afternoon. Sarah, can you organize that?",
+      "startTime": 122.95,
+      "duration": 6.11
+    },
+    {
+      "index": 19,
+      "text": "Sure, I'll reach out to 5 or 6 users from our beta group and set up 30 minute sessions.",
+      "startTime": 129.06,
+      "duration": 6.83
+    },
+    {
+      "index": 20,
+      "text": "Perfect. One more thing I wanted to bring up is the engineering hiring. We have two open positions right now.",
+      "startTime": 135.89,
+      "duration": 7.19
+    },
+    {
+      "index": 21,
+      "text": "One senior backend engineer and one data engineer. Both are in final round interviews.",
+      "startTime": 143.08,
+      "duration": 5.03
+    },
+    {
+      "index": 22,
+      "text": "We hope to have offers out by end of next week. If all goes well, both could start in November.",
+      "startTime": 148.11,
+      "duration": 7.19
+    },
+    {
+      "index": 23,
+      "text": "That would really help with the Q4 delivery given everything we have on the plate.",
+      "startTime": 155.3,
+      "duration": 5.39
+    },
+    {
+      "index": 24,
+      "text": "Alright, I think we've covered everything. Thanks everyone for joining. Talk soon.",
+      "startTime": 160.7,
+      "duration": 4.31
+    }
+  ]
+}
