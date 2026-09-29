@@ -86,7 +86,8 @@ export default defineConfig(({ mode }) => {
               const chunks = []
               for await (const chunk of req) chunks.push(chunk)
               const body = JSON.parse(Buffer.concat(chunks).toString())
-              const { transcript, meetingName, language } = body
+              const { transcript, meetingName, language, analysisModel } = body
+              const selectedModel = analysisModel === 'claude-sonnet-4-6' ? 'claude-sonnet-4-6' : 'gemini-3.5-flash'
 
               if (!transcript || transcript.trim().length < 50) {
                 res.statusCode = 400
@@ -103,7 +104,7 @@ Meeting: "${meetingName || 'Untitled Meeting'}"
 Language: ${language || 'en'}
 
 TRANSCRIPT:
-${transcript.slice(0, 12000)}
+${transcript.slice(0, 15000)}
 
 Respond with this exact JSON structure:
 {
@@ -113,7 +114,7 @@ Respond with this exact JSON structure:
   "decisions": ["decision 1", "decision 2", "decision 3"],
   "actionItems": ["action item 1", "action item 2", "action item 3", "action item 4"],
   "sentiment": "overall meeting sentiment in 3-5 words",
-  "modelUsed": "gemini-3.5-flash via AssemblyAI LLM Gateway"
+  "modelUsed": "${selectedModel === 'claude-sonnet-4-6' ? 'Claude Sonnet 4.6' : 'Gemini 3.5 Flash'} via AssemblyAI LLM Gateway"
 }`
 
               const llmRes = await fetch('https://llm-gateway.assemblyai.com/v1/chat/completions', {
@@ -123,7 +124,7 @@ Respond with this exact JSON structure:
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  model: 'gemini-3.5-flash',
+                  model: selectedModel,
                   messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userPrompt },

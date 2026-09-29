@@ -15,6 +15,7 @@ import {
   Settings2,
   Monitor,
   Headphones,
+  Sparkles,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 import { StreamingSTTService } from '../services/streamingSTTService'
@@ -66,6 +67,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [meetingName, setMeetingName] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('en')
   const [audioSource, setAudioSource] = useState('tab_mic') // 'tab_mic' | 'mic_only'
+  const [analysisModel, setAnalysisModel] = useState('claude-sonnet-4-6') // 'claude-sonnet-4-6' | 'gemini-3.5-flash'
   const [status, setStatus] = useState('idle') // idle | connecting | recording | stopping | error
   const [duration, setDuration] = useState(0)
   const [wordCount, setWordCount] = useState(0)
@@ -208,6 +210,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       duration,
       wordCount,
       language: selectedLanguage,
+      analysisModel,
     })
   }
   stopHandlerRef.current = handleStopAndAnalyze
@@ -264,6 +267,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         duration: Math.floor(lines.length * 2.5),
         wordCount: wc,
         language: selectedLanguage,
+        analysisModel,
         isDemo: true,
       })
     } catch (err) {
@@ -495,6 +499,65 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* AI Synthesis Model Picker */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-neutral-700 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  AI Synthesis Model
+                </span>
+                <span className="text-[10px] font-mono text-neutral-400">AssemblyAI LLM Gateway</span>
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAnalysisModel('claude-sonnet-4-6')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    analysisModel === 'claude-sonnet-4-6'
+                      ? 'border-black bg-neutral-900 text-white shadow-xs'
+                      : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm">🧠</span>
+                    <span className="font-bold text-xs">Executive · Claude Sonnet 4.6</span>
+                    <span
+                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                        analysisModel === 'claude-sonnet-4-6'
+                          ? 'bg-white text-black badge-light'
+                          : 'bg-neutral-100 text-neutral-600'
+                      }`}
+                      style={{ color: analysisModel === 'claude-sonnet-4-6' ? '#000000' : undefined }}
+                    >
+                      Polished
+                    </span>
+                  </div>
+                  <p className={`text-[11px] leading-tight ${analysisModel === 'claude-sonnet-4-6' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Sophisticated executive synthesis, polished business prose, and prioritized actions.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAnalysisModel('gemini-3.5-flash')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    analysisModel === 'gemini-3.5-flash'
+                      ? 'border-black bg-neutral-900 text-white shadow-xs'
+                      : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm">⚡</span>
+                    <span className="font-bold text-xs">Fast · Gemini Flash</span>
+                  </div>
+                  <p className={`text-[11px] leading-tight ${analysisModel === 'gemini-3.5-flash' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Sub-second analysis with a massive 1M+ token context window.
+                  </p>
+                </button>
               </div>
             </div>
 

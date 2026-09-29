@@ -57,7 +57,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
   const [isDownloading, setIsDownloading] = useState(false)
   const analysisRef = useRef(false)
 
-  const { meetingName, transcript, duration, wordCount, language, isDemo } = meetingData || {}
+  const { meetingName, transcript, duration, wordCount, language, isDemo, analysisModel } = meetingData || {}
 
   useEffect(() => {
     if (!analysisRef.current && transcript) {
@@ -79,6 +79,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
           transcript,
           meetingName: meetingName || 'Meeting',
           language: language || 'en',
+          analysisModel: analysisModel || 'claude-sonnet-4-6',
         }),
       })
 
@@ -180,7 +181,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
     <span>📅 ${dateStr}</span>
     <span>⏱ ${formatDuration(duration || 0)}</span>
     <span>💬 ${(wordCount || 0).toLocaleString()} words</span>
-    <span>🤖 Powered by AssemblyAI + Gemini</span>
+    <span>🤖 Powered by AssemblyAI + ${analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}</span>
   </div>
 
   <h2>Summary</h2>
@@ -288,10 +289,15 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
               </p>
             </div>
             {summary && (
-              <span className="shrink-0 flex items-center gap-1.5 text-xs font-semibold bg-neutral-100 px-2.5 py-1 rounded-xl border border-neutral-200 text-black">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Analyzed
-              </span>
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <span className="shrink-0 flex items-center gap-1.5 text-xs font-semibold bg-neutral-100 px-2.5 py-1 rounded-xl border border-neutral-200 text-black">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Analyzed
+                </span>
+                <span className="shrink-0 text-xs font-mono font-bold text-neutral-800 bg-neutral-50 px-2.5 py-1 rounded-xl border border-neutral-200">
+                  {analysisModel === 'gemini-3.5-flash' ? '⚡ Gemini Flash' : '🧠 Claude Sonnet 4.6'}
+                </span>
+              </div>
             )}
           </div>
 
@@ -343,8 +349,14 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-black">Analyzing your meeting…</p>
-              <p className="text-xs text-neutral-500 mt-1">Gemini is extracting topics, key points, and action items</p>
+              <p className="font-semibold text-black">
+                {analysisModel === 'gemini-3.5-flash' ? 'Analyzing with Gemini Flash…' : 'Synthesizing with Claude Sonnet 4.6…'}
+              </p>
+              <p className="text-xs text-neutral-500 mt-1">
+                {analysisModel === 'gemini-3.5-flash'
+                  ? 'Extracting topics, key points, and action items at lightning speed'
+                  : 'Synthesizing executive summary, strategic discussion points, and action items'}
+              </p>
             </div>
             <Loader2 className="w-6 h-6 text-black animate-spin" />
           </div>
@@ -441,7 +453,9 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
           Powered by{' '}
           <span className="font-semibold text-neutral-600">AssemblyAI Universal-3.6 Pro</span>
           {' '}+{' '}
-          <span className="font-semibold text-neutral-600">Gemini Flash</span>
+          <span className="font-semibold text-neutral-600">
+            {analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}
+          </span>
           {' '}via LLM Gateway
         </div>
       </main>
