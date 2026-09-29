@@ -278,6 +278,22 @@ export class StreamingSTTService {
     return gain
   }
 
+  setMicMuted(muted) {
+    if (this.mediaStream) {
+      this.mediaStream.getAudioTracks().forEach((track) => {
+        track.enabled = !muted
+      })
+    }
+  }
+
+  isMicMuted() {
+    if (this.mediaStream) {
+      const tracks = this.mediaStream.getAudioTracks()
+      if (tracks.length > 0) return !tracks[0].enabled
+    }
+    return false
+  }
+
   async stopCapture() {
     this.isRecording = false
 

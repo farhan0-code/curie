@@ -21,6 +21,7 @@ import {
   FastForward,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
+import FloatingMeetingBar from '../components/FloatingMeetingBar'
 import { StreamingSTTService } from '../services/streamingSTTService'
 
 const SUPPORTED_LANGUAGES = [
@@ -83,6 +84,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [showCompat, setShowCompat] = useState(false)
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [isDemoMuted, setIsDemoMuted] = useState(false)
+  const [isMicMuted, setIsMicMuted] = useState(false)
 
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : ''
   const isFirefox = userAgent.includes('firefox')
@@ -277,6 +279,19 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       const nextMuted = !demoAudioRef.current.muted
       demoAudioRef.current.muted = nextMuted
       setIsDemoMuted(nextMuted)
+      setIsMicMuted(nextMuted)
+    }
+  }
+
+  const handleToggleMicMute = () => {
+    if (isDemoMode) {
+      toggleDemoMute()
+      return
+    }
+    if (sttRef.current) {
+      const nextMuted = !isMicMuted
+      sttRef.current.setMicMuted(nextMuted)
+      setIsMicMuted(nextMuted)
     }
   }
 
@@ -453,7 +468,25 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const isConnecting = status === 'connecting' || status === 'stopping'
 
   return (
-    <div className="min-h-screen w-full bg-white text-black font-sans flex flex-col">
+    <div className="min-h-screen w-full bg-white text-black font-sans flex flex-col relative">
+      {/* Floating Meeting Controller: In-App Top Bar & Picture-in-Picture Pop-out */}
+      <FloatingMeetingBar
+        status={status}
+        duration={duration}
+        wordCount={wordCount}
+        latestText={partialText || (recentLines.length > 0 ? recentLines[recentLines.length - 1] : '')}
+        audioSource={audioSource}
+        setAudioSource={setAudioSource}
+        analysisModel={analysisModel}
+        setAnalysisModel={setAnalysisModel}
+        onStartMeeting={handleStartMeeting}
+        onRunDemo={handleRunFixture}
+        onStopAndAnalyze={handleStopAndAnalyze}
+        isMicMuted={isMicMuted}
+        onToggleMicMute={handleToggleMicMute}
+        isDemoMode={isDemoMode}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-30 w-full h-16 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-4 sm:px-6 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-3">
