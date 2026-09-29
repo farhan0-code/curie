@@ -1,0 +1,25 @@
+Alright everyone, let's get started. We have a lot to cover today for our Q4 product planning.
+First item on the agenda is the new dashboard redesign. Our designer Sarah has completed the mockups and they look great.
+The main focus is improving the metrics overview section and making the navigation more intuitive for new users.
+We need to ship this by end of October to align with the marketing campaign.
+Next up is the backend performance issues. Our API response times have been degrading since last week's deployment.
+The team identified that the database queries on the user analytics endpoint are not using indexes properly.
+John has already started a fix. He estimates it will be merged by Thursday.
+We should see a 60% improvement in response times after that.
+Now let me talk about the mobile app update. We received feedback from beta testers that the onboarding flow is too long.
+We're going to cut it from 7 steps down to 4. The key steps we'll keep are account creation, profile setup, and the feature tour.
+This should improve our Day 1 retention by roughly 25% based on similar experiments at other companies.
+For the Q4 roadmap overall, our three main priorities are: first, the dashboard redesign I mentioned; second, the mobile onboarding improvements; and third, integrating the new payment provider before the holiday shopping season.
+The payment provider switch is critical because our current provider has been having reliability issues and our checkout failure rate went up 2% this month.
+Let's discuss budget. We have 40 thousand dollars remaining in the engineering budget for Q4.
+We're allocating 15k for infrastructure scaling, 10k for third party tools and licenses, and 15k stays as a reserve for unexpected work.
+Everyone please update your project timelines in Jira by end of day Friday.
+Our next all-hands is scheduled for October 15th. That's everything for today. Any final questions?
+The design team mentioned they want to run a quick user research session next week to validate the dashboard changes before we fully commit.
+I think that's a great idea. Let's schedule that for Monday afternoon. Sarah, can you organize that?
+Sure, I'll reach out to 5 or 6 users from our beta group and set up 30 minute sessions.
+Perfect. One more thing I wanted to bring up is the engineering hiring. We have two open positions right now.
+One senior backend engineer and one data engineer. Both are in final round interviews.
+We hope to have offers out by end of next week. If all goes well, both could start in November.
+That would really help with the Q4 delivery given everything we have on the plate.
+Alright, I think we've covered everything. Thanks everyone for joining. Talk soon.
