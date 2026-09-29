@@ -178,10 +178,10 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
 <body>
   <h1>${meetingName || 'Meeting Report'}</h1>
   <div class="meta">
-    <span>📅 ${dateStr}</span>
-    <span>⏱ ${formatDuration(duration || 0)}</span>
-    <span>💬 ${(wordCount || 0).toLocaleString()} words</span>
-    <span>🤖 Powered by AssemblyAI + ${analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}</span>
+    <span>${dateStr}</span>
+    <span>${formatDuration(duration || 0)}</span>
+    <span>${(wordCount || 0).toLocaleString()} words</span>
+    <span>Powered by AssemblyAI + ${analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}</span>
   </div>
 
   <h2>Summary</h2>
@@ -295,7 +295,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
                   Analyzed
                 </span>
                 <span className="shrink-0 text-xs font-mono font-bold text-neutral-800 bg-neutral-50 px-2.5 py-1 rounded-xl border border-neutral-200">
-                  {analysisModel === 'gemini-3.5-flash' ? '⚡ Gemini Flash' : '🧠 Claude Sonnet 4.6'}
+                  {analysisModel === 'gemini-3.5-flash' ? 'Gemini Flash' : 'Claude Sonnet 4.6'}
                 </span>
               </div>
             )}

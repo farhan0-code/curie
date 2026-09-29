@@ -434,21 +434,19 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
               {isFirefox && audioSource === 'tab_mic' ? (
                 <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-normal flex items-start gap-2">
-                  <span className="text-sm shrink-0">🦊</span>
                   <div>
                     <strong>Firefox Note:</strong> Firefox does not support capturing tab/system audio. For digital YouTube or Google Meet tab audio, open Curie in <strong>Google Chrome</strong>, <strong>Edge</strong>, or <strong>Brave</strong>. In Firefox, use <strong>Microphone Only</strong> with your laptop speakers turned on.
                   </div>
                 </div>
               ) : isSafari && audioSource === 'tab_mic' ? (
                 <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-normal flex items-start gap-2">
-                  <span className="text-sm shrink-0">🧭</span>
                   <div>
                     <strong>Safari Note:</strong> Apple Safari does not support capturing tab audio. For digital tab audio on Mac, open Curie in <strong>Google Chrome</strong> or <strong>Edge</strong>. In Safari, use <strong>Microphone Only</strong> with your speakers turned on.
                   </div>
                 </div>
               ) : audioSource === 'tab_mic' ? (
                 <p className="text-[11px] text-neutral-500 flex items-center gap-1.5 pt-0.5">
-                  <span>💡</span> {isMac ? 'In Chrome/Edge on Mac' : 'In Chrome/Edge'}, be sure to check <strong>"Also share tab audio"</strong> at the bottom of the share picker.
+                  <span className="font-semibold text-neutral-700">Tip:</span> {isMac ? 'In Chrome/Edge on Mac' : 'In Chrome/Edge'}, be sure to check <strong>"Also share tab audio"</strong> at the bottom of the share picker.
                 </p>
               ) : null}
 
@@ -482,7 +480,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
                       <div className="p-2.5 rounded-lg bg-white border border-neutral-200">
                         <div className="font-bold text-neutral-900 flex items-center gap-1.5">
-                          <span className="text-amber-600 font-bold">⚡</span> Firefox & Safari
+                          <span className="text-neutral-400 font-bold">•</span> Firefox & Safari
                         </div>
                         <p className="mt-1 text-neutral-500 leading-relaxed">
                           <strong>Microphone Only:</strong> Listens to room/laptop speakers. (Browser engines lack tab audio capture APIs).
@@ -491,7 +489,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                     </div>
 
                     <div className="text-[11px] text-neutral-600 pt-2 border-t border-neutral-200/60 leading-relaxed">
-                      🍏 <strong>Does Curie work on Mac?</strong> Yes, 100%!
+                      <strong>Does Curie work on Mac?</strong> Yes, 100%!
                       <ul className="list-disc pl-4 mt-1 space-y-0.5 text-[10.5px] text-neutral-500">
                         <li><strong>Chrome / Edge on macOS:</strong> Captures tab audio and mic cleanly. (First time: allow Microphone & Screen Recording in <em>System Settings → Privacy & Security</em>).</li>
                         <li><strong>Safari on macOS:</strong> Works smoothly with "Microphone Only".</li>
@@ -523,7 +521,6 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm">🧠</span>
                     <span className="font-bold text-xs">Executive · Claude Sonnet 4.6</span>
                     <span
                       className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
@@ -551,7 +548,6 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm">⚡</span>
                     <span className="font-bold text-xs">Fast · Gemini Flash</span>
                   </div>
                   <p className={`text-[11px] leading-tight ${analysisModel === 'gemini-3.5-flash' ? 'text-neutral-300' : 'text-neutral-500'}`}>
@@ -640,7 +636,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
                   <div className="flex items-center justify-center my-2">
                     <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-neutral-100 text-neutral-700 border border-neutral-200">
-                      {audioSource === 'tab_mic' ? '🖥️ Tab + Mic Mixed' : '🎙️ Mic Only'}
+                      {audioSource === 'tab_mic' ? 'Tab + Mic Mixed' : 'Mic Only'}
                     </span>
                   </div>
                 </div>
