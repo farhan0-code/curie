@@ -198,28 +198,28 @@ export default function LandingPage({ onLaunchMeeting }) {
             {[
               {
                 step: '01',
-                icon: <Mic className="w-6 h-6 text-black" />,
+                icon: <Mic className="w-5 h-5 text-white" />,
                 title: 'Open Curie',
                 desc: 'Launch Curie in a browser tab alongside your meeting. Name the session and pick your language.',
               },
               {
                 step: '02',
-                icon: <Radio className="w-6 h-6 text-black" />,
+                icon: <Radio className="w-5 h-5 text-white" />,
                 title: 'Curie listens',
                 desc: 'AssemblyAI\'s streaming WebSocket captures every word in real-time as you meet. Live transcript appears instantly.',
               },
               {
                 step: '03',
-                icon: <FileText className="w-6 h-6 text-black" />,
+                icon: <FileText className="w-5 h-5 text-white" />,
                 title: 'Get your report',
                 desc: 'Stop the session. Gemini analyzes the transcript and delivers topics, key points, decisions, and action items — plus a PDF.',
               },
             ].map((item) => (
-              <div key={item.step} className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs relative overflow-hidden">
-                <span className="absolute top-4 right-4 text-[40px] font-black text-neutral-100 font-mono leading-none select-none">
+              <div key={item.step} className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-xs relative overflow-hidden group hover:border-black transition-colors">
+                <span className="absolute top-4 right-4 text-[40px] font-black text-neutral-100 group-hover:text-neutral-200 transition-colors font-mono leading-none select-none">
                   {item.step}
                 </span>
-                <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center mb-4">
+                <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center mb-4 shadow-xs">
                   {item.icon}
                 </div>
                 <h3 className="font-display font-bold text-base text-black mb-2">{item.title}</h3>
@@ -243,39 +243,39 @@ export default function LandingPage({ onLaunchMeeting }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
-                icon: <Zap className="w-5 h-5 text-black" />,
+                icon: <Zap className="w-5 h-5 transition-colors" />,
                 title: 'Sub-second latency',
                 desc: 'Streaming WebSocket delivers partial transcripts as you speak — no waiting for sentences to finish.',
               },
               {
-                icon: <Globe className="w-5 h-5 text-black" />,
+                icon: <Globe className="w-5 h-5 transition-colors" />,
                 title: '32 languages',
                 desc: 'Universal-3.6 Pro handles 32 languages including English, Spanish, Hindi, French, German, Japanese, Chinese, and more with code-switching.',
               },
               {
-                icon: <Sparkles className="w-5 h-5 text-black" />,
+                icon: <Sparkles className="w-5 h-5 transition-colors" />,
                 title: 'Gemini-powered analysis',
                 desc: 'After your meeting, Gemini Flash via the AssemblyAI LLM Gateway extracts insights from the full transcript.',
               },
               {
-                icon: <Shield className="w-5 h-5 text-black" />,
+                icon: <Shield className="w-5 h-5 transition-colors" />,
                 title: 'Privacy first',
                 desc: 'Audio streams in real-time and is not stored. Transcripts exist only for your session.',
               },
               {
-                icon: <Download className="w-5 h-5 text-black" />,
+                icon: <Download className="w-5 h-5 transition-colors" />,
                 title: 'PDF export',
                 desc: 'Download a full meeting report with summary, topics, action items, and the complete transcript.',
               },
               {
-                icon: <Clock className="w-5 h-5 text-black" />,
+                icon: <Clock className="w-5 h-5 transition-colors" />,
                 title: 'No time limit',
                 desc: 'Stream for 5 minutes or 5 hours — the WebSocket stays open for the duration of your meeting.',
               },
             ].map((f, i) => (
               <div key={i} className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs hover:border-black transition-colors group">
-                <div className="w-9 h-9 rounded-xl bg-neutral-100 group-hover:bg-black flex items-center justify-center mb-3 transition-colors">
-                  <span className="group-hover:text-white transition-colors">{f.icon}</span>
+                <div className="w-9 h-9 rounded-xl bg-neutral-100 text-black group-hover:bg-black group-hover:text-white flex items-center justify-center mb-3 transition-colors">
+                  {f.icon}
                 </div>
                 <h3 className="font-semibold text-sm text-black mb-1.5">{f.title}</h3>
                 <p className="text-xs text-neutral-500 leading-relaxed">{f.desc}</p>
