@@ -146,12 +146,12 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
       const baseStyle = pipWin.document.createElement('style')
       baseStyle.textContent = `
-        html, body { margin:0; padding:0; background:#0c0c0e; color:#f3f4f6;
+        html, body { margin:0; padding:0; background:#ffffff; color:#0a0a0a;
           font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           overflow:hidden; user-select:none; height:100%; width:100%; }
         * { box-sizing:border-box; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 4px; }
       `
       pipWin.document.head.appendChild(baseStyle)
 
@@ -689,6 +689,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         duration={duration}
         wordCount={wordCount}
         latestText={partialText || (recentLines.length > 0 ? recentLines[recentLines.length - 1] : '')}
+        recentLines={recentLines}
         audioSource={audioSource}
         setAudioSource={setAudioSource}
         analysisModel={analysisModel}
