@@ -1,7 +1,6 @@
 /**
  * Vercel Serverless Function: /api/summarize
  * Analyzes meeting transcript via Google Gemini or AssemblyAI LLM Gateway.
- * This replaces the Vite dev server middleware that only runs locally.
  */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -17,17 +16,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const assemblyaiKey = process.env.ASSEMBLYAI_API_KEY
-  const geminiApiKey = process.env.GEMINI_API_KEY
+  const assemblyaiKey = process.env.ASSEMBLYAI_API_KEY || process.env.VITE_ASSEMBLYAI_API_KEY
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
 
   if (!assemblyaiKey && !geminiApiKey) {
     return res.status(500).json({
-      error: 'Server configuration error: No API keys configured. Please add ASSEMBLYAI_API_KEY or GEMINI_API_KEY in Vercel project settings.',
+      error: 'Server configuration error: No API keys configured in Vercel. Please add ASSEMBLYAI_API_KEY or GEMINI_API_KEY in Vercel project settings.',
     })
   }
 
   try {
-    const body = req.body || {}
+    let body = req.body
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body)
+      } catch {
+        body = {}
+      }
+    } else if (!body) {
+      body = {}
+    }
+
     const { transcript, meetingName, language, analysisModel } = body
 
     if (!transcript || transcript.trim().length < 50) {

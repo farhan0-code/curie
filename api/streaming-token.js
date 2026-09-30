@@ -1,7 +1,6 @@
 /**
  * Vercel Serverless Function: /api/streaming-token
  * Generates a short-lived AssemblyAI WebSocket streaming token for the browser.
- * This replaces the Vite dev server middleware that only runs locally.
  */
 export default async function handler(req, res) {
   // CORS headers
@@ -20,12 +19,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const apiKey = process.env.ASSEMBLYAI_API_KEY
+  const apiKey = process.env.ASSEMBLYAI_API_KEY || process.env.VITE_ASSEMBLYAI_API_KEY
 
   if (!apiKey) {
     console.error('[streaming-token] ASSEMBLYAI_API_KEY is not set in Vercel environment variables')
     return res.status(500).json({
-      error: 'Server configuration error: ASSEMBLYAI_API_KEY is not configured. Please add it in Vercel project settings → Environment Variables.',
+      error: 'Server configuration error: ASSEMBLYAI_API_KEY is not set in Vercel. Please add ASSEMBLYAI_API_KEY in Vercel Dashboard → Project Settings → Environment Variables.',
     })
   }
 
@@ -47,7 +46,7 @@ export default async function handler(req, res) {
       const errText = await tokenRes.text()
       console.error('[streaming-token] AssemblyAI error:', tokenRes.status, errText)
       return res.status(tokenRes.status || 500).json({
-        error: 'Failed to generate streaming token',
+        error: 'Failed to generate streaming token from AssemblyAI',
         detail: errText,
       })
     }

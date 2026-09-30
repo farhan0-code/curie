@@ -328,7 +328,11 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
           'Pragma': 'no-cache',
         },
       })
-      if (!tokenRes.ok) throw new Error('Could not get streaming token')
+      if (!tokenRes.ok) {
+        const errData = await tokenRes.json().catch(() => ({}))
+        const errorDetail = errData.error || errData.detail || 'Could not get streaming token'
+        throw new Error(errorDetail)
+      }
       const { token } = await tokenRes.json()
 
       // 3. Connect streaming WebSocket to AssemblyAI
