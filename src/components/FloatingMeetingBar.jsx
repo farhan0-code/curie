@@ -4,11 +4,6 @@ import {
   Square,
   ChevronDown,
   ChevronUp,
-  Radio,
-  X,
-  Volume2,
-  VolumeX,
-  Sparkles,
 } from 'lucide-react'
 import CurieLogo from './CurieLogo'
 
@@ -39,12 +34,10 @@ export default function FloatingMeetingBar({
   externalPipWindow = null, // PiP window opened by parent (MeetingCapturePage)
   onCancelMeeting,
 }) {
-  const [showModelMenu, setShowModelMenu] = useState(false)
   const [pipWindow, setPipWindow] = useState(null)
   const [pipSupported, setPipSupported] = useState(false)
   const [pipError, setPipError] = useState('')
   const [pipExpanded, setPipExpanded] = useState(true)
-  const [barExpanded, setBarExpanded] = useState(false)
 
   const pipWindowRef = useRef(null)
   const pipScrollRef = useRef(null)
@@ -167,155 +160,24 @@ export default function FloatingMeetingBar({
   }
 
   const isRecording = status === 'recording'
-  const isConnecting = status === 'connecting' || status === 'stopping'
 
-  // Micro waveform bars
-  const microBars = [8, 14, 20, 10, 16, 22, 12, 18, 6, 15]
-
-  // Screen recorder behavior: Only stick above when listening/recording or connecting
-  if (status === 'idle') {
+  if (!pipWindow) {
     return null
   }
 
   return (
     <>
-      {/* 1. In-App Floating Top Bar (Sticky Screen Recorder Pill / Dynamic Island) */}
-      <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 max-w-[95vw] transition-all duration-300 animate-in fade-in slide-in-from-top-3 whitespace-nowrap">
-        <div className="flex items-center gap-2 sm:gap-3 px-3.5 py-2 rounded-2xl bg-neutral-900/95 text-white backdrop-blur-xl border border-neutral-700/80 shadow-2xl text-xs select-none whitespace-nowrap shrink-0">
-          {/* Left Section: Logo & Status */}
-          <div className="flex items-center gap-2 pr-2 border-r border-neutral-700/80 shrink-0 whitespace-nowrap">
-            <CurieLogo size={18} />
-            {isRecording ? (
-              <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-                <span className="font-mono font-bold text-white text-xs whitespace-nowrap">{formatDuration(duration)}</span>
-              </div>
-            ) : (
-              <span className="font-mono font-semibold text-neutral-400 text-xs whitespace-nowrap">00:00</span>
-            )}
-          </div>
-
-          {/* Micro Waveform (Active during recording) */}
-          {isRecording && (
-            <div className="hidden sm:flex items-center gap-[2px] h-4 px-1 shrink-0">
-              {microBars.map((h, i) => (
-                <span
-                  key={i}
-                  className="w-[2px] rounded-full bg-neutral-300 animate-pulse"
-                  style={{
-                    height: `${h}px`,
-                    animationDelay: `${i * 90}ms`,
-                    animationDuration: '0.9s',
-                  }}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Action Button: Start or Stop */}
-          {!isRecording && !isConnecting && (
-            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-              <button
-                type="button"
-                id="float-start-btn"
-                onClick={onStartMeeting}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-neutral-950 font-bold text-xs whitespace-nowrap shrink-0 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm"
-              >
-                <span className="w-2 h-2 rounded-full bg-neutral-950 shrink-0" />
-                <span className="whitespace-nowrap">Start</span>
-              </button>
-            </div>
-          )}
-
-          {isConnecting && (
-            <span className="text-neutral-400 text-xs px-2 animate-pulse whitespace-nowrap shrink-0">Connecting…</span>
-          )}
-
-          {isRecording && (
-            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-              <button
-                type="button"
-                id="float-stop-btn"
-                onClick={onStopAndAnalyze}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs whitespace-nowrap shrink-0 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm"
-              >
-                <Square className="w-3 h-3 fill-current shrink-0" />
-                <span className="whitespace-nowrap">Stop & Analyze</span>
-              </button>
-              {onCancelMeeting && (
-                <button
-                  type="button"
-                  id="float-cancel-btn"
-                  onClick={onCancelMeeting}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer"
-                  title="Cancel and discard session without analyzing"
-                >
-                  <X className="w-3.5 h-3.5 shrink-0" />
-                  <span className="whitespace-nowrap">Cancel</span>
-                </button>
-              )}
-              <button
-                type="button"
-                id="float-live-toggle"
-                onClick={() => setBarExpanded(!barExpanded)}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
-                  barExpanded
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'bg-neutral-800 hover:bg-neutral-700 text-cyan-400 hover:text-cyan-300'
-                }`}
-                title={barExpanded ? 'Collapse live captions' : 'Expand live captions'}
-              >
-                <Radio className="w-3 h-3 text-cyan-400 animate-pulse shrink-0" />
-                <span className="whitespace-nowrap">{barExpanded ? 'Hide' : 'Live'}</span>
-                {barExpanded ? <ChevronUp className="w-3 h-3 shrink-0" /> : <ChevronDown className="w-3 h-3 shrink-0" />}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {pipError && (
-          <div className="mt-1 text-center text-[10px] text-amber-400 bg-neutral-900/90 border border-amber-500/40 rounded-lg px-2 py-1 shadow-md">
-            {pipError}
-          </div>
-        )}
-
-        {/* Collapsible In-App Live Captions Drawer */}
-        {barExpanded && isRecording && (
-          <div className="mt-2 p-3 rounded-2xl bg-neutral-900/95 text-white backdrop-blur-xl border border-neutral-700/80 shadow-2xl animate-in fade-in slide-in-from-top-2 text-xs max-w-lg mx-auto">
-            <div className="flex items-center justify-between text-[10px] text-cyan-400 font-mono font-semibold uppercase tracking-wider mb-1.5">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                Live Speech Captions
-              </span>
-              <span className="text-neutral-400">{wordCount.toLocaleString()} words</span>
-            </div>
-            <div className="p-2.5 rounded-xl bg-neutral-950/80 border border-neutral-800 text-[11px] leading-relaxed text-neutral-100 max-h-24 overflow-y-auto custom-scrollbar">
-              {latestText ? (
-                <span className="italic">"{latestText}"</span>
-              ) : (
-                <span className="text-neutral-500 italic">Listening to audio stream in real-time…</span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* 2. Desktop Always-On-Top Picture-in-Picture Floating Window Portal */}
+      {/* Desktop Always-On-Top Picture-in-Picture Floating Window Portal */}
       {pipWindow &&
         createPortal(
           <div className="h-screen w-screen flex flex-col p-3 bg-white text-black select-none" style={{background:'#fff',color:'#0a0a0a'}}>
 
             {/* Top Bar */}
             <div className="flex items-center justify-between gap-2 shrink-0 pb-2 border-b" style={{borderColor:'#e5e5e5'}}>
-              {/* Logo, label & Timer */}
+              {/* Logo & Timer */}
               <div className="flex items-center gap-2 shrink-0">
                 <CurieLogo size={15} />
                 <span className="text-xs font-bold" style={{color:'#111'}}>Curie Meeting AI</span>
-                {isRecording && (
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{background:'#e0f2fe',color:'#0369a1',border:'1px solid #bae6fd'}}>
-                    FLOATING OVER TAB
-                  </span>
-                )}
               </div>
 
               {/* Timer */}

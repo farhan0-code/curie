@@ -74,15 +74,22 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [selectedLanguage, setSelectedLanguage] = useState('en')
   const [audioSource, setAudioSource] = useState('tab_mic') // 'tab_mic' | 'mic_only'
   const [analysisModel, setAnalysisModel] = useState('gemini-flash') // 'gemini-flash' | 'qwen3.5-fast'
-  const [status, setStatus] = useState('idle') // idle | connecting | recording | stopping | error
-  const [duration, setDuration] = useState(0)
-  const [wordCount, setWordCount] = useState(0)
+  const isPreviewActive = typeof window !== 'undefined' && window.location.hash.includes('capture-active')
+  const [status, setStatus] = useState(isPreviewActive ? 'recording' : 'idle')
+  const [duration, setDuration] = useState(isPreviewActive ? 42 : 0)
+  const [wordCount, setWordCount] = useState(isPreviewActive ? 185 : 0)
   const [fullTranscript, setFullTranscript] = useState('')
-  const [partialText, setPartialText] = useState('')
-  const [recentLines, setRecentLines] = useState([])
+  const [partialText, setPartialText] = useState(isPreviewActive ? 'David will merge the ephemeral token endpoint today and Alex will finalize the executive synthesis...' : '')
+  const [recentLines, setRecentLines] = useState(isPreviewActive ? [
+    'Alex: Welcome everyone. Today we are reviewing the AssemblyAI Realtime STT integration.',
+    'Maya: Turn-to-turn latency is down under 290 milliseconds with Universal-3.6 Pro.',
+    'David: Client-side downsampler runs at 16kHz Int16 linear PCM in the Web Audio API.',
+    'Alex: The Document Picture-in-Picture window is tracking live transcriptions without interruption.',
+    'Maya: Both candidates are in final round interviews and offers go out next week.'
+  ] : [])
   const [errorMsg, setErrorMsg] = useState('')
   const [warningMsg, setWarningMsg] = useState('')
-  const [waveActive, setWaveActive] = useState(false)
+  const [waveActive, setWaveActive] = useState(isPreviewActive)
   const [showCompat, setShowCompat] = useState(false)
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [isDemoMuted, setIsDemoMuted] = useState(false)

@@ -3,13 +3,16 @@ import LandingPage from './pages/LandingPage'
 import MeetingCapturePage from './pages/MeetingCapturePage'
 import MeetingResultsPage from './pages/MeetingResultsPage'
 import DocsPage from './pages/DocsPage'
+import { PiPWindowStandalone, MeetingActionPreview } from './components/PreviewComponents'
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(() => {
     const hash = window.location.hash
-    if (hash === '#capture' || hash === '#meeting') return 'capture'
+    if (hash === '#capture' || hash === '#meeting' || hash === '#capture-active') return 'capture'
     if (hash === '#results') return 'results'
     if (hash === '#docs') return 'docs'
+    if (hash === '#pip-preview') return 'pip-preview'
+    if (hash === '#action-preview') return 'action-preview'
     return 'landing'
   })
 
@@ -18,12 +21,16 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash
-      if (hash === '#capture' || hash === '#meeting') {
+      if (hash === '#capture' || hash === '#meeting' || hash === '#capture-active') {
         setCurrentRoute('capture')
       } else if (hash === '#results') {
         setCurrentRoute('results')
       } else if (hash === '#docs') {
         setCurrentRoute('docs')
+      } else if (hash === '#pip-preview') {
+        setCurrentRoute('pip-preview')
+      } else if (hash === '#action-preview') {
+        setCurrentRoute('action-preview')
       } else {
         setCurrentRoute('landing')
       }
@@ -74,20 +81,11 @@ export default function App() {
         />
       )}
 
-      {currentRoute === 'results' && meetingData && (
+      {currentRoute === 'results' && (
         <MeetingResultsPage
           meetingData={meetingData}
           onNewMeeting={navigateToCapture}
           onBackToLanding={navigateToLanding}
-          onNavigateToDocs={navigateToDocs}
-        />
-      )}
-
-      {currentRoute === 'results' && !meetingData && (
-        // Guard: if someone navigates to #results with no data, go back to capture
-        <MeetingCapturePage
-          onBackToLanding={navigateToLanding}
-          onNavigateToResults={navigateToResults}
           onNavigateToDocs={navigateToDocs}
         />
       )}
@@ -98,6 +96,10 @@ export default function App() {
           onLaunchMeeting={navigateToCapture}
         />
       )}
+
+      {currentRoute === 'pip-preview' && <PiPWindowStandalone />}
+
+      {currentRoute === 'action-preview' && <MeetingActionPreview />}
     </>
   )
 }

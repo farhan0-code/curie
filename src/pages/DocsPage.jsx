@@ -202,8 +202,185 @@ export default function DocsPage({ onBackToHome, onLaunchMeeting }) {
                   Curie Documentation
                 </h1>
                 <p className="mt-3 text-base text-neutral-600 leading-relaxed">
-                  Curie is an ambient, zero-bot meeting intelligence companion. It captures meeting audio directly in your browser, streams it in real-time to AssemblyAI's <span className="font-semibold text-black">Universal-3.6 Pro</span> speech engine, and produces executive summaries, decisions, and action items using the <span className="font-semibold text-black">AssemblyAI LLM Gateway</span> (Claude Sonnet 4.6 & Gemini Flash).
+                  Curie is an ambient, zero-bot meeting intelligence companion. It captures meeting audio directly in your browser, streams it in real-time to AssemblyAI's <span className="font-semibold text-black">Universal-3.6 Pro</span> speech engine, and produces executive summaries, decisions, and action items using the <span className="font-semibold text-black">AssemblyAI LLM Gateway</span> (Qwen 3.5 & Google Gemini Flash).
                 </p>
+
+                {/* Hackathon Track Banner */}
+                <div className="mt-4 p-4 rounded-2xl bg-linear-to-r from-purple-50 via-indigo-50 to-blue-50 border border-indigo-200/80 shadow-2xs">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-mono font-bold uppercase tracking-wider">
+                      Hackathon Track
+                    </span>
+                    <span className="text-xs font-bold text-indigo-950">
+                      AssemblyAI Realtime Speech-to-Text API Track
+                    </span>
+                  </div>
+                  <p className="text-xs text-indigo-900 leading-relaxed">
+                    Built for the <strong>AssemblyAI Voice Agent Hackathon</strong> on lablab.ai. Curie leverages AssemblyAI's sub-second WebSocket STT as the foundation for real-time speech transcription, bringing custom client-side audio orchestration (16kHz PCM downsampler, tab + mic mixer, Document Picture-in-Picture window) and post-session LLM synthesis.
+                  </p>
+                </div>
+              </div>
+
+              {/* Hero Screenshot */}
+              <div className="rounded-2xl overflow-hidden border border-neutral-200 shadow-sm bg-neutral-50">
+                <div className="px-4 py-2 bg-neutral-100/80 border-b border-neutral-200 flex items-center justify-between text-xs text-neutral-600 font-mono">
+                  <span className="font-semibold">Curie Meeting Intelligence — Live Ambient Capture</span>
+                  <span className="text-emerald-600 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    WebSocket v3 Active
+                  </span>
+                </div>
+                <img
+                  src="/screenshots/meeting-capture.png"
+                  alt="Curie Live Meeting Intelligence Console"
+                  className="w-full object-cover"
+                />
+              </div>
+
+              {/* Realtime STT Track Pillars Card */}
+              <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50/70 space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-700 block">
+                  🎯 Track Architecture & Capabilities
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div className="p-3 rounded-lg bg-white border border-neutral-200">
+                    <div className="font-bold text-black flex items-center gap-1.5 mb-1">
+                      <span className="text-indigo-600">✓</span> Real-Time WebSocket Streaming
+                    </div>
+                    <p className="text-neutral-500 text-[11px] leading-relaxed">
+                      Streams 16 kHz Int16 binary PCM directly to <code className="text-neutral-800 bg-neutral-100 px-1 py-0.5 rounded">wss://streaming.assemblyai.com/v3/ws</code> with single-use JWT tokens.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-white border border-neutral-200">
+                    <div className="font-bold text-black flex items-center gap-1.5 mb-1">
+                      <span className="text-indigo-600">✓</span> Sub-Second Turn Latency
+                    </div>
+                    <p className="text-neutral-500 text-[11px] leading-relaxed">
+                      Universal-3.6 Pro resolves speculative speech hypotheses in &lt; 280ms and punctuated turns in &lt; 420ms.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-white border border-neutral-200">
+                    <div className="font-bold text-black flex items-center gap-1.5 mb-1">
+                      <span className="text-indigo-600">✓</span> 32 Locales + Code-Switching
+                    </div>
+                    <p className="text-neutral-500 text-[11px] leading-relaxed">
+                      Native multilingual recognition supporting international calls and mid-sentence language transitions without restarting.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-white border border-neutral-200">
+                    <div className="font-bold text-black flex items-center gap-1.5 mb-1">
+                      <span className="text-indigo-600">✓</span> Bring-Your-Own Orchestration
+                    </div>
+                    <p className="text-neutral-500 text-[11px] leading-relaxed">
+                      Custom Web Audio mixer (tab + mic), Document PiP desktop floating portal, and AssemblyAI LLM Gateway synthesis.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* The Real-World Enterprise Problem & Curie's Zero-Bot Solution */}
+              <div className="p-5 rounded-2xl border border-neutral-200 bg-neutral-50/50 space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                    <h2 className="text-base font-bold text-black">
+                      The Real-World Enterprise Problem & Why We Solved It
+                    </h2>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 font-bold uppercase tracking-wider">
+                    Enterprise Pain Points
+                  </span>
+                </div>
+
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  Remote work has multiplied meeting volume, but traditional meeting note-takers have introduced severe enterprise security risks and social friction:
+                </p>
+
+                {/* 3 Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-xl bg-white border border-neutral-200 shadow-2xs">
+                    <div className="font-mono text-xl font-black text-black">70%</div>
+                    <div className="text-[11px] font-bold text-neutral-800 mt-0.5">Unproductive Meetings</div>
+                    <p className="text-[10px] text-neutral-500 mt-1 leading-tight">
+                      Employees report meetings prevent focus and deep work (Harvard Business Review).
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-neutral-200 shadow-2xs">
+                    <div className="font-mono text-xl font-black text-black">31+ hrs</div>
+                    <div className="text-[11px] font-bold text-neutral-800 mt-0.5">Lost Monthly / Worker</div>
+                    <p className="text-[10px] text-neutral-500 mt-1 leading-tight">
+                      Costs US enterprises $37B+ annually in wasted meeting hours (Microsoft Work Trend).
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white border border-neutral-200 shadow-2xs">
+                    <div className="font-mono text-xl font-black text-black">42%+</div>
+                    <div className="text-[11px] font-bold text-neutral-800 mt-0.5">IT Bot Bans</div>
+                    <p className="text-[10px] text-neutral-500 mt-1 leading-tight">
+                      Enterprise security teams banning third-party meeting bots due to Shadow AI & GDPR leaks.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Why IT Bans Bots & How Curie Solves It */}
+                <div className="p-4 rounded-xl bg-white border border-neutral-200 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-black">
+                    The Meeting Bot Crisis vs. Curie's Ambient Zero-Bot Architecture
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-[11px] text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-neutral-200 text-neutral-500 font-mono text-[10px] uppercase">
+                          <th className="py-2 pr-3 font-semibold">Challenge</th>
+                          <th className="py-2 px-3 font-semibold text-red-600">Traditional AI Bots (Otter, Fireflies, Read)</th>
+                          <th className="py-2 pl-3 font-semibold text-emerald-600">Curie (AssemblyAI Realtime STT)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100 text-neutral-700">
+                        <tr>
+                          <td className="py-2 pr-3 font-semibold text-black">Meeting Presence</td>
+                          <td className="py-2 px-3 text-red-700">Physical bot joins call as attendee; disrupts dynamics</td>
+                          <td className="py-2 pl-3 text-emerald-800 font-medium">✓ Zero bots in room — 100% client-side ambient capture</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 pr-3 font-semibold text-black">Audio Privacy & Storage</td>
+                          <td className="py-2 px-3 text-red-700">Raw audio permanently retained on vendor cloud</td>
+                          <td className="py-2 pl-3 text-emerald-800 font-medium">✓ Zero server storage — streams live & evaporates</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 pr-3 font-semibold text-black">Security Compliance</td>
+                          <td className="py-2 px-3 text-red-700">Banned by enterprise security & legal policies</td>
+                          <td className="py-2 pl-3 text-emerald-800 font-medium">✓ Enterprise-friendly — uses standard Web Audio API</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 pr-3 font-semibold text-black">Audio Quality</td>
+                          <td className="py-2 px-3 text-neutral-600">VoIP dial-in / telephonic compression</td>
+                          <td className="py-2 pl-3 text-emerald-800 font-medium">✓ Digital tab audio + local mic mixed at 16kHz PCM</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 pr-3 font-semibold text-black">Turn Latency</td>
+                          <td className="py-2 px-3 text-neutral-600">Minutes of batch processing post-meeting</td>
+                          <td className="py-2 pl-3 text-emerald-800 font-medium">✓ &lt; 300ms turn latency via AssemblyAI WebSocket v3</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Ambient Meeting in Action Showcase */}
+                <div className="rounded-xl overflow-hidden border border-neutral-200 shadow-2xs">
+                  <div className="px-3.5 py-2 bg-neutral-900 text-white flex items-center justify-between text-[11px] font-mono">
+                    <span className="font-semibold">Curie in Action: Google Meet with Document PiP</span>
+                    <span className="text-emerald-400 font-bold">Zero Bot Presence</span>
+                  </div>
+                  <img
+                    src="/screenshots/meeting-in-action.png"
+                    alt="Curie ambient meeting capture during active Google Meet call"
+                    className="w-full object-cover"
+                  />
+                  <div className="p-3 bg-white text-[11px] text-neutral-600 border-t border-neutral-200 leading-relaxed">
+                    <strong>Real-World Ambient Experience:</strong> Notice the Google Meet participant roster contains only actual team members. Curie streams the tab audio directly to AssemblyAI Universal-3.6 Pro while the Document Picture-in-Picture window floats over the video stream with live subtitles.
+                  </div>
+                </div>
               </div>
 
               {/* Quick Navigation Links */}
@@ -664,37 +841,63 @@ export default function DocsPage({ onBackToHome, onLaunchMeeting }) {
                 <div className="inline-flex items-center gap-1.5 text-xs text-neutral-500 font-semibold mb-2">
                   <span>Core Engine</span>
                   <ChevronRight className="w-3 h-3" />
-                  <span className="text-black">Floating Bar & Document PiP</span>
+                  <span className="text-black">Always-On-Top Document PiP</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-black">
-                  Picture-in-Picture Desktop Overlay
+                  Picture-in-Picture Desktop Window
                 </h1>
                 <p className="mt-3 text-base text-neutral-600 leading-relaxed">
-                  Curie uses the modern <span className="font-semibold text-black">Document Picture-in-Picture API</span> to create a persistent, always-on-top floating pill that stays visible over Zoom, Google Meet, Teams, or your code editor.
+                  Curie uses the modern <span className="font-semibold text-black">Document Picture-in-Picture API</span> to create a persistent, always-on-top desktop window that floats over Zoom, Google Meet, Teams, or your code editor.
                 </p>
               </div>
 
+              {/* PiP Screenshot */}
+              <div className="rounded-2xl overflow-hidden border border-neutral-200 shadow-sm bg-neutral-900">
+                <div className="px-4 py-2 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between text-xs text-neutral-300 font-mono">
+                  <span>Document Picture-in-Picture — Desktop Floating Subtitles</span>
+                  <span className="text-cyan-400 font-bold">Always On Top</span>
+                </div>
+                <img
+                  src="/screenshots/pip-window.png"
+                  alt="Curie Document Picture-in-Picture Window"
+                  className="w-full object-cover"
+                />
+              </div>
+
               <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50 space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">What the Floating Overlay Shows</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">What the PiP Window Delivers</h3>
                 <ul className="text-xs text-neutral-600 space-y-2 list-disc list-inside">
-                  <li><strong className="text-black">Live Speech Preview:</strong> Current sentence or partial speech displayed in real-time.</li>
-                  <li><strong className="text-black">Active Timer & Word Count:</strong> Live indicator of session length and transcribed words.</li>
-                  <li><strong className="text-black">Waveform Audio Meter:</strong> Visual reassurance that audio is transmitting.</li>
-                  <li><strong className="text-black">One-Click Actions:</strong> Mute/unmute microphone, pop back into main tab, or click "End" to instantly finish and view AI analysis.</li>
+                  <li><strong className="text-black">Autoscrolling Subtitles:</strong> Follows the live meeting conversation in real-time with automatic scroll-to-bottom.</li>
+                  <li><strong className="text-black">Zero Context Switching:</strong> Keep Zoom or Google Meet full-screen while seeing real-time transcripts and speaker turns.</li>
+                  <li><strong className="text-black">Active Session Telemetry:</strong> Live duration timer, word counter, and meeting status indicator.</li>
+                  <li><strong className="text-black">Direct Meeting Wrap-up:</strong> Stop and trigger AI analysis straight from the floating window without hunting for the browser tab.</li>
                 </ul>
               </div>
 
               <div>
                 <h2 className="text-xl font-display font-bold text-black mb-2">How Document PiP is Initialized</h2>
                 <CodeBlock
-                  code={`// Request native always-on-top window\nconst pipWindow = await window.documentPictureInPicture.requestWindow({\n  width: 520,\n  height: 90,\n})\n\n// Copy active styles to PiP container\nArray.from(document.styleSheets).forEach((sheet) => {\n  try {\n    if (sheet.href) {\n      const link = document.createElement('link')\n      link.rel = 'stylesheet'\n      link.href = sheet.href\n      pipWindow.document.head.appendChild(link)\n    }\n  } catch (e) {}\n})\n\n// Mount lightweight React portal / controls into pipWindow.document.body`}
+                  code={`// Request native always-on-top window
+const pipWindow = await window.documentPictureInPicture.requestWindow({
+  width: 480,
+  height: 220,
+  disallowReturnToOpener: false,
+})
+
+// Clone parent styling & font definitions into PiP container
+document.querySelectorAll('style, link[rel="stylesheet"]').forEach((styleEl) => {
+  try { pipWindow.document.head.appendChild(styleEl.cloneNode(true)) } catch (e) {}
+})
+
+// Mount React portal into pipWindow.document.body
+createPortal(<FloatingCaptionsView {...meetingState} />, pipWindow.document.body)`}
                   language="javascript"
                 />
               </div>
 
               <div className="p-3.5 rounded-xl border border-neutral-200 text-xs text-neutral-600">
                 <span className="font-bold text-black block mb-1">Browser Compatibility</span>
-                The Document Picture-in-Picture API is supported natively in <strong>Google Chrome 116+</strong>, <strong>Brave</strong>, and <strong>Microsoft Edge</strong>. If opened in an unsupported browser, Curie automatically falls back to an elegant in-tab floating top bar.
+                The Document Picture-in-Picture API is supported natively in <strong>Google Chrome 116+</strong>, <strong>Brave</strong>, and <strong>Microsoft Edge</strong>.
               </div>
             </article>
           )}
@@ -705,36 +908,49 @@ export default function DocsPage({ onBackToHome, onLaunchMeeting }) {
                 <div className="inline-flex items-center gap-1.5 text-xs text-neutral-500 font-semibold mb-2">
                   <span>Core Engine</span>
                   <ChevronRight className="w-3 h-3" />
-                  <span className="text-black">LLM Gateway (Claude & Gemini)</span>
+                  <span className="text-black">LLM Gateway (Qwen 3.5 & Gemini Flash)</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-black">
-                  AssemblyAI LLM Gateway Integration
+                  AssemblyAI LLM Gateway & Synthesis
                 </h1>
                 <p className="mt-3 text-base text-neutral-600 leading-relaxed">
-                  Instead of requiring third-party OpenAI or Anthropic API accounts, Curie routes meeting transcripts through <span className="font-semibold text-black">AssemblyAI's LLM Gateway</span>. You can choose between Claude Sonnet 4.6 and Gemini Flash with a single toggle.
+                  Curie routes punctuated meeting transcripts through <span className="font-semibold text-black">AssemblyAI's LLM Gateway</span> (<code className="font-mono text-black bg-neutral-100 px-1 py-0.5 rounded">qwen3.5-4b-32k-fast</code>) or Google Gemini Flash to generate structured executive dossiers.
                 </p>
+              </div>
+
+              {/* Synthesis Results Screenshot */}
+              <div className="rounded-2xl overflow-hidden border border-neutral-200 shadow-sm bg-neutral-50">
+                <div className="px-4 py-2 bg-neutral-100 border-b border-neutral-200 flex items-center justify-between text-xs text-neutral-600 font-mono">
+                  <span className="font-semibold">Curie Synthesis — Executive Summary & Action Items</span>
+                  <span className="text-black font-bold">1-Click PDF Export</span>
+                </div>
+                <img
+                  src="/screenshots/meeting-results.png"
+                  alt="Curie Executive Summary and Action Items"
+                  className="w-full object-cover"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-black">Option 1</span>
-                    <span className="px-2 py-0.5 rounded bg-black text-white text-[10px] font-mono font-bold">Recommended</span>
+                    <span className="px-2 py-0.5 rounded bg-black text-white text-[10px] font-mono font-bold">Single Key</span>
                   </div>
-                  <h3 className="text-base font-bold text-black mb-1">Claude Sonnet 4.6</h3>
+                  <h3 className="text-base font-bold text-black mb-1">AssemblyAI LLM Gateway · Qwen 3.5</h3>
                   <p className="text-xs text-neutral-600 leading-relaxed">
-                    Flagship reasoning model via AssemblyAI Gateway. Ideal for nuanced executive briefs, complex strategic alignment, and precise action item attribution.
+                    Uses the unified AssemblyAI LLM Gateway API (<code className="font-mono text-[10px]">qwen3.5-4b-32k-fast</code>). Unlocked on every AssemblyAI account with 32k context, sub-second execution, and zero extra keys needed.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-xl border border-neutral-200 bg-neutral-50">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-black">Option 2</span>
-                    <span className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[10px] font-mono font-bold">Ultra Fast</span>
+                    <span className="px-2 py-0.5 rounded bg-neutral-200 text-neutral-800 text-[10px] font-mono font-bold">Direct API</span>
                   </div>
-                  <h3 className="text-base font-bold text-black mb-1">Gemini 3.5 Flash</h3>
+                  <h3 className="text-base font-bold text-black mb-1">Google Gemini Flash</h3>
                   <p className="text-xs text-neutral-600 leading-relaxed">
-                    Sub-second generation latency with high factual extraction accuracy. Ideal for fast standups and rapid turnaround summaries.
+                    Direct Google Gemini integration (Gemini 2.5 Flash / 3 Flash) for instant high-speed JSON schema extraction and strategic executive bullet points.
                   </p>
                 </div>
               </div>
