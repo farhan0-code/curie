@@ -24,6 +24,8 @@ export class StreamingSTTService {
     this.muteGain = null
     this.isConnected = false
     this.isRecording = false
+    this.sessionStarted = false
+    this.lastErrorMessage = ''
     this.wordCount = 0
     this.finalTranscript = ''
     this.partialText = ''
@@ -31,20 +33,21 @@ export class StreamingSTTService {
   }
 
   async connect(tempToken, languageCode = 'en') {
-    const params = new URLSearchParams({
-      sample_rate: '16000',
-      encoding: 'pcm_s16le',
-      speech_model: 'universal-3-6-pro',
-    })
+    const params = new URLSearchParams()
+    params.set('sample_rate', '16000')
+    params.set('encoding', 'pcm_s16le')
+    params.set('speech_model', 'universal-3-6-pro')
+    params.set('token', tempToken)
 
     if (languageCode) {
-      params.append('language_codes', JSON.stringify([languageCode]))
+      params.set('language_codes', JSON.stringify([languageCode]))
     }
 
-    // Use temp token auth — keeps real API key server-side
-    const url = `${STREAMING_WSS_URL}?token=${tempToken}&${params.toString()}`
+    const url = `${STREAMING_WSS_URL}?${params.toString()}`
 
     return new Promise((resolve, reject) => {
+      this.lastErrorMessage = ''
+      this.sessionStarted = false
       this.ws = new WebSocket(url)
 
       this.ws.onopen = () => {
@@ -53,13 +56,41 @@ export class StreamingSTTService {
       }
 
       this.ws.onerror = (err) => {
+        if (!this.isConnected) {
+          reject(new Error('WebSocket connection error'))
+        }
         this.onError(err)
-        reject(err)
       }
 
       this.ws.onclose = (event) => {
+        console.log('[StreamingSTT WS Closed]', event.code, event.reason)
         this.isConnected = false
         this.isRecording = false
+        this.sessionStarted = false
+
+        if (event.code !== 1000 && event.code !== 1005) {
+          let reason = this.lastErrorMessage
+          if (!reason || reason === 'See Error message for details') {
+            if (event.reason && event.reason !== 'See Error message for details') {
+              reason = event.reason
+            } else if (event.code === 3007) {
+              reason = 'Audio chunk format or transmission rate error (Code 3007).'
+            } else if (event.code === 3008) {
+              reason = 'Session duration limit reached.'
+            } else if (event.code === 3009) {
+              reason = 'Concurrent session limit reached on AssemblyAI. Please wait a few seconds and click Try Again.'
+            } else if (event.code === 1008) {
+              if (event.reason && event.reason.toLowerCase().includes('concurrent')) {
+                reason = 'Concurrent session limit reached on AssemblyAI. Please wait a few seconds and click Try Again.'
+              } else {
+                reason = 'Authentication failed. Please verify your AssemblyAI API key in .env.'
+              }
+            } else {
+              reason = `Connection closed (Code ${event.code}${event.reason ? ': ' + event.reason : ''})`
+            }
+          }
+          this.onError(new Error(reason))
+        }
         this.onClose(event)
       }
 
@@ -78,6 +109,7 @@ export class StreamingSTTService {
     switch (msg.type) {
       case 'Begin':
       case 'SessionBegins':
+        this.sessionStarted = true
         this.onSessionStart({ sessionId: msg.id || msg.session_id })
         break
 
@@ -132,36 +164,74 @@ export class StreamingSTTService {
         break
 
       case 'Error':
-      case 'SessionError':
-        this.onError(new Error(msg.error || 'Streaming error'))
+      case 'SessionError': {
+        const errorDetail = msg.error || msg.message || 'AssemblyAI streaming error'
+        console.error('[StreamingSTT] AssemblyAI Server Error:', errorDetail, msg)
+        this.lastErrorMessage = errorDetail
+        this.onError(new Error(errorDetail))
         break
+      }
 
       default:
         break
     }
   }
 
-  async startCapture({ captureTab = false } = {}) {
-    if (!this.isConnected) throw new Error('WebSocket not connected')
+  _downsampleTo16k(inputData, inputSampleRate) {
+    if (!inputSampleRate || inputSampleRate === 16000) {
+      const output = new Int16Array(inputData.length)
+      for (let i = 0; i < inputData.length; i++) {
+        const s = Math.max(-1, Math.min(1, inputData[i]))
+        output[i] = s < 0 ? s * 0x8000 : s * 0x7fff
+      }
+      return output
+    }
 
+    const sampleRateRatio = inputSampleRate / 16000
+    const newLength = Math.round(inputData.length / sampleRateRatio)
+    const result = new Int16Array(newLength)
+    let offsetResult = 0
+    let offsetBuffer = 0
+
+    while (offsetResult < result.length) {
+      const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio)
+      let accum = 0
+      let count = 0
+      for (let i = offsetBuffer; i < nextOffsetBuffer && i < inputData.length; i++) {
+        accum += inputData[i]
+        count++
+      }
+      const val = count > 0 ? accum / count : inputData[offsetBuffer] || 0
+      const clamped = Math.max(-1, Math.min(1, val))
+      result[offsetResult] = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff
+      offsetResult++
+      offsetBuffer = nextOffsetBuffer
+    }
+
+    return result
+  }
+
+  async startCapture({ captureTab = false } = {}) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext
     this.audioContext = new AudioContextClass({ sampleRate: 16000 })
+    if (this.audioContext.state === 'suspended') {
+      await this.audioContext.resume()
+    }
 
-    const bufferSize = 2048 // Valid Web Audio API power of 2 (128ms at 16kHz)
+    // Buffer size 4096 produces ~85ms at 48kHz and ~92ms at 44.1kHz (well inside AssemblyAI 50ms-1000ms bounds)
+    const bufferSize = 4096
     this.scriptProcessor = this.audioContext.createScriptProcessor(bufferSize, 1, 1)
 
     this.scriptProcessor.onaudioprocess = (e) => {
-      if (!this.isRecording || !this.isConnected || this.ws?.readyState !== WebSocket.OPEN) return
+      // Only stream when session has officially started via Begin message from AssemblyAI
+      if (!this.sessionStarted || !this.isRecording || !this.isConnected || this.ws?.readyState !== WebSocket.OPEN) return
 
       const float32 = e.inputBuffer.getChannelData(0)
-      const int16 = new Int16Array(float32.length)
+      const int16 = this._downsampleTo16k(float32, this.audioContext.sampleRate)
 
-      for (let i = 0; i < float32.length; i++) {
-        const s = Math.max(-1, Math.min(1, float32[i]))
-        int16[i] = s < 0 ? s * 0x8000 : s * 0x7fff
+      if (int16 && int16.length > 0) {
+        this.ws.send(int16.buffer)
       }
-
-      this.ws.send(int16.buffer)
     }
 
     let connectedSources = 0
@@ -216,7 +286,9 @@ export class StreamingSTTService {
           })
         }
       } catch (tabErr) {
-        console.warn('[StreamingSTT] Tab audio share cancelled or failed, falling back to mic:', tabErr)
+        console.warn('[StreamingSTT] Tab audio share cancelled or denied:', tabErr)
+        await this.stopCapture().catch(() => {})
+        throw tabErr
       }
     }
 
@@ -225,8 +297,6 @@ export class StreamingSTTService {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
-          sampleRate: 16000,
-          // Set to false so browser echo cancellation doesn't cancel out laptop speaker voices
           echoCancellation: false,
           noiseSuppression: false,
           autoGainControl: true,
@@ -236,11 +306,17 @@ export class StreamingSTTService {
       micSource.connect(this.scriptProcessor)
       connectedSources++
     } catch (micErr) {
-      console.warn('[StreamingSTT] Microphone error:', micErr.message)
-      if (connectedSources === 0) {
-        // Fall back to synthetic speech simulation if neither mic nor tab is available
-        const synthetic = this._createSyntheticSource()
-        synthetic.connect(this.scriptProcessor)
+      console.warn('[StreamingSTT] Microphone error with constraints, trying fallback:', micErr.message)
+      try {
+        this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const micSource = this.audioContext.createMediaStreamSource(this.mediaStream)
+        micSource.connect(this.scriptProcessor)
+        connectedSources++
+      } catch (fallbackErr) {
+        console.warn('[StreamingSTT] Microphone fallback failed:', fallbackErr.message)
+        if (connectedSources === 0) {
+          throw new Error('Microphone permission denied or device not found. Please allow microphone access.')
+        }
       }
     }
 

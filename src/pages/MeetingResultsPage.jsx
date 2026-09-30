@@ -79,7 +79,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
           transcript,
           meetingName: meetingName || 'Meeting',
           language: language || 'en',
-          analysisModel: analysisModel || 'claude-sonnet-4-6',
+          analysisModel: analysisModel || 'gemini-flash',
         }),
       })
 
@@ -181,7 +181,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
     <span>${dateStr}</span>
     <span>${formatDuration(duration || 0)}</span>
     <span>${(wordCount || 0).toLocaleString()} words</span>
-    <span>Powered by AssemblyAI + ${analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}</span>
+    <span>Powered by AssemblyAI + ${summary.modelUsed || (analysisModel?.includes('qwen') ? 'Qwen 3.5 Fast' : 'Gemini Flash')}</span>
   </div>
 
   <h2>Summary</h2>
@@ -304,7 +304,7 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
                   Analyzed
                 </span>
                 <span className="shrink-0 text-xs font-mono font-bold text-neutral-800 bg-neutral-50 px-2.5 py-1 rounded-xl border border-neutral-200">
-                  {analysisModel === 'gemini-3.5-flash' ? 'Gemini Flash' : 'Claude Sonnet 4.6'}
+                  {summary.modelUsed || (analysisModel?.includes('qwen') ? 'Qwen 3.5' : 'Gemini Flash')}
                 </span>
               </div>
             )}
@@ -359,12 +359,12 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
             </div>
             <div>
               <p className="font-semibold text-black">
-                {analysisModel === 'gemini-3.5-flash' ? 'Analyzing with Gemini Flash…' : 'Synthesizing with Claude Sonnet 4.6…'}
+                {analysisModel?.includes('qwen') ? 'Synthesizing with Qwen 3.5 Fast…' : 'Analyzing with Gemini Flash…'}
               </p>
               <p className="text-xs text-neutral-500 mt-1">
-                {analysisModel === 'gemini-3.5-flash'
-                  ? 'Extracting topics, key points, and action items at lightning speed'
-                  : 'Synthesizing executive summary, strategic discussion points, and action items'}
+                {analysisModel?.includes('qwen')
+                  ? 'Synthesizing executive summary, key points, and action items via Fast Gateway'
+                  : 'Extracting topics, key points, and action items at lightning speed'}
               </p>
             </div>
             <Loader2 className="w-6 h-6 text-black animate-spin" />
@@ -463,9 +463,9 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
           <span className="font-semibold text-neutral-600">AssemblyAI Universal-3.6 Pro</span>
           {' '}+{' '}
           <span className="font-semibold text-neutral-600">
-            {analysisModel === 'gemini-3.5-flash' ? 'Gemini 3.5 Flash' : 'Claude Sonnet 4.6'}
+            {summary?.modelUsed || (analysisModel?.includes('qwen') ? 'Qwen 3.5 Fast' : 'Gemini 2.5 Flash')}
           </span>
-          {' '}via LLM Gateway
+          {' '}· Meeting Intelligence
         </div>
       </main>
     </div>

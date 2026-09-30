@@ -20,6 +20,7 @@ import {
   VolumeX,
   FastForward,
   BookOpen,
+  X,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 import FloatingMeetingBar from '../components/FloatingMeetingBar'
@@ -72,7 +73,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const [meetingName, setMeetingName] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('en')
   const [audioSource, setAudioSource] = useState('tab_mic') // 'tab_mic' | 'mic_only'
-  const [analysisModel, setAnalysisModel] = useState('claude-sonnet-4-6') // 'claude-sonnet-4-6' | 'gemini-3.5-flash'
+  const [analysisModel, setAnalysisModel] = useState('gemini-flash') // 'gemini-flash' | 'qwen3.5-fast'
   const [status, setStatus] = useState('idle') // idle | connecting | recording | stopping | error
   const [duration, setDuration] = useState(0)
   const [wordCount, setWordCount] = useState(0)
@@ -100,6 +101,8 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
   const isDemoRef = useRef(false)
   const demoAudioRef = useRef(null)
   const demoIntervalRef = useRef(null)
+  const pipWindowRef = useRef(null)
+  const [pipWindow, setPipWindow] = useState(null)
 
   // Sync transcript to ref for access in callbacks
   useEffect(() => {
@@ -118,6 +121,50 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
     timerRef.current = setInterval(() => {
       setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000))
     }, 1000)
+  }
+
+  const openPiPWindow = async () => {
+    if (typeof window === 'undefined' || !('documentPictureInPicture' in window)) return null
+    if (pipWindowRef.current) {
+      try { pipWindowRef.current.focus() } catch (e) {}
+      return pipWindowRef.current
+    }
+
+    try {
+      const pipWin = await window.documentPictureInPicture.requestWindow({
+        width: 480,
+        height: 220,
+        disallowReturnToOpener: false,
+      })
+
+      pipWindowRef.current = pipWin
+      setPipWindow(pipWin)
+
+      document.querySelectorAll('style, link[rel="stylesheet"]').forEach((styleEl) => {
+        try { pipWin.document.head.appendChild(styleEl.cloneNode(true)) } catch (e) {}
+      })
+
+      const baseStyle = pipWin.document.createElement('style')
+      baseStyle.textContent = `
+        html, body { margin:0; padding:0; background:#0c0c0e; color:#f3f4f6;
+          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          overflow:hidden; user-select:none; height:100%; width:100%; }
+        * { box-sizing:border-box; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+      `
+      pipWin.document.head.appendChild(baseStyle)
+
+      pipWin.addEventListener('pagehide', () => {
+        pipWindowRef.current = null
+        setPipWindow(null)
+      })
+
+      return pipWin
+    } catch (err) {
+      console.warn('[Auto-open PiP error]:', err)
+      return null
+    }
   }
 
   const handleStartMeeting = async () => {
@@ -146,65 +193,157 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
     setDuration(0)
     transcriptRef.current = ''
 
+    // Immediately open the Document Picture-in-Picture popup on the direct click event
+    // (Chrome requires documentPictureInPicture.requestWindow to be called synchronously with user gesture before any await or timer delay)
+    if (audioSource === 'tab_mic' && typeof window !== 'undefined' && 'documentPictureInPicture' in window && !pipWindowRef.current) {
+      try {
+        await openPiPWindow()
+      } catch (pipErr) {
+        console.warn('[Direct click open PiP]:', pipErr)
+      }
+    }
+
+    // Ensure any existing streaming connection is completely terminated before starting a new session
+    if (sttRef.current) {
+      try {
+        sttRef.current.stopCapture().catch(() => {})
+        sttRef.current.terminate()
+        sttRef.current.disconnect()
+      } catch (e) {}
+      sttRef.current = null
+    }
+
+    const stt = new StreamingSTTService({
+      onSessionStart: () => {
+        setStatus('recording')
+        setWaveActive(true)
+        startTimer()
+      },
+      onPartial: ({ text }) => {
+        setPartialText(text)
+      },
+      onFinal: ({ text, fullText, wordCount: wc }) => {
+        setFullTranscript(fullText)
+        transcriptRef.current = fullText
+        setWordCount(wc)
+        setPartialText('')
+        setRecentLines((prev) => {
+          const next = [...prev, text]
+          return next.slice(-8) // keep last 8 lines visible
+        })
+      },
+      onWarning: ({ message }) => {
+        setWarningMsg(message)
+      },
+      onScreenShareEnded: () => {
+        // When user clicks "Stop Sharing" on the browser floating bar, stop listening & analyze
+        console.log('[MeetingCapturePage] Screen share ended, auto-stopping meeting')
+        if (stopHandlerRef.current) {
+          stopHandlerRef.current()
+        }
+      },
+      onError: (err) => {
+        console.error('[StreamingSTT error]:', err)
+        let msg = err?.message || ''
+        if (msg.includes('Concurrent session') || msg.includes('3009') || msg.toLowerCase().includes('concurrent')) {
+          msg = 'Concurrent session limit reached on AssemblyAI. Please wait 5 seconds and click Try Again.'
+        } else if (msg.includes('Signature has expired') || msg.toLowerCase().includes('expired')) {
+          msg = 'Session token expired. Please click Try Again to connect with a fresh token.'
+        } else if (msg.includes('Authentication failed') || msg.includes('1008') || msg.includes('4001') || msg.includes('4002')) {
+          msg = 'Authentication error. Please check your AssemblyAI API key in .env and try again.'
+        } else if (msg === 'See Error message for details') {
+          msg = 'Audio stream interrupted. Please check your microphone and click Try Again.'
+        } else if (!msg) {
+          msg = 'Connection error. Please check your microphone and try again.'
+        }
+        setErrorMsg(msg)
+        setStatus('error')
+        stopTimer()
+        setWaveActive(false)
+      },
+      onClose: () => {
+        if (status === 'recording') {
+          setStatus('idle')
+          setWaveActive(false)
+          stopTimer()
+        }
+      },
+    })
+
+    sttRef.current = stt
+
     try {
-      // Get temp token from server
-      const tokenRes = await fetch('/api/streaming-token')
+      // 1. Capture media (tab share and/or microphone) IMMEDIATELY with the direct user gesture
+      await stt.startCapture({ captureTab: audioSource === 'tab_mic' })
+    } catch (mediaErr) {
+      console.warn('[Meeting capture media start]:', mediaErr)
+      if (sttRef.current) {
+        sttRef.current.stopCapture().catch(() => {})
+        sttRef.current = null
+      }
+      // If user cancelled the browser screen/tab picker dialog, return quietly to idle
+      const isUserCancel =
+        mediaErr?.name === 'NotAllowedError' ||
+        mediaErr?.name === 'AbortError' ||
+        mediaErr?.message?.toLowerCase().includes('permission denied') ||
+        mediaErr?.message?.toLowerCase().includes('denied') ||
+        mediaErr?.message?.toLowerCase().includes('cancel') ||
+        mediaErr?.message?.toLowerCase().includes('abort')
+
+      if (isUserCancel) {
+        if (pipWindowRef.current) {
+          try { pipWindowRef.current.close() } catch (e) {}
+          pipWindowRef.current = null
+          setPipWindow(null)
+        }
+        setStatus('idle')
+        setErrorMsg('')
+        setWaveActive(false)
+        stopTimer()
+        return
+      }
+      if (pipWindowRef.current) {
+        try { pipWindowRef.current.close() } catch (e) {}
+        pipWindowRef.current = null
+        setPipWindow(null)
+      }
+      setStatus('error')
+      setErrorMsg(mediaErr?.message || 'Failed to capture audio. Please check microphone permissions.')
+      return
+    }
+
+    try {
+      // 2. Fetch fresh temporary token with cache-busting timestamp
+      const tokenRes = await fetch(`/api/streaming-token?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      })
       if (!tokenRes.ok) throw new Error('Could not get streaming token')
       const { token } = await tokenRes.json()
 
-      const stt = new StreamingSTTService({
-        onSessionStart: () => {
-          setStatus('recording')
-          setWaveActive(true)
-          startTimer()
-        },
-        onPartial: ({ text }) => {
-          setPartialText(text)
-        },
-        onFinal: ({ text, fullText, wordCount: wc }) => {
-          setFullTranscript(fullText)
-          transcriptRef.current = fullText
-          setWordCount(wc)
-          setPartialText('')
-          setRecentLines((prev) => {
-            const next = [...prev, text]
-            return next.slice(-8) // keep last 8 lines visible
-          })
-        },
-        onWarning: ({ message }) => {
-          setWarningMsg(message)
-        },
-        onScreenShareEnded: () => {
-          // When user clicks "Stop Sharing" on the browser floating bar, stop listening & analyze
-          console.log('[MeetingCapturePage] Screen share ended, auto-stopping meeting')
-          if (stopHandlerRef.current) {
-            stopHandlerRef.current()
-          }
-        },
-        onError: (err) => {
-          console.error('[StreamingSTT error]:', err)
-          setErrorMsg('Connection error. Please check your API key and try again.')
-          setStatus('error')
-          stopTimer()
-          setWaveActive(false)
-        },
-        onClose: () => {
-          if (status === 'recording') {
-            setStatus('idle')
-            setWaveActive(false)
-            stopTimer()
-          }
-        },
-      })
-
-      sttRef.current = stt
+      // 3. Connect streaming WebSocket to AssemblyAI
       await stt.connect(token, selectedLanguage)
-      await stt.startCapture({ captureTab: audioSource === 'tab_mic' })
-    } catch (err) {
-      console.error('[Meeting capture start error]:', err)
-      setErrorMsg(err.message || 'Failed to start capture. Check microphone permissions.')
+    } catch (connErr) {
+      console.error('[Meeting capture connection error]:', connErr)
+      if (sttRef.current) {
+        try {
+          sttRef.current.stopCapture().catch(() => {})
+          sttRef.current.terminate()
+          sttRef.current.disconnect()
+        } catch (e) {}
+        sttRef.current = null
+      }
+      let msg = connErr?.message || 'Failed to connect to AssemblyAI. Please try again.'
+      if (msg.includes('Concurrent') || msg.includes('3009')) {
+        msg = 'AssemblyAI session slot busy. Please wait 5 seconds and click Try Again.'
+      }
+      setErrorMsg(msg)
       setStatus('error')
       setWaveActive(false)
+      stopTimer()
     }
   }
 
@@ -239,6 +378,20 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
       transcript = DEMO_TRANSCRIPT
     }
 
+    // If real session has no transcript at all (e.g. stopped with 0 words), don't analyze empty text
+    if (!isDemoRef.current && (!transcript || transcript.trim().length === 0)) {
+      await handleCancelMeeting()
+      setErrorMsg('No speech was detected during the recording. Session ended without analysis.')
+      return
+    }
+
+    // Close PiP window (if open) before navigating to results
+    if (pipWindowRef.current) {
+      try { pipWindowRef.current.close() } catch (e) {}
+      pipWindowRef.current = null
+      setPipWindow(null)
+    }
+
     // Navigate to results
     onNavigateToResults({
       meetingName: meetingName || (isDemoRef.current ? 'Product Team Weekly — Demo' : 'Untitled Meeting'),
@@ -251,6 +404,46 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
     })
   }
   stopHandlerRef.current = handleStopAndAnalyze
+
+  const handleCancelMeeting = async () => {
+    setStatus('idle')
+    setWaveActive(false)
+    stopTimer()
+
+    if (demoAudioRef.current) {
+      demoAudioRef.current.pause()
+      demoAudioRef.current = null
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current)
+      demoIntervalRef.current = null
+    }
+
+    if (sttRef.current) {
+      try {
+        await sttRef.current.stopCapture()
+        sttRef.current.terminate()
+        sttRef.current.disconnect()
+      } catch (e) {}
+      sttRef.current = null
+    }
+
+    if (pipWindowRef.current) {
+      try { pipWindowRef.current.close() } catch (e) {}
+      pipWindowRef.current = null
+      setPipWindow(null)
+    }
+
+    // Reset meeting states without navigating to results
+    setFullTranscript('')
+    setPartialText('')
+    setRecentLines([])
+    setWordCount(0)
+    setDuration(0)
+    transcriptRef.current = ''
+    setErrorMsg('')
+    setWarningMsg('')
+  }
 
   const handleSkipDemoToEnd = () => {
     if (demoAudioRef.current) {
@@ -364,6 +557,11 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         console.warn('Demo audio autoplay notification:', playErr)
       }
 
+      // Auto-open floating popup in demo mode if supported
+      try {
+        await openPiPWindow()
+      } catch (e) {}
+
       // 3. Synchronize streaming transcript with audio timeline
       let lineIndex = 0
       let accumulated = ''
@@ -448,6 +646,16 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
 
   // Cleanup on unmount
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sttRef.current) {
+        sttRef.current.disconnect()
+      }
+      if (pipWindowRef.current) {
+        try { pipWindowRef.current.close() } catch (e) {}
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
     return () => {
       stopTimer()
       if (demoAudioRef.current) {
@@ -462,6 +670,11 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         sttRef.current.stopCapture().catch(() => {})
         sttRef.current.disconnect()
       }
+      if (pipWindowRef.current) {
+        try { pipWindowRef.current.close() } catch (e) {}
+        pipWindowRef.current = null
+      }
+      window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [])
 
@@ -483,9 +696,11 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
         onStartMeeting={handleStartMeeting}
         onRunDemo={handleRunFixture}
         onStopAndAnalyze={handleStopAndAnalyze}
+        onCancelMeeting={handleCancelMeeting}
         isMicMuted={isMicMuted}
         onToggleMicMute={handleToggleMicMute}
         isDemoMode={isDemoMode}
+        externalPipWindow={pipWindow}
       />
 
       {/* Header */}
@@ -710,51 +925,61 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Synthesis Model
                 </span>
-                <span className="text-[10px] font-mono text-neutral-400">AssemblyAI LLM Gateway</span>
+                <span className="text-[10px] font-mono text-neutral-400">Google Gemini / AssemblyAI Gateway</span>
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setAnalysisModel('claude-sonnet-4-6')}
+                  onClick={() => setAnalysisModel('gemini-flash')}
                   className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    analysisModel === 'claude-sonnet-4-6'
+                    analysisModel === 'gemini-flash'
                       ? 'border-black bg-neutral-900 text-white shadow-xs'
                       : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-xs">Executive · Claude Sonnet 4.6</span>
+                    <span className="font-bold text-xs">Gemini Flash</span>
                     <span
                       className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
-                        analysisModel === 'claude-sonnet-4-6'
+                        analysisModel === 'gemini-flash'
                           ? 'bg-white text-black badge-light'
                           : 'bg-neutral-100 text-neutral-600'
                       }`}
-                      style={{ color: analysisModel === 'claude-sonnet-4-6' ? '#000000' : undefined }}
+                      style={{ color: analysisModel === 'gemini-flash' ? '#000000' : undefined }}
                     >
-                      Polished
+                      Fast / 1M
                     </span>
                   </div>
-                  <p className={`text-[11px] leading-tight ${analysisModel === 'claude-sonnet-4-6' ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                    Sophisticated executive synthesis, polished business prose, and prioritized actions.
+                  <p className={`text-[11px] leading-tight ${analysisModel === 'gemini-flash' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Direct Google AI Studio API · Sub-second executive summaries and prioritized action items.
                   </p>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setAnalysisModel('gemini-3.5-flash')}
+                  onClick={() => setAnalysisModel('qwen3.5-fast')}
                   className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                    analysisModel === 'gemini-3.5-flash'
+                    analysisModel === 'qwen3.5-fast'
                       ? 'border-black bg-neutral-900 text-white shadow-xs'
                       : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-xs">Fast · Gemini Flash</span>
+                    <span className="font-bold text-xs">AssemblyAI Fast · Qwen 3.5</span>
+                    <span
+                      className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                        analysisModel === 'qwen3.5-fast'
+                          ? 'bg-white text-black badge-light'
+                          : 'bg-neutral-100 text-neutral-600'
+                      }`}
+                      style={{ color: analysisModel === 'qwen3.5-fast' ? '#000000' : undefined }}
+                    >
+                      Unlocked
+                    </span>
                   </div>
-                  <p className={`text-[11px] leading-tight ${analysisModel === 'gemini-3.5-flash' ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                    Sub-second analysis with a massive 1M+ token context window.
+                  <p className={`text-[11px] leading-tight ${analysisModel === 'qwen3.5-fast' ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                    Native AssemblyAI Fast Gateway · 32k context, 100% unlocked on your key with zero friction.
                   </p>
                 </button>
               </div>
@@ -853,6 +1078,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
                       </button>
                     )}
                   </div>
+
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-neutral-100 mt-2">
@@ -908,7 +1134,7 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
               </div>
             </div>
 
-            {/* Stop & Skip Buttons */}
+            {/* Stop, Cancel & Skip Buttons */}
             <div className="flex gap-3">
               <button
                 id="stop-analyze-btn"
@@ -917,6 +1143,16 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
               >
                 <Square className="w-4 h-4 text-white" />
                 Stop & Analyze Meeting
+              </button>
+              <button
+                type="button"
+                id="cancel-meeting-btn"
+                onClick={handleCancelMeeting}
+                className="tactile-btn flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl border border-neutral-300 bg-white text-neutral-600 text-sm font-semibold hover:border-red-400 hover:text-red-600 hover:bg-red-50/40 transition-all cursor-pointer"
+                title="Cancel and discard this session without analyzing"
+              >
+                <X className="w-4 h-4" />
+                Cancel
               </button>
               {isDemoMode && (
                 <button
@@ -948,7 +1184,16 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
             <MicOff className="w-8 h-8 text-red-500 mx-auto" />
             <p className="text-sm font-semibold text-red-600">{errorMsg || 'Something went wrong'}</p>
             <button
-              onClick={() => setStatus('idle')}
+              onClick={() => {
+                if (sttRef.current) {
+                  try {
+                    sttRef.current.disconnect()
+                  } catch (e) {}
+                  sttRef.current = null
+                }
+                setErrorMsg('')
+                setStatus('idle')
+              }}
               className="tactile-btn px-4 py-2 rounded-xl bg-black text-white text-sm font-bold cursor-pointer"
             >
               Try Again
