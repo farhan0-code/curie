@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 
-export default function LandingPage({ onLaunchMeeting }) {
+export default function LandingPage({ onLaunchMeeting, onNavigateToDocs }) {
   const [openFaq, setOpenFaq] = useState(null)
   const [scrolled, setScrolled] = useState(false)
 
@@ -70,11 +70,18 @@ export default function LandingPage({ onLaunchMeeting }) {
             <CurieLogo size={24} />
             <span className="font-display font-bold text-black text-base">Curie</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <button
+              onClick={onNavigateToDocs}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 text-neutral-700 hover:text-black hover:border-black text-xs sm:text-sm font-semibold transition-all cursor-pointer bg-white"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Docs
+            </button>
             <button
               id="hero-launch-btn"
               onClick={onLaunchMeeting}
-              className="tactile-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black text-white text-sm font-bold hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
+              className="tactile-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black text-white text-xs sm:text-sm font-bold hover:bg-neutral-800 transition-all hover:scale-[1.02] cursor-pointer"
             >
               <Mic className="w-3.5 h-3.5 text-white" />
               Start Free
@@ -417,10 +424,17 @@ export default function LandingPage({ onLaunchMeeting }) {
             <CurieLogo size={18} className="opacity-50" />
             <span className="font-semibold">Curie Meeting Intelligence</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button
+              onClick={onNavigateToDocs}
+              className="text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            >
+              Documentation
+            </button>
+            <span className="text-neutral-700">·</span>
             <span>AssemblyAI Voice Hackathon 2026</span>
             <span className="text-neutral-700">·</span>
-            <span>Powered by Universal-3.6 Pro + Gemini Flash</span>
+            <span>Powered by Universal-3.6 Pro + Claude & Gemini</span>
           </div>
         </div>
       </footer>

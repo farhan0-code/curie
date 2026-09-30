@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import MeetingCapturePage from './pages/MeetingCapturePage'
 import MeetingResultsPage from './pages/MeetingResultsPage'
+import DocsPage from './pages/DocsPage'
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(() => {
     const hash = window.location.hash
     if (hash === '#capture' || hash === '#meeting') return 'capture'
     if (hash === '#results') return 'results'
+    if (hash === '#docs') return 'docs'
     return 'landing'
   })
 
@@ -20,6 +22,8 @@ export default function App() {
         setCurrentRoute('capture')
       } else if (hash === '#results') {
         setCurrentRoute('results')
+      } else if (hash === '#docs') {
+        setCurrentRoute('docs')
       } else {
         setCurrentRoute('landing')
       }
@@ -40,6 +44,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const navigateToDocs = () => {
+    window.location.hash = '#docs'
+    setCurrentRoute('docs')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const navigateToResults = (data) => {
     setMeetingData(data)
     window.location.hash = '#results'
@@ -52,6 +62,7 @@ export default function App() {
       {currentRoute === 'landing' && (
         <LandingPage
           onLaunchMeeting={navigateToCapture}
+          onNavigateToDocs={navigateToDocs}
         />
       )}
 
@@ -59,6 +70,7 @@ export default function App() {
         <MeetingCapturePage
           onBackToLanding={navigateToLanding}
           onNavigateToResults={navigateToResults}
+          onNavigateToDocs={navigateToDocs}
         />
       )}
 
@@ -67,6 +79,7 @@ export default function App() {
           meetingData={meetingData}
           onNewMeeting={navigateToCapture}
           onBackToLanding={navigateToLanding}
+          onNavigateToDocs={navigateToDocs}
         />
       )}
 
@@ -75,6 +88,14 @@ export default function App() {
         <MeetingCapturePage
           onBackToLanding={navigateToLanding}
           onNavigateToResults={navigateToResults}
+          onNavigateToDocs={navigateToDocs}
+        />
+      )}
+
+      {currentRoute === 'docs' && (
+        <DocsPage
+          onBackToHome={navigateToLanding}
+          onLaunchMeeting={navigateToCapture}
         />
       )}
     </>

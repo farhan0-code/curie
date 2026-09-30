@@ -19,6 +19,7 @@ import {
   Volume2,
   VolumeX,
   FastForward,
+  BookOpen,
 } from 'lucide-react'
 import CurieLogo from '../components/CurieLogo'
 import FloatingMeetingBar from '../components/FloatingMeetingBar'
@@ -67,7 +68,7 @@ function WaveformBars({ active }) {
   )
 }
 
-export default function MeetingCapturePage({ onBackToLanding, onNavigateToResults }) {
+export default function MeetingCapturePage({ onBackToLanding, onNavigateToResults, onNavigateToDocs }) {
   const [meetingName, setMeetingName] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('en')
   const [audioSource, setAudioSource] = useState('tab_mic') // 'tab_mic' | 'mic_only'
@@ -501,6 +502,15 @@ export default function MeetingCapturePage({ onBackToLanding, onNavigateToResult
           <span className="font-display font-bold text-sm text-black">Meeting Intelligence</span>
         </div>
         <div className="flex items-center gap-2">
+          {onNavigateToDocs && (
+            <button
+              onClick={onNavigateToDocs}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-neutral-200 text-neutral-600 hover:text-black hover:border-black text-xs font-semibold transition-all cursor-pointer bg-white"
+            >
+              <BookOpen className="w-3 h-3" />
+              Docs
+            </button>
+          )}
           {isActive && (
             <span className="flex items-center gap-1.5 text-xs font-mono font-bold text-black bg-neutral-100 px-2.5 py-1 rounded-lg border border-neutral-200">
               <span className="w-2 h-2 rounded-full bg-black animate-pulse inline-block" />

@@ -50,7 +50,7 @@ function SectionCard({ icon, title, children, defaultOpen = true, className = ''
   )
 }
 
-export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackToLanding }) {
+export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackToLanding, onNavigateToDocs }) {
   const [summary, setSummary] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisError, setAnalysisError] = useState('')
@@ -249,6 +249,15 @@ export default function MeetingResultsPage({ meetingData, onNewMeeting, onBackTo
           )}
         </div>
         <div className="flex items-center gap-2">
+          {onNavigateToDocs && (
+            <button
+              onClick={onNavigateToDocs}
+              className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-300 bg-white text-xs font-semibold text-black hover:bg-neutral-50 hover:border-black transition-all cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Docs
+            </button>
+          )}
           <button
             onClick={onNewMeeting}
             className="tactile-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-300 bg-white text-xs font-semibold text-black hover:bg-neutral-50 hover:border-black transition-all cursor-pointer"
