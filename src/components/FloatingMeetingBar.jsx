@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Square,
-  Monitor,
-  Headphones,
   ChevronDown,
   ChevronUp,
   Radio,
@@ -41,7 +39,6 @@ export default function FloatingMeetingBar({
   externalPipWindow = null, // PiP window opened by parent (MeetingCapturePage)
   onCancelMeeting,
 }) {
-  const [showSourceMenu, setShowSourceMenu] = useState(false)
   const [showModelMenu, setShowModelMenu] = useState(false)
   const [pipWindow, setPipWindow] = useState(null)
   const [pipSupported, setPipSupported] = useState(false)
@@ -274,60 +271,6 @@ export default function FloatingMeetingBar({
               </button>
             </div>
           )}
-
-
-          {/* Controls: Audio Source & PiP Pop-Out */}
-          <div className="flex items-center gap-1.5 pl-1 border-l border-neutral-700/80 shrink-0 whitespace-nowrap">
-            {/* Audio Source Indicator / Menu */}
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowSourceMenu(!showSourceMenu)}
-                className="flex items-center gap-1 px-1.5 py-1 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer shrink-0"
-                title="Audio Source"
-              >
-                {audioSource === 'tab_mic' ? (
-                  <Monitor className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                ) : (
-                  <Headphones className="w-3.5 h-3.5 text-neutral-300 shrink-0" />
-                )}
-                <ChevronDown className="w-2.5 h-2.5 opacity-60 shrink-0" />
-              </button>
-
-              {showSourceMenu && !isRecording && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-neutral-900 border border-neutral-700 rounded-xl p-1.5 shadow-2xl z-50 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAudioSource('tab_mic')
-                      setShowSourceMenu(false)
-                    }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 cursor-pointer ${
-                      audioSource === 'tab_mic' ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-neutral-300 hover:bg-neutral-800'
-                    }`}
-                  >
-                    <Monitor className="w-3.5 h-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Tab + Mic Mixed</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAudioSource('mic_only')
-                      setShowSourceMenu(false)
-                    }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 cursor-pointer ${
-                      audioSource === 'mic_only' ? 'bg-cyan-500/20 text-cyan-300 font-semibold' : 'text-neutral-300 hover:bg-neutral-800'
-                    }`}
-                  >
-                    <Headphones className="w-3.5 h-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Microphone Only</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-
-          </div>
         </div>
 
         {pipError && (
@@ -375,23 +318,12 @@ export default function FloatingMeetingBar({
                 )}
               </div>
 
-              {/* Timer + Close */}
+              {/* Timer */}
               <div className="flex items-center gap-2 shrink-0">
                 <span className="font-mono text-xs font-bold flex items-center gap-1.5" style={{color:'#111'}}>
                   {isRecording && <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{background:'#ef4444'}} />}
                   {formatDuration(duration)}
                 </span>
-                <button
-                  type="button"
-                  onClick={handleClosePiP}
-                  className="cursor-pointer rounded p-0.5 transition-colors"
-                  style={{color:'#6b7280'}}
-                  title="Close floating window"
-                  onMouseOver={e => e.currentTarget.style.color='#111'}
-                  onMouseOut={e => e.currentTarget.style.color='#6b7280'}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
               </div>
             </div>
 
