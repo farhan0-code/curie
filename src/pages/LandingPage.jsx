@@ -69,9 +69,6 @@ export default function LandingPage({ onLaunchMeeting }) {
           <div className="flex items-center gap-2.5">
             <CurieLogo size={24} />
             <span className="font-display font-bold text-black text-base">Curie</span>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-black text-white uppercase tracking-wider">
-              Meet AI
-            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
