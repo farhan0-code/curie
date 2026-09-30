@@ -21,6 +21,10 @@
 [Architecture Flow](#how-assemblyai-powers-it) ·
 [Interactive Docs](http://localhost:3001/docs)
 
+<br/><br/>
+
+[![Curie — Realtime Voice Intelligence](public/curie-cover.png)](https://curie-ai.vercel.app)
+
 </div>
 
 ---
